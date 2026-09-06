@@ -352,7 +352,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (НОУКЛИП + телепорт каждую мс)
+-- АВТО-БОССЫ
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -371,6 +371,7 @@ BossBtn.Activated:Connect(function()
             if Character then
                 local Root = Character:FindFirstChild("HumanoidRootPart")
                 if Root then
+                    Root.Anchored = false
                     Root.CFrame = LastPosition
                 end
                 for _, part in ipairs(Character:GetDescendants()) do
@@ -393,8 +394,11 @@ spawn(function()
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     
                     if Root then
-                        -- Телепорт каждую миллисекунду
+                        -- Телепорт на Y = 1
                         Root.CFrame = CFrame.new(7, 1, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                        
+                        -- ЯКОРЬ на Root (не поднимается)
+                        Root.Anchored = true
                         
                         -- НОУКЛИП
                         for _, part in ipairs(Character:GetDescendants()) do
