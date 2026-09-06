@@ -395,7 +395,7 @@ spawn(function()
                     
                     if Root then
                         -- Телепорт на Y = 1
-                        Root.CFrame = CFrame.new(7, 1, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                        Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
                         
                         -- ЯКОРЬ на Root (не поднимается)
                         Root.Anchored = true
