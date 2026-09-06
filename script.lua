@@ -12,7 +12,7 @@ local AutoKing = false
 local AntiAFK = false
 local AutoBoss = false
 local AutoDurability = false
-local FastPunch = false
+local AutoPunch = false
 local AutoKingRock = false
 local LastPosition = nil
 
@@ -139,8 +139,8 @@ local RebirthBtn = CreateButton("🔄 Ребитх: ВЫКЛ", 90)
 local KingBtn = CreateButton("👑 Тп-Кинг: ВЫКЛ", 134)
 local AFKBtn = CreateButton("🛡️ Анти-Афк: ВЫКЛ", 178)
 local BossBtn = CreateButton("👹 Авто-Боссы: ВЫКЛ [РАЗМЕР 12]", 222)
-local DurBtn = CreateButton("🥊 Дурабилити: ВЫКЛ", 266)
-local FastPunchBtn = CreateButton("⚡ Быстрые-Удары: ВЫКЛ", 310)
+local DurBtn = CreateButton("🥊 Авто-Дурабилити: ВЫКЛ", 266)
+local AutoPunchBtn = CreateButton("⚡ Авто-Удары: ВЫКЛ", 310)
 local KingRockBtn = CreateButton("🗿 Кинг-Камень: ВЫКЛ", 354)
 
 local function SetBtn(Btn, Text, On)
@@ -356,7 +356,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ
+-- АВТО-БОССЫ (уклонение)
 local function CheckDamage()
     local Character = Player.Character
     if Character then
@@ -368,38 +368,6 @@ local function CheckDamage()
         end
     end
     return false
-end
-
-local function FindBoss()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") then
-            local Humanoid = obj:FindFirstChildOfClass("Humanoid")
-            if Humanoid and Humanoid.Health > 0 then
-                local objName = string.lower(obj.Name)
-                
-                if string.find(objName, "bossrainbow") or string.find(objName, "boss rainbow") then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "BossRainbow", Root.Position end
-                elseif string.find(objName, "boss5") then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss5", Root.Position end
-                elseif string.find(objName, "boss4") then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss4", Root.Position end
-                elseif string.find(objName, "boss3") then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss3", Root.Position end
-                elseif string.find(objName, "boss2") then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss2", Root.Position end
-                elseif string.find(objName, "boss1") then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss1", Root.Position end
-                end
-            end
-        end
-    end
-    return "none", nil
 end
 
 BossBtn.Activated:Connect(function()
@@ -449,24 +417,16 @@ spawn(function()
                     if Root then
                         Root.Anchored = false
                         
-                        local bossType, bossPos = FindBoss()
+                        if CheckDamage() and DodgeCount < MaxDodges then
+                            DodgeCount = DodgeCount + 1
+                            DodgeY = DodgeY - 3
+                        end
                         
-                        if bossType ~= "none" and bossPos then
-                            if CheckDamage() and DodgeCount < MaxDodges then
-                                DodgeCount = DodgeCount + 1
-                                DodgeY = DodgeY - 3
-                            end
-                            
-                            Root.CFrame = CFrame.new(bossPos.X, DodgeY, bossPos.Z) * CFrame.Angles(0, math.pi, 0)
-                            
-                            if ClickClaimReward() then
-                                DodgeY = 28
-                                DodgeCount = 0
-                            end
-                        else
+                        Root.CFrame = CFrame.new(7, DodgeY, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                        
+                        if ClickClaimReward() then
                             DodgeY = 28
                             DodgeCount = 0
-                            Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
                         end
                         
                         Root.Anchored = true
@@ -488,7 +448,7 @@ end)
 -- АВТО-ДУРАБИЛИТИ
 DurBtn.Activated:Connect(function()
     AutoDurability = not AutoDurability
-    SetBtn(DurBtn, "🥊 Дурабилити", AutoDurability)
+    SetBtn(DurBtn, "🥊 Авто-Дурабилити", AutoDurability)
 end)
 
 spawn(function()
@@ -501,15 +461,15 @@ spawn(function()
     end
 end)
 
--- БЫСТРЫЕ-УДАРЫ
-FastPunchBtn.Activated:Connect(function()
-    FastPunch = not FastPunch
-    SetBtn(FastPunchBtn, "⚡ Быстрые-Удары", FastPunch)
+-- АВТО-УДАРЫ
+AutoPunchBtn.Activated:Connect(function()
+    AutoPunch = not AutoPunch
+    SetBtn(AutoPunchBtn, "⚡ Авто-Удары", AutoPunch)
 end)
 
 spawn(function()
     while wait(0.01) do
-        if FastPunch then
+        if AutoPunch then
             pcall(function()
                 DoPunch()
             end)
