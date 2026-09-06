@@ -352,7 +352,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (заморожены ТОЛЬКО ноги)
+-- АВТО-БОССЫ (НОУКЛИП + телепорт каждую мс)
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -370,18 +370,11 @@ BossBtn.Activated:Connect(function()
             local Character = Player.Character
             if Character then
                 local Root = Character:FindFirstChild("HumanoidRootPart")
-                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                 if Root then
                     Root.CFrame = LastPosition
                 end
-                if Humanoid then
-                    Humanoid.WalkSpeed = 16
-                    Humanoid.JumpPower = 50
-                    Humanoid.AutoRotate = true
-                end
                 for _, part in ipairs(Character:GetDescendants()) do
                     if part:IsA("BasePart") then
-                        part.Anchored = false
                         part.CanCollide = true
                     end
                 end
@@ -392,39 +385,22 @@ BossBtn.Activated:Connect(function()
 end)
 
 spawn(function()
-    while wait(0.05) do
+    while wait(0.001) do
         if AutoBoss then
             pcall(function()
                 local Character = Player.Character
                 if Character then
                     local Root = Character:FindFirstChild("HumanoidRootPart")
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
-                    if Root and Humanoid then
+                    if Root then
+                        -- Телепорт каждую миллисекунду
                         Root.CFrame = CFrame.new(7, 1, -1299.706) * CFrame.Angles(0, math.pi, 0)
                         
-                        Humanoid.WalkSpeed = 0
-                        Humanoid.JumpPower = 0
-                        Humanoid.AutoRotate = false
-                        
-                        -- НОУКЛИП для всех (Anchored = false)
+                        -- НОУКЛИП
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
-                                part.Anchored = false
                             end
-                        end
-                        
-                        -- ЗАМОРАЖИВАЕМ ТОЛЬКО НОГИ
-                        local LeftLeg = Character:FindFirstChild("Left Leg") or Character:FindFirstChild("LeftLeg")
-                        local RightLeg = Character:FindFirstChild("Right Leg") or Character:FindFirstChild("RightLeg")
-                        
-                        if LeftLeg then
-                            LeftLeg.Anchored = true
-                        end
-                        
-                        if RightLeg then
-                            RightLeg.Anchored = true
                         end
                         
                         DoPunch()
