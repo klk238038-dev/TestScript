@@ -352,7 +352,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (заморожены только ноги)
+-- АВТО-БОССЫ (заморожены ТОЛЬКО ноги)
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -401,14 +401,13 @@ spawn(function()
                     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
                     if Root and Humanoid then
-                        -- Телепорт X: 7 Y: 1 Z: -1299.706
                         Root.CFrame = CFrame.new(7, 1, -1299.706) * CFrame.Angles(0, math.pi, 0)
                         
                         Humanoid.WalkSpeed = 0
                         Humanoid.JumpPower = 0
                         Humanoid.AutoRotate = false
                         
-                        -- НОУКЛИП для всех
+                        -- НОУКЛИП для всех (Anchored = false)
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
@@ -422,12 +421,10 @@ spawn(function()
                         
                         if LeftLeg then
                             LeftLeg.Anchored = true
-                            LeftLeg.Velocity = Vector3.new(0, 0, 0)
                         end
                         
                         if RightLeg then
                             RightLeg.Anchored = true
-                            RightLeg.Velocity = Vector3.new(0, 0, 0)
                         end
                         
                         DoPunch()
