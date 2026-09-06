@@ -169,7 +169,7 @@ Close.Activated:Connect(function()
     Open.Visible = true
 end)
 
--- ФУНКЦИЯ ПОЛУЧЕНИЯ PUNCH
+-- ФУНКЦИИ
 local function GetPunch()
     local Character = Player.Character
     if Character then
@@ -183,21 +183,35 @@ local function GetPunch()
     return nil
 end
 
--- ФУНКЦИЯ УДАРА
+local function ClickClaimReward()
+    for _, gui in ipairs(PlayerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") then
+            for _, child in ipairs(gui:GetDescendants()) do
+                if child:IsA("TextButton") and child.Visible then
+                    local t = string.lower(child.Text)
+                    if string.find(t, "claim") or string.find(t, "reward") then
+                        pcall(function()
+                            child:Activate()
+                        end)
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
 local function DoPunch()
     local Character = Player.Character
     if not Character then return end
-    
     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
     local Punch = GetPunch()
-    
     if Punch and Humanoid then
         if Punch.Parent ~= Character then
             Humanoid:EquipTool(Punch)
         end
-        
         Punch:Activate()
-        
         local MuscleEvent = Player:FindFirstChild("muscleEvent")
         if MuscleEvent then
             MuscleEvent:FireServer("punch", "leftHand")
@@ -338,7 +352,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ
+-- АВТО-БОССЫ (ЗАМОРОЗКА + НОУКЛИП)
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -356,8 +370,20 @@ BossBtn.Activated:Connect(function()
             local Character = Player.Character
             if Character then
                 local Root = Character:FindFirstChild("HumanoidRootPart")
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                 if Root then
                     Root.CFrame = LastPosition
+                end
+                if Humanoid then
+                    Humanoid.WalkSpeed = 16
+                    Humanoid.JumpPower = 50
+                    Humanoid.AutoRotate = true
+                end
+                for _, part in ipairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Anchored = false
+                        part.CanCollide = true
+                    end
                 end
             end
             LastPosition = nil
@@ -372,10 +398,32 @@ spawn(function()
                 local Character = Player.Character
                 if Character then
                     local Root = Character:FindFirstChild("HumanoidRootPart")
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
-                    if Root then
+                    if Root and Humanoid then
                         Root.CFrame = CFrame.new(4.670, 1.338, -1328.126) * CFrame.Angles(0, math.pi, 0)
+                        
+                        Humanoid.WalkSpeed = 0
+                        Humanoid.JumpPower = 0
+                        Humanoid.AutoRotate = false
+                        
+                        for _, part in ipairs(Character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                                part.Anchored = true
+                                part.Velocity = Vector3.new(0, 0, 0)
+                                part.RotVelocity = Vector3.new(0, 0, 0)
+                            end
+                        end
+                        
+                        local LeftArm = Character:FindFirstChild("Left Arm") or Character:FindFirstChild("LeftArm")
+                        local RightArm = Character:FindFirstChild("Right Arm") or Character:FindFirstChild("RightArm")
+                        
+                        if LeftArm then LeftArm.Anchored = false end
+                        if RightArm then RightArm.Anchored = false end
+                        
                         DoPunch()
+                        ClickClaimReward()
                     end
                 end
             end)
