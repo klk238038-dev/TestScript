@@ -157,6 +157,7 @@ Close.Activated:Connect(function()
     Open.Visible = true
 end)
 
+--// АВТО-ПРОКАЧКА
 TrainBtn.Activated:Connect(function()
     AutoTrain = not AutoTrain
     SetBtn(TrainBtn, "💪 Авто-Прокачка", AutoTrain)
@@ -175,6 +176,7 @@ spawn(function()
     end
 end)
 
+--// АВТО-ГАНТЕЛЯ
 WeightBtn.Activated:Connect(function()
     AutoWeight = not AutoWeight
     SetBtn(WeightBtn, "🏋️ Авто-Гантеля", AutoWeight)
@@ -229,6 +231,7 @@ spawn(function()
     end
 end)
 
+--// АВТО-РЕБИТХ
 RebirthBtn.Activated:Connect(function()
     AutoRebirth = not AutoRebirth
     SetBtn(RebirthBtn, "🔄 Ребитх", AutoRebirth)
@@ -248,6 +251,7 @@ spawn(function()
     end
 end)
 
+--// АВТО-КИНГ
 KingBtn.Activated:Connect(function()
     AutoKing = not AutoKing
     SetBtn(KingBtn, "👑 Тп-Кинг", AutoKing)
@@ -283,6 +287,7 @@ spawn(function()
     end
 end)
 
+--// АНТИ-АФК
 AFKBtn.Activated:Connect(function()
     AntiAFK = not AntiAFK
     SetBtn(AFKBtn, "🛡️ Анти-Афк", AntiAFK)
@@ -299,6 +304,7 @@ spawn(function()
     end
 end)
 
+--// АВТО-БОССЫ
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -331,6 +337,13 @@ BossBtn.Activated:Connect(function()
         pcall(function()
             local Character = Player.Character
             if Character then
+                for _, part in ipairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                        part.Anchored = false
+                    end
+                end
+                
                 local Punch = Character:FindFirstChild("Punch")
                 if Punch then
                     local Backpack = Player:FindFirstChild("Backpack")
@@ -376,7 +389,7 @@ local function ClickClaimReward()
 end
 
 spawn(function()
-    while wait(0.15) do
+    while wait(0.05) do
         if AutoBoss then
             pcall(function()
                 local Character = Player.Character
@@ -392,11 +405,23 @@ spawn(function()
                             Humanoid.JumpPower = 0
                         end
                         
+                        for _, part in ipairs(Character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                                
+                                if part.Name ~= "LeftHand" and part.Name ~= "RightHand" and 
+                                   part.Name ~= "Left Arm" and part.Name ~= "Right Arm" and
+                                   part.Name ~= "LeftArm" and part.Name ~= "RightArm" then
+                                    part.Anchored = true
+                                end
+                            end
+                        end
+                        
                         local Punch = GetPunch()
                         if Punch and Humanoid then
                             if Punch.Parent ~= Character then
                                 Humanoid:EquipTool(Punch)
-                                wait(0.1)
+                                wait(0.05)
                             end
                             
                             Punch:Activate()
@@ -404,7 +429,6 @@ spawn(function()
                             local MuscleEvent = Player:FindFirstChild("muscleEvent")
                             if MuscleEvent then
                                 MuscleEvent:FireServer("punch", "leftHand")
-                                wait(0.06)
                                 MuscleEvent:FireServer("punch", "rightHand")
                             end
                         end
@@ -417,6 +441,7 @@ spawn(function()
     end
 end)
 
+--// АВТО-ДЮРАБИЛИТИ (ближе к камню)
 DurBtn.Activated:Connect(function()
     AutoDurability = not AutoDurability
     SetBtn(DurBtn, "🥊 Дюрабилити", AutoDurability)
@@ -497,6 +522,7 @@ spawn(function()
     end
 end)
 
+--// АВТО-КИНГ-КАМЕНЬ
 KingRockBtn.Activated:Connect(function()
     AutoKingRock = not AutoKingRock
     SetBtn(KingRockBtn, "🗿 Кинг-Камень", AutoKingRock)
