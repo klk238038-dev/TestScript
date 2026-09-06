@@ -342,7 +342,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (телепорт каждые 0.1, с ноклипом)
+-- АВТО-БОССЫ (телепорт каждые 0.1, с ноклипом и флаем)
 local function CheckDamage()
     local Character = Player.Character
     if Character then
@@ -367,17 +367,23 @@ BossBtn.Activated:Connect(function()
             if Root then
                 LastPosition = Root.CFrame
             end
+            -- Включаем ноклип и флай
+            pcall(function()
+                for _, part in ipairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+                local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                if Humanoid then
+                    Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+                    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+                end
+            end)
         end
         DodgeY = 28
         DodgeCount = 0
-        -- Включаем ноклип
-        pcall(function()
-            for _, part in ipairs(Player.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end)
     else
         if LastPosition then
             local Character = Player.Character
@@ -386,26 +392,30 @@ BossBtn.Activated:Connect(function()
                 if Root then
                     Root.CFrame = LastPosition
                 end
+                -- Выключаем ноклип и флай
+                pcall(function()
+                    for _, part in ipairs(Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = true
+                        end
+                    end
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    if Humanoid then
+                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+                        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
+                    end
+                end)
             end
             LastPosition = nil
         end
         DodgeY = 28
         DodgeCount = 0
-        -- Выключаем ноклип
-        pcall(function()
-            if Player.Character then
-                for _, part in ipairs(Player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
-                end
-            end
-        end)
     end
 end)
 
 spawn(function()
-    while wait(0.1) do -- изменено на 0.1
+    while wait(0.1) do
         if AutoBoss then
             pcall(function()
                 local Character = Player.Character
@@ -413,11 +423,16 @@ spawn(function()
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     
                     if Root then
-                        -- Ноклип (постоянно)
+                        -- Ноклип + флай
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
                             end
+                        end
+                        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                        if Humanoid then
+                            Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                            Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
                         end
 
                         if CheckDamage() and DodgeCount < MaxDodges then
