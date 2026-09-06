@@ -303,7 +303,7 @@ spawn(function()
     end
 end)
 
--- АВТО-КИНГ
+-- АВТО-КИНГ (новые координаты)
 KingBtn.Activated:Connect(function()
     AutoKing = not AutoKing
     SetBtn(KingBtn, "👑 Тп-Кинг", AutoKing)
@@ -317,21 +317,7 @@ spawn(function()
                 if Character then
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     if Root then
-                        local MachinesFolder = workspace:FindFirstChild("machinesFolder")
-                        if MachinesFolder then
-                            for _, Machine in ipairs(MachinesFolder:GetChildren()) do
-                                local Rock = Machine:FindFirstChild("Rock")
-                                if Rock and Rock:IsA("BasePart") then
-                                    local MachineName = string.lower(Machine.Name)
-                                    local RockName = string.lower(Rock.Name)
-                                    if string.find(MachineName, "king") or string.find(RockName, "king") then
-                                        local TopY = Rock.Position.Y + Rock.Size.Y / 2
-                                        Root.CFrame = CFrame.new(Rock.Position.X, TopY + 5, Rock.Position.Z)
-                                        break
-                                    end
-                                end
-                            end
-                        end
+                        Root.CFrame = CFrame.new(-8744.821, 121.183, -5859.323)
                     end
                 end
             end)
