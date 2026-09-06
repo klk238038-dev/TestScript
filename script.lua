@@ -316,7 +316,7 @@ spawn(function()
     end
 end)
 
---// ФУНКЦИИ ДЛЯ БОССА
+--// ФУНКЦИИ
 local function GetPunch()
     local Character = Player.Character
     if Character then
@@ -336,7 +336,7 @@ local function ClickClaimReward()
             for _, child in ipairs(gui:GetDescendants()) do
                 if child:IsA("TextButton") and child.Visible then
                     local t = string.lower(child.Text)
-                    if string.find(t, "claim") or string.find(t, "reward") or string.find(t, "награда") or string.find(t, "забрать") then
+                    if string.find(t, "claim") or string.find(t, "reward") then
                         pcall(function()
                             child:Activate()
                         end)
@@ -369,35 +369,10 @@ BossBtn.Activated:Connect(function()
                 local Root = Character:FindFirstChild("HumanoidRootPart")
                 if Root then
                     Root.CFrame = LastPosition
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    if Humanoid then
-                        Humanoid.WalkSpeed = 16
-                        Humanoid.JumpPower = 50
-                    end
                 end
             end
             LastPosition = nil
         end
-        
-        pcall(function()
-            local Character = Player.Character
-            if Character then
-                for _, part in ipairs(Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                        part.Anchored = false
-                    end
-                end
-                
-                local Punch = Character:FindFirstChild("Punch")
-                if Punch then
-                    local Backpack = Player:FindFirstChild("Backpack")
-                    if Backpack then
-                        Punch.Parent = Backpack
-                    end
-                end
-            end
-        end)
     end
 end)
 
@@ -412,30 +387,6 @@ spawn(function()
                     
                     if Root then
                         Root.CFrame = CFrame.new(4.670, 1.338, -1328.126) * CFrame.Angles(0, math.pi, 0)
-                        
-                        if Humanoid then
-                            Humanoid.WalkSpeed = 0
-                            Humanoid.JumpPower = 0
-                        end
-                        
-                        for _, part in ipairs(Character:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                                part.Anchored = false
-                            end
-                        end
-                        
-                        local LeftLeg = Character:FindFirstChild("Left Leg") or Character:FindFirstChild("LeftLeg")
-                        if LeftLeg then
-                            LeftLeg.Anchored = true
-                        end
-                        
-                        if not LeftLeg then
-                            local RightLeg = Character:FindFirstChild("Right Leg") or Character:FindFirstChild("RightLeg")
-                            if RightLeg then
-                                RightLeg.Anchored = true
-                            end
-                        end
                         
                         local Punch = GetPunch()
                         if Punch and Humanoid then
@@ -474,15 +425,7 @@ spawn(function()
                 local Character = Player.Character
                 if Character then
                     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    local Backpack = Player:FindFirstChild("Backpack")
-                    local Punch = nil
-                    
-                    if Backpack then
-                        Punch = Backpack:FindFirstChild("Punch")
-                    end
-                    if not Punch then
-                        Punch = Character:FindFirstChild("Punch")
-                    end
+                    local Punch = GetPunch()
                     
                     if Punch and Humanoid then
                         if Punch.Parent ~= Character then
@@ -560,7 +503,6 @@ spawn(function()
                     if Punch and Humanoid then
                         if Punch.Parent ~= Character then
                             Humanoid:EquipTool(Punch)
-                            wait(0.01)
                         end
                         
                         Punch:Activate()
@@ -591,28 +533,10 @@ spawn(function()
                 if Character then
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    local Punch = GetPunch()
                     
                     if Root then
                         Root.CFrame = CFrame.new(-8928.078, 13.199, -6004.433)
-                        wait(0.1)
-                        
-                        local Backpack = Player:FindFirstChild("Backpack")
-                        local Punch = nil
-                        
-                        if Backpack then
-                            Punch = Backpack:FindFirstChild("Punch")
-                        end
-                        if not Punch then
-                            Punch = Character:FindFirstChild("Punch")
-                        end
-                        if not Punch and Backpack then
-                            for _, item in ipairs(Backpack:GetChildren()) do
-                                if item:IsA("Tool") then
-                                    Punch = item
-                                    break
-                                end
-                            end
-                        end
                         
                         if Punch and Humanoid then
                             if Punch.Parent ~= Character then
@@ -625,7 +549,6 @@ spawn(function()
                             local MuscleEvent = Player:FindFirstChild("muscleEvent")
                             if MuscleEvent then
                                 MuscleEvent:FireServer("punch", "leftHand")
-                                wait(0.08)
                                 MuscleEvent:FireServer("punch", "rightHand")
                             end
                         end
@@ -636,7 +559,4 @@ spawn(function()
     end
 end)
 
-print("⚡ KIRILL_PANEL NO KEY V1.5 LOADED")
-print("👹 AUTO BOSSES LOADED")
-print("🥊 DURABILITY CLOSE TO ROCK")
-print("⚡ FAST PUNCH LOADED")
+print("KIRILL PANEL V1.5 LOADED")
