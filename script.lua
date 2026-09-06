@@ -16,10 +16,9 @@ local FastPunch = false
 local AutoKingRock = false
 local LastPosition = nil
 
--- Для системы уклонения в авто-боссах
 local DodgeY = 28
 local DodgeCount = 0
-local MaxDodges = 8 -- 28 -> 4
+local MaxDodges = 8
 
 if PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY") then
     PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY"):Destroy()
@@ -357,7 +356,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (система уклонения по Y)
+-- АВТО-БОССЫ
 local function CheckDamage()
     local Character = Player.Character
     if Character then
@@ -380,27 +379,27 @@ local function FindBoss()
                 
                 if string.find(objName, "bossrainbow") or string.find(objName, "boss rainbow") then
                     local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "BossRainbow", Root.Position, 3 end
+                    if Root then return "BossRainbow", Root.Position end
                 elseif string.find(objName, "boss5") then
                     local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss5", Root.Position, 3 end
+                    if Root then return "Boss5", Root.Position end
                 elseif string.find(objName, "boss4") then
                     local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss4", Root.Position, 3 end
+                    if Root then return "Boss4", Root.Position end
                 elseif string.find(objName, "boss3") then
                     local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss3", Root.Position, 3 end
+                    if Root then return "Boss3", Root.Position end
                 elseif string.find(objName, "boss2") then
                     local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss2", Root.Position, 15 end
+                    if Root then return "Boss2", Root.Position end
                 elseif string.find(objName, "boss1") then
                     local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then return "Boss1", Root.Position, 28 end
+                    if Root then return "Boss1", Root.Position end
                 end
             end
         end
     end
-    return "none", nil, 3
+    return "none", nil
 end
 
 BossBtn.Activated:Connect(function()
@@ -415,7 +414,6 @@ BossBtn.Activated:Connect(function()
                 LastPosition = Root.CFrame
             end
         end
-        -- Сброс уклонения при включении
         DodgeY = 28
         DodgeCount = 0
     else
@@ -435,7 +433,6 @@ BossBtn.Activated:Connect(function()
             end
             LastPosition = nil
         end
-        -- Сброс уклонения при выключении
         DodgeY = 28
         DodgeCount = 0
     end
@@ -452,25 +449,21 @@ spawn(function()
                     if Root then
                         Root.Anchored = false
                         
-                        local bossType, bossPos, bossY = FindBoss()
+                        local bossType, bossPos = FindBoss()
                         
                         if bossType ~= "none" and bossPos then
-                            -- Проверяем урон
                             if CheckDamage() and DodgeCount < MaxDodges then
                                 DodgeCount = DodgeCount + 1
                                 DodgeY = DodgeY - 3
                             end
                             
-                            -- Телепорт с учётом уклонения
                             Root.CFrame = CFrame.new(bossPos.X, DodgeY, bossPos.Z) * CFrame.Angles(0, math.pi, 0)
                             
-                            -- Если награда получена, сбрасываем уклонение
                             if ClickClaimReward() then
                                 DodgeY = 28
                                 DodgeCount = 0
                             end
                         else
-                            -- Нет босса - сброс
                             DodgeY = 28
                             DodgeCount = 0
                             Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
