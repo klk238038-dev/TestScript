@@ -12,6 +12,7 @@ local AutoKing = false
 local AntiAFK = false
 local AutoBoss = false
 local AutoDurability = false
+local FastPunch = false
 local AutoKingRock = false
 local LastPosition = nil
 
@@ -107,7 +108,7 @@ Scroll.Size = UDim2.new(1,-10,1,-40)
 Scroll.Position = UDim2.new(0,5,0,40)
 Scroll.BackgroundTransparency = 1
 Scroll.BorderSizePixel = 0
-Scroll.CanvasSize = UDim2.new(0,0,0,350)
+Scroll.CanvasSize = UDim2.new(0,0,0,400)
 Scroll.ScrollBarThickness = 4
 Scroll.ScrollBarImageColor3 = Color3.fromRGB(80,80,80)
 Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -135,9 +136,20 @@ local KingBtn = CreateButton("👑 Тп-Кинг: ВЫКЛ", 134)
 local AFKBtn = CreateButton("🛡️ Анти-Афк: ВЫКЛ", 178)
 local BossBtn = CreateButton("👹 Авто-Боссы: ВЫКЛ [РАЗМЕР 12]", 222)
 local DurBtn = CreateButton("🥊 Дюрабилити: ВЫКЛ", 266)
-local KingRockBtn = CreateButton("🗿 Кинг-Камень: ВЫКЛ", 310)
+local FastPunchBtn = CreateButton("⚡ Быстрые-Удары: ВЫКЛ", 310)
+local KingRockBtn = CreateButton("🗿 Кинг-Камень: ВЫКЛ", 354)
 
 local function SetBtn(Btn, Text, On)
+    if On then
+        Btn.Text = Text .. ": ВКЛ"
+        Btn.BackgroundColor3 = Color3.fromRGB(50,160,70)
+    else
+        Btn.Text = Text .. ": ВЫКЛ"
+        Btn.BackgroundColor3 = Color3.fromRGB(150,50,50)
+    end
+end
+
+local function SetBossBtn(Btn, Text, On)
     if On then
         Btn.Text = Text .. ": ВКЛ [РАЗМЕР 12]"
         Btn.BackgroundColor3 = Color3.fromRGB(50,160,70)
@@ -307,7 +319,7 @@ end)
 --// АВТО-БОССЫ
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
-    SetBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
+    SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
     
     if AutoBoss then
         local Character = Player.Character
@@ -398,7 +410,7 @@ spawn(function()
                     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
                     if Root then
-                        Root.CFrame = CFrame.new(4.670, 28.266, -1328.126)
+                        Root.CFrame = CFrame.new(4.670, 28.266, -1328.126) * CFrame.Angles(0, math.pi, 0)
                         
                         if Humanoid then
                             Humanoid.WalkSpeed = 0
@@ -408,12 +420,19 @@ spawn(function()
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
-                                
-                                if part.Name ~= "LeftHand" and part.Name ~= "RightHand" and 
-                                   part.Name ~= "Left Arm" and part.Name ~= "Right Arm" and
-                                   part.Name ~= "LeftArm" and part.Name ~= "RightArm" then
-                                    part.Anchored = true
-                                end
+                                part.Anchored = false
+                            end
+                        end
+                        
+                        local LeftLeg = Character:FindFirstChild("Left Leg") or Character:FindFirstChild("LeftLeg")
+                        if LeftLeg then
+                            LeftLeg.Anchored = true
+                        end
+                        
+                        if not LeftLeg then
+                            local RightLeg = Character:FindFirstChild("Right Leg") or Character:FindFirstChild("RightLeg")
+                            if RightLeg then
+                                RightLeg.Anchored = true
                             end
                         end
                         
@@ -522,6 +541,41 @@ spawn(function()
     end
 end)
 
+--// БЫСТРЫЕ-УДАРЫ (без кулдауна)
+FastPunchBtn.Activated:Connect(function()
+    FastPunch = not FastPunch
+    SetBtn(FastPunchBtn, "⚡ Быстрые-Удары", FastPunch)
+end)
+
+spawn(function()
+    while wait(0.01) do
+        if FastPunch then
+            pcall(function()
+                local Character = Player.Character
+                if Character then
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    local Punch = GetPunch()
+                    
+                    if Punch and Humanoid then
+                        if Punch.Parent ~= Character then
+                            Humanoid:EquipTool(Punch)
+                            wait(0.01)
+                        end
+                        
+                        Punch:Activate()
+                        
+                        local MuscleEvent = Player:FindFirstChild("muscleEvent")
+                        if MuscleEvent then
+                            MuscleEvent:FireServer("punch", "leftHand")
+                            MuscleEvent:FireServer("punch", "rightHand")
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
 --// АВТО-КИНГ-КАМЕНЬ
 KingRockBtn.Activated:Connect(function()
     AutoKingRock = not AutoKingRock
@@ -584,3 +638,4 @@ end)
 print("⚡ KIRILL_PANEL NO KEY V1.5 LOADED")
 print("👹 AUTO BOSSES LOADED")
 print("🥊 DURABILITY CLOSE TO ROCK")
+print("⚡ FAST PUNCH LOADED")
