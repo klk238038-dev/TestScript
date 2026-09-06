@@ -303,7 +303,7 @@ spawn(function()
     end
 end)
 
--- АВТО-КИНГ (новые координаты)
+-- АВТО-КИНГ
 KingBtn.Activated:Connect(function()
     AutoKing = not AutoKing
     SetBtn(KingBtn, "👑 Тп-Кинг", AutoKing)
@@ -342,7 +342,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ
+-- АВТО-БОССЫ (телепорт каждые 0.1, с ноклипом)
 local function CheckDamage()
     local Character = Player.Character
     if Character then
@@ -370,6 +370,14 @@ BossBtn.Activated:Connect(function()
         end
         DodgeY = 28
         DodgeCount = 0
+        -- Включаем ноклип
+        pcall(function()
+            for _, part in ipairs(Player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end)
     else
         if LastPosition then
             local Character = Player.Character
@@ -383,11 +391,21 @@ BossBtn.Activated:Connect(function()
         end
         DodgeY = 28
         DodgeCount = 0
+        -- Выключаем ноклип
+        pcall(function()
+            if Player.Character then
+                for _, part in ipairs(Player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end)
     end
 end)
 
 spawn(function()
-    while wait(0.5) do
+    while wait(0.1) do -- изменено на 0.1
         if AutoBoss then
             pcall(function()
                 local Character = Player.Character
@@ -395,6 +413,13 @@ spawn(function()
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     
                     if Root then
+                        -- Ноклип (постоянно)
+                        for _, part in ipairs(Character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                            end
+                        end
+
                         if CheckDamage() and DodgeCount < MaxDodges then
                             DodgeCount = DodgeCount + 1
                             DodgeY = DodgeY - 3
@@ -407,10 +432,7 @@ spawn(function()
                             DodgeCount = 0
                         end
                         
-                        for i = 1, 10 do
-                            DoPunch()
-                            wait(0.05)
-                        end
+                        DoPunch()
                     end
                 end
             end)
@@ -418,7 +440,7 @@ spawn(function()
     end
 end)
 
--- АВТО-ДУРАБИЛИТИ
+-- АВТО-ДУРАБИЛИТИ (лучший камень по дурабилити)
 DurBtn.Activated:Connect(function()
     AutoDurability = not AutoDurability
     SetBtn(DurBtn, "🥊 Авто-Дурабилити", AutoDurability)
@@ -428,7 +450,59 @@ spawn(function()
     while wait(0.12) do
         if AutoDurability then
             pcall(function()
-                DoPunch()
+                local Character = Player.Character
+                if Character then
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    local Punch = GetPunch()
+                    
+                    if Punch and Humanoid then
+                        if Punch.Parent ~= Character then
+                            Humanoid:EquipTool(Punch)
+                            wait(0.1)
+                        end
+                        
+                        local Root = Character:FindFirstChild("HumanoidRootPart")
+                        local Durability = Player:FindFirstChild("Durability")
+                        local MachinesFolder = workspace:FindFirstChild("machinesFolder")
+                        
+                        if Root and Durability and MachinesFolder then
+                            local CurrentDurability = tonumber(Durability.Value) or 0
+                            local BestRock = nil
+                            local BestRequired = -1
+                            
+                            for _, Machine in ipairs(MachinesFolder:GetChildren()) do
+                                local Rock = Machine:FindFirstChild("Rock")
+                                if Rock and Rock:IsA("BasePart") then
+                                    local Needed = Machine:FindFirstChild("neededDurability")
+                                    local Required = nil
+                                    if Needed then Required = tonumber(Needed.Value) end
+                                    if not Required then
+                                        Needed = Rock:FindFirstChild("neededDurability")
+                                        if Needed then Required = tonumber(Needed.Value) end
+                                    end
+                                    
+                                    if Required and Required <= CurrentDurability and Required > BestRequired then
+                                        BestRequired = Required
+                                        BestRock = Rock
+                                    end
+                                end
+                            end
+                            
+                            if BestRock then
+                                Root.CFrame = CFrame.new(BestRock.Position + Vector3.new(0, 3, 2))
+                                
+                                Punch:Activate()
+                                
+                                local MuscleEvent = Player:FindFirstChild("muscleEvent")
+                                if MuscleEvent then
+                                    MuscleEvent:FireServer("punch", "leftHand")
+                                    wait(0.06)
+                                    MuscleEvent:FireServer("punch", "rightHand")
+                                end
+                            end
+                        end
+                    end
+                end
             end)
         end
     end
