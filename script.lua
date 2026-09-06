@@ -16,6 +16,11 @@ local FastPunch = false
 local AutoKingRock = false
 local LastPosition = nil
 
+-- Для системы уклонения в авто-боссах
+local DodgeY = 28
+local DodgeCount = 0
+local MaxDodges = 8 -- 28 -> 4
+
 if PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY") then
     PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY"):Destroy()
 end
@@ -352,7 +357,20 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (ищет заспавненного босса)
+-- АВТО-БОССЫ (система уклонения по Y)
+local function CheckDamage()
+    local Character = Player.Character
+    if Character then
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        if Humanoid then
+            if Humanoid.Health < Humanoid.MaxHealth then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 local function FindBoss()
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
@@ -397,6 +415,9 @@ BossBtn.Activated:Connect(function()
                 LastPosition = Root.CFrame
             end
         end
+        -- Сброс уклонения при включении
+        DodgeY = 28
+        DodgeCount = 0
     else
         if LastPosition then
             local Character = Player.Character
@@ -414,6 +435,9 @@ BossBtn.Activated:Connect(function()
             end
             LastPosition = nil
         end
+        -- Сброс уклонения при выключении
+        DodgeY = 28
+        DodgeCount = 0
     end
 end)
 
@@ -431,8 +455,24 @@ spawn(function()
                         local bossType, bossPos, bossY = FindBoss()
                         
                         if bossType ~= "none" and bossPos then
-                            Root.CFrame = CFrame.new(bossPos.X, bossY, bossPos.Z) * CFrame.Angles(0, math.pi, 0)
+                            -- Проверяем урон
+                            if CheckDamage() and DodgeCount < MaxDodges then
+                                DodgeCount = DodgeCount + 1
+                                DodgeY = DodgeY - 3
+                            end
+                            
+                            -- Телепорт с учётом уклонения
+                            Root.CFrame = CFrame.new(bossPos.X, DodgeY, bossPos.Z) * CFrame.Angles(0, math.pi, 0)
+                            
+                            -- Если награда получена, сбрасываем уклонение
+                            if ClickClaimReward() then
+                                DodgeY = 28
+                                DodgeCount = 0
+                            end
                         else
+                            -- Нет босса - сброс
+                            DodgeY = 28
+                            DodgeCount = 0
                             Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
                         end
                         
@@ -445,7 +485,6 @@ spawn(function()
                         end
                         
                         DoPunch()
-                        ClickClaimReward()
                     end
                 end
             end)
