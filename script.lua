@@ -352,7 +352,7 @@ spawn(function()
     end
 end)
 
---// АВТО-БОССЫ (улучшенный: телепорт, быстрые удары, уклонение, авто-награда)
+-- АВТО-БОССЫ (улучшенный)
 local function FindBoss()
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
@@ -392,60 +392,19 @@ local function FindBoss()
     return "none", nil, 3
 end
 
-local function ClickClaimReward()
-    for _, gui in ipairs(PlayerGui:GetChildren()) do
-        if gui:IsA("ScreenGui") then
-            for _, child in ipairs(gui:GetDescendants()) do
-                if child:IsA("TextButton") and child.Visible then
-                    local t = string.lower(child.Text)
-                    if string.find(t, "claim") or string.find(t, "reward") then
-                        pcall(function()
-                            child:Activate()
-                        end)
-                        return true
-                    end
-                end
-            end
-        end
-    end
-    return false
-end
-
-local function DoPunch()
-    local Character = Player.Character
-    if not Character then return end
-    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-    local Punch = GetPunch()
-    if Punch and Humanoid then
-        if Punch.Parent ~= Character then
-            Humanoid:EquipTool(Punch)
-        end
-        Punch:Activate()
-        local MuscleEvent = Player:FindFirstChild("muscleEvent")
-        if MuscleEvent then
-            MuscleEvent:FireServer("punch", "leftHand")
-            MuscleEvent:FireServer("punch", "rightHand")
-        end
-    end
-end
-
--- Функция уклонения: движение по кругу вокруг босса
 local function DodgeMovement(bossPos, bossY)
     local Character = Player.Character
     if not Character then return end
     local Root = Character:FindFirstChild("HumanoidRootPart")
     if not Root then return end
     
-    -- Смещение по кругу
     local t = os.clock() * 3  -- скорость вращения
     local radius = 10         -- радиус круга
     local offsetX = math.sin(t) * radius
     local offsetZ = math.cos(t) * radius
     
-    -- Устанавливаем позицию игрока
     Root.CFrame = CFrame.new(bossPos.X + offsetX, bossY, bossPos.Z + offsetZ) * CFrame.Angles(0, math.pi, 0)
     
-    -- Ноклип
     for _, part in ipairs(Character:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanCollide = false
@@ -453,7 +412,11 @@ local function DodgeMovement(bossPos, bossY)
     end
 end
 
--- Основной цикл Авто-Боссов
+BossBtn.Activated:Connect(function()
+    AutoBoss = not AutoBoss
+    SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
+end)
+
 spawn(function()
     while wait(0.05) do
         if AutoBoss then
@@ -461,16 +424,10 @@ spawn(function()
                 local bossType, bossPos, bossY = FindBoss()
                 
                 if bossType ~= "none" and bossPos then
-                    -- Телепорт с уклонением
                     DodgeMovement(bossPos, bossY)
-                    
-                    -- Быстрые удары (без задержек между руками)
                     DoPunch()
-                    
-                    -- Автозабирание награды
                     ClickClaimReward()
                 else
-                    -- Если босса нет, стоим на месте
                     local Character = Player.Character
                     if Character then
                         local Root = Character:FindFirstChild("HumanoidRootPart")
@@ -500,7 +457,7 @@ spawn(function()
     end
 end)
 
--- БЫСТРЫЕ-УДАРЫ
+-- БЫСТРЫЕ-УДАРЫ (отдельная кнопка)
 FastPunchBtn.Activated:Connect(function()
     FastPunch = not FastPunch
     SetBtn(FastPunchBtn, "⚡ Быстрые-Удары", FastPunch)
