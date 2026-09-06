@@ -135,7 +135,7 @@ local RebirthBtn = CreateButton("🔄 Ребитх: ВЫКЛ", 90)
 local KingBtn = CreateButton("👑 Тп-Кинг: ВЫКЛ", 134)
 local AFKBtn = CreateButton("🛡️ Анти-Афк: ВЫКЛ", 178)
 local BossBtn = CreateButton("👹 Авто-Боссы: ВЫКЛ [РАЗМЕР 12]", 222)
-local DurBtn = CreateButton("🥊 Дюрабилити: ВЫКЛ", 266)
+local DurBtn = CreateButton("🥊 Дурабилити: ВЫКЛ", 266)
 local FastPunchBtn = CreateButton("⚡ Быстрые-Удары: ВЫКЛ", 310)
 local KingRockBtn = CreateButton("🗿 Кинг-Камень: ВЫКЛ", 354)
 
@@ -352,14 +352,73 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (ПРОСТОЙ И РАБОЧИЙ)
+-- АВТО-БОССЫ (ищет заспавненного босса)
+local function FindBoss()
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            local Humanoid = obj:FindFirstChildOfClass("Humanoid")
+            if Humanoid and Humanoid.Health > 0 then
+                local objName = string.lower(obj.Name)
+                
+                if string.find(objName, "bossrainbow") or string.find(objName, "boss rainbow") then
+                    local Root = obj:FindFirstChild("HumanoidRootPart")
+                    if Root then return "BossRainbow", Root.Position, 3 end
+                elseif string.find(objName, "boss5") then
+                    local Root = obj:FindFirstChild("HumanoidRootPart")
+                    if Root then return "Boss5", Root.Position, 3 end
+                elseif string.find(objName, "boss4") then
+                    local Root = obj:FindFirstChild("HumanoidRootPart")
+                    if Root then return "Boss4", Root.Position, 3 end
+                elseif string.find(objName, "boss3") then
+                    local Root = obj:FindFirstChild("HumanoidRootPart")
+                    if Root then return "Boss3", Root.Position, 3 end
+                elseif string.find(objName, "boss2") then
+                    local Root = obj:FindFirstChild("HumanoidRootPart")
+                    if Root then return "Boss2", Root.Position, 15 end
+                elseif string.find(objName, "boss1") then
+                    local Root = obj:FindFirstChild("HumanoidRootPart")
+                    if Root then return "Boss1", Root.Position, 28 end
+                end
+            end
+        end
+    end
+    return "none", nil, 3
+end
+
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
+    
+    if AutoBoss then
+        local Character = Player.Character
+        if Character then
+            local Root = Character:FindFirstChild("HumanoidRootPart")
+            if Root then
+                LastPosition = Root.CFrame
+            end
+        end
+    else
+        if LastPosition then
+            local Character = Player.Character
+            if Character then
+                local Root = Character:FindFirstChild("HumanoidRootPart")
+                if Root then
+                    Root.Anchored = false
+                    Root.CFrame = LastPosition
+                end
+                for _, part in ipairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+            LastPosition = nil
+        end
+    end
 end)
 
 spawn(function()
-    while wait(0.05) do
+    while wait(0.001) do
         if AutoBoss then
             pcall(function()
                 local Character = Player.Character
@@ -367,20 +426,25 @@ spawn(function()
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     
                     if Root then
-                        -- Телепорт к боссу (координаты по умолчанию)
-                        Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                        Root.Anchored = false
                         
-                        -- Ноклип
+                        local bossType, bossPos, bossY = FindBoss()
+                        
+                        if bossType ~= "none" and bossPos then
+                            Root.CFrame = CFrame.new(bossPos.X, bossY, bossPos.Z) * CFrame.Angles(0, math.pi, 0)
+                        else
+                            Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                        end
+                        
+                        Root.Anchored = true
+                        
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
                             end
                         end
                         
-                        -- Бьём
                         DoPunch()
-                        
-                        -- Забираем награду
                         ClickClaimReward()
                     end
                 end
@@ -389,10 +453,10 @@ spawn(function()
     end
 end)
 
--- АВТО-ДЮРАБИЛИТИ
+-- АВТО-ДУРАБИЛИТИ
 DurBtn.Activated:Connect(function()
     AutoDurability = not AutoDurability
-    SetBtn(DurBtn, "🥊 Дюрабилити", AutoDurability)
+    SetBtn(DurBtn, "🥊 Дурабилити", AutoDurability)
 end)
 
 spawn(function()
