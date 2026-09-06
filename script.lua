@@ -316,7 +316,91 @@ spawn(function()
     end
 end)
 
---// АВТО-БОССЫ (ноклип + Y 1.338)
+--// ФУНКЦИИ ДЛЯ БОССА
+local function GetPunch()
+    local Character = Player.Character
+    if Character then
+        local Punch = Character:FindFirstChild("Punch")
+        if Punch then return Punch end
+    end
+    local Backpack = Player:FindFirstChild("Backpack")
+    if Backpack then
+        return Backpack:FindFirstChild("Punch")
+    end
+    return nil
+end
+
+local function ClickClaimReward()
+    for _, gui in ipairs(PlayerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") then
+            for _, child in ipairs(gui:GetDescendants()) do
+                if child:IsA("TextButton") and child.Visible then
+                    local t = string.lower(child.Text)
+                    if string.find(t, "claim") or string.find(t, "reward") or string.find(t, "награда") or string.find(t, "забрать") then
+                        pcall(function()
+                            child:Activate()
+                        end)
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
+--// АВТО-БОССЫ
+BossBtn.Activated:Connect(function()
+    AutoBoss = not AutoBoss
+    SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
+    
+    if AutoBoss then
+        local Character = Player.Character
+        if Character then
+            local Root = Character:FindFirstChild("HumanoidRootPart")
+            if Root then
+                LastPosition = Root.CFrame
+            end
+        end
+    else
+        if LastPosition then
+            local Character = Player.Character
+            if Character then
+                local Root = Character:FindFirstChild("HumanoidRootPart")
+                if Root then
+                    Root.CFrame = LastPosition
+                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+                    if Humanoid then
+                        Humanoid.WalkSpeed = 16
+                        Humanoid.JumpPower = 50
+                    end
+                end
+            end
+            LastPosition = nil
+        end
+        
+        pcall(function()
+            local Character = Player.Character
+            if Character then
+                for _, part in ipairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                        part.Anchored = false
+                    end
+                end
+                
+                local Punch = Character:FindFirstChild("Punch")
+                if Punch then
+                    local Backpack = Player:FindFirstChild("Backpack")
+                    if Backpack then
+                        Punch.Parent = Backpack
+                    end
+                end
+            end
+        end)
+    end
+end)
+
 spawn(function()
     while wait(0.05) do
         if AutoBoss then
@@ -327,7 +411,6 @@ spawn(function()
                     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
                     if Root then
-                        -- Телепорт НИЗКО (Y = 1.338)
                         Root.CFrame = CFrame.new(4.670, 1.338, -1328.126) * CFrame.Angles(0, math.pi, 0)
                         
                         if Humanoid then
@@ -335,7 +418,6 @@ spawn(function()
                             Humanoid.JumpPower = 0
                         end
                         
-                        -- НОУКЛИП (CanCollide = false для ВСЕХ частей)
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
@@ -343,7 +425,6 @@ spawn(function()
                             end
                         end
                         
-                        -- Заанчориваем ТОЛЬКО одну ногу
                         local LeftLeg = Character:FindFirstChild("Left Leg") or Character:FindFirstChild("LeftLeg")
                         if LeftLeg then
                             LeftLeg.Anchored = true
@@ -356,7 +437,6 @@ spawn(function()
                             end
                         end
                         
-                        -- Берём Punch
                         local Punch = GetPunch()
                         if Punch and Humanoid then
                             if Punch.Parent ~= Character then
@@ -381,7 +461,7 @@ spawn(function()
     end
 end)
 
---// АВТО-ДЮРАБИЛИТИ (ближе к камню)
+--// АВТО-ДЮРАБИЛИТИ
 DurBtn.Activated:Connect(function()
     AutoDurability = not AutoDurability
     SetBtn(DurBtn, "🥊 Дюрабилити", AutoDurability)
@@ -462,7 +542,7 @@ spawn(function()
     end
 end)
 
---// БЫСТРЫЕ-УДАРЫ (без кулдауна)
+--// БЫСТРЫЕ-УДАРЫ
 FastPunchBtn.Activated:Connect(function()
     FastPunch = not FastPunch
     SetBtn(FastPunchBtn, "⚡ Быстрые-Удары", FastPunch)
