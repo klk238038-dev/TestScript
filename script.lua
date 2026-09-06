@@ -352,66 +352,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (улучшенный)
-local function FindBoss()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") then
-            local Humanoid = obj:FindFirstChildOfClass("Humanoid")
-            if Humanoid and Humanoid.Health > 0 then
-                local objName = string.lower(obj.Name)
-                local bossType = ""
-                local bossY = 3 -- стандартная высота
-                if string.find(objName, "bossrainbow") then
-                    bossType = "bossrainbow"
-                    bossY = 3
-                elseif string.find(objName, "boss5") then
-                    bossType = "boss5"
-                    bossY = 3
-                elseif string.find(objName, "boss4") then
-                    bossType = "boss4"
-                    bossY = 3
-                elseif string.find(objName, "boss3") then
-                    bossType = "boss3"
-                    bossY = 3
-                elseif string.find(objName, "boss2") then
-                    bossType = "boss2"
-                    bossY = 15
-                elseif string.find(objName, "boss1") then
-                    bossType = "boss1"
-                    bossY = 28
-                end
-                if bossType ~= "" then
-                    local Root = obj:FindFirstChild("HumanoidRootPart")
-                    if Root then
-                        return bossType, Root.Position, bossY
-                    end
-                end
-            end
-        end
-    end
-    return "none", nil, 3
-end
-
-local function DodgeMovement(bossPos, bossY)
-    local Character = Player.Character
-    if not Character then return end
-    local Root = Character:FindFirstChild("HumanoidRootPart")
-    if not Root then return end
-    
-    local t = os.clock() * 3  -- скорость вращения
-    local radius = 10         -- радиус круга
-    local offsetX = math.sin(t) * radius
-    local offsetZ = math.cos(t) * radius
-    
-    Root.CFrame = CFrame.new(bossPos.X + offsetX, bossY, bossPos.Z + offsetZ) * CFrame.Angles(0, math.pi, 0)
-    
-    for _, part in ipairs(Character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.CanCollide = false
-        end
-    end
-end
-
+-- АВТО-БОССЫ (ПРОСТОЙ И РАБОЧИЙ)
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -421,19 +362,26 @@ spawn(function()
     while wait(0.05) do
         if AutoBoss then
             pcall(function()
-                local bossType, bossPos, bossY = FindBoss()
-                
-                if bossType ~= "none" and bossPos then
-                    DodgeMovement(bossPos, bossY)
-                    DoPunch()
-                    ClickClaimReward()
-                else
-                    local Character = Player.Character
-                    if Character then
-                        local Root = Character:FindFirstChild("HumanoidRootPart")
-                        if Root then
-                            Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                local Character = Player.Character
+                if Character then
+                    local Root = Character:FindFirstChild("HumanoidRootPart")
+                    
+                    if Root then
+                        -- Телепорт к боссу (координаты по умолчанию)
+                        Root.CFrame = CFrame.new(7, 3, -1299.706) * CFrame.Angles(0, math.pi, 0)
+                        
+                        -- Ноклип
+                        for _, part in ipairs(Character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                            end
                         end
+                        
+                        -- Бьём
+                        DoPunch()
+                        
+                        -- Забираем награду
+                        ClickClaimReward()
                     end
                 end
             end)
@@ -457,7 +405,7 @@ spawn(function()
     end
 end)
 
--- БЫСТРЫЕ-УДАРЫ (отдельная кнопка)
+-- БЫСТРЫЕ-УДАРЫ
 FastPunchBtn.Activated:Connect(function()
     FastPunch = not FastPunch
     SetBtn(FastPunchBtn, "⚡ Быстрые-Удары", FastPunch)
