@@ -169,7 +169,44 @@ Close.Activated:Connect(function()
     Open.Visible = true
 end)
 
---// АВТО-ПРОКАЧКА
+-- ФУНКЦИЯ ПОЛУЧЕНИЯ PUNCH
+local function GetPunch()
+    local Character = Player.Character
+    if Character then
+        local Punch = Character:FindFirstChild("Punch")
+        if Punch then return Punch end
+    end
+    local Backpack = Player:FindFirstChild("Backpack")
+    if Backpack then
+        return Backpack:FindFirstChild("Punch")
+    end
+    return nil
+end
+
+-- ФУНКЦИЯ УДАРА
+local function DoPunch()
+    local Character = Player.Character
+    if not Character then return end
+    
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+    local Punch = GetPunch()
+    
+    if Punch and Humanoid then
+        if Punch.Parent ~= Character then
+            Humanoid:EquipTool(Punch)
+        end
+        
+        Punch:Activate()
+        
+        local MuscleEvent = Player:FindFirstChild("muscleEvent")
+        if MuscleEvent then
+            MuscleEvent:FireServer("punch", "leftHand")
+            MuscleEvent:FireServer("punch", "rightHand")
+        end
+    end
+end
+
+-- АВТО-ПРОКАЧКА
 TrainBtn.Activated:Connect(function()
     AutoTrain = not AutoTrain
     SetBtn(TrainBtn, "💪 Авто-Прокачка", AutoTrain)
@@ -188,25 +225,10 @@ spawn(function()
     end
 end)
 
---// АВТО-ГАНТЕЛЯ
+-- АВТО-ГАНТЕЛЯ
 WeightBtn.Activated:Connect(function()
     AutoWeight = not AutoWeight
     SetBtn(WeightBtn, "🏋️ Авто-Гантеля", AutoWeight)
-    
-    if not AutoWeight then
-        pcall(function()
-            local Character = Player.Character
-            if Character then
-                local Weight = Character:FindFirstChild("Weight")
-                if Weight then
-                    local Backpack = Player:FindFirstChild("Backpack")
-                    if Backpack then
-                        Weight.Parent = Backpack
-                    end
-                end
-            end
-        end)
-    end
 end)
 
 spawn(function()
@@ -243,7 +265,7 @@ spawn(function()
     end
 end)
 
---// АВТО-РЕБИТХ
+-- АВТО-РЕБИТХ
 RebirthBtn.Activated:Connect(function()
     AutoRebirth = not AutoRebirth
     SetBtn(RebirthBtn, "🔄 Ребитх", AutoRebirth)
@@ -263,7 +285,7 @@ spawn(function()
     end
 end)
 
---// АВТО-КИНГ
+-- АВТО-КИНГ
 KingBtn.Activated:Connect(function()
     AutoKing = not AutoKing
     SetBtn(KingBtn, "👑 Тп-Кинг", AutoKing)
@@ -299,7 +321,7 @@ spawn(function()
     end
 end)
 
---// АНТИ-АФК
+-- АНТИ-АФК
 AFKBtn.Activated:Connect(function()
     AntiAFK = not AntiAFK
     SetBtn(AFKBtn, "🛡️ Анти-Афк", AntiAFK)
@@ -316,40 +338,7 @@ spawn(function()
     end
 end)
 
---// ФУНКЦИИ
-local function GetPunch()
-    local Character = Player.Character
-    if Character then
-        local Punch = Character:FindFirstChild("Punch")
-        if Punch then return Punch end
-    end
-    local Backpack = Player:FindFirstChild("Backpack")
-    if Backpack then
-        return Backpack:FindFirstChild("Punch")
-    end
-    return nil
-end
-
-local function ClickClaimReward()
-    for _, gui in ipairs(PlayerGui:GetChildren()) do
-        if gui:IsA("ScreenGui") then
-            for _, child in ipairs(gui:GetDescendants()) do
-                if child:IsA("TextButton") and child.Visible then
-                    local t = string.lower(child.Text)
-                    if string.find(t, "claim") or string.find(t, "reward") then
-                        pcall(function()
-                            child:Activate()
-                        end)
-                        return true
-                    end
-                end
-            end
-        end
-    end
-    return false
-end
-
---// АВТО-БОССЫ
+-- АВТО-БОССЫ
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -383,28 +372,10 @@ spawn(function()
                 local Character = Player.Character
                 if Character then
                     local Root = Character:FindFirstChild("HumanoidRootPart")
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
                     if Root then
                         Root.CFrame = CFrame.new(4.670, 1.338, -1328.126) * CFrame.Angles(0, math.pi, 0)
-                        
-                        local Punch = GetPunch()
-                        if Punch and Humanoid then
-                            if Punch.Parent ~= Character then
-                                Humanoid:EquipTool(Punch)
-                                wait(0.05)
-                            end
-                            
-                            Punch:Activate()
-                            
-                            local MuscleEvent = Player:FindFirstChild("muscleEvent")
-                            if MuscleEvent then
-                                MuscleEvent:FireServer("punch", "leftHand")
-                                MuscleEvent:FireServer("punch", "rightHand")
-                            end
-                        end
-                        
-                        ClickClaimReward()
+                        DoPunch()
                     end
                 end
             end)
@@ -412,7 +383,7 @@ spawn(function()
     end
 end)
 
---// АВТО-ДЮРАБИЛИТИ
+-- АВТО-ДЮРАБИЛИТИ
 DurBtn.Activated:Connect(function()
     AutoDurability = not AutoDurability
     SetBtn(DurBtn, "🥊 Дюрабилити", AutoDurability)
@@ -422,70 +393,13 @@ spawn(function()
     while wait(0.12) do
         if AutoDurability then
             pcall(function()
-                local Character = Player.Character
-                if Character then
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    local Punch = GetPunch()
-                    
-                    if Punch and Humanoid then
-                        if Punch.Parent ~= Character then
-                            Humanoid:EquipTool(Punch)
-                            wait(0.1)
-                        end
-                        
-                        local Durability = Player:FindFirstChild("Durability")
-                        if Durability then
-                            local CurrentDurability = tonumber(Durability.Value) or 0
-                            local MachinesFolder = workspace:FindFirstChild("machinesFolder")
-                            
-                            if MachinesFolder then
-                                local BestRock = nil
-                                local BestRequired = -1
-                                
-                                for _, Machine in ipairs(MachinesFolder:GetChildren()) do
-                                    local Rock = Machine:FindFirstChild("Rock")
-                                    if Rock and Rock:IsA("BasePart") then
-                                        local Needed = Machine:FindFirstChild("neededDurability")
-                                        local Required = nil
-                                        if Needed then Required = tonumber(Needed.Value) end
-                                        if not Required then
-                                            Needed = Rock:FindFirstChild("neededDurability")
-                                            if Needed then Required = tonumber(Needed.Value) end
-                                        end
-                                        if Required and Required <= CurrentDurability and Required > BestRequired then
-                                            BestRequired = Required
-                                            BestRock = Rock
-                                        end
-                                    end
-                                end
-                                
-                                if BestRock then
-                                    local Root = Character:FindFirstChild("HumanoidRootPart")
-                                    if Root then
-                                        local Distance = 2
-                                        local Position = BestRock.Position - BestRock.CFrame.LookVector * Distance
-                                        Root.CFrame = CFrame.lookAt(Position, BestRock.Position)
-                                    end
-                                    
-                                    Punch:Activate()
-                                    
-                                    local MuscleEvent = Player:FindFirstChild("muscleEvent")
-                                    if MuscleEvent then
-                                        MuscleEvent:FireServer("punch", "leftHand")
-                                        wait(0.06)
-                                        MuscleEvent:FireServer("punch", "rightHand")
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
+                DoPunch()
             end)
         end
     end
 end)
 
---// БЫСТРЫЕ-УДАРЫ
+-- БЫСТРЫЕ-УДАРЫ
 FastPunchBtn.Activated:Connect(function()
     FastPunch = not FastPunch
     SetBtn(FastPunchBtn, "⚡ Быстрые-Удары", FastPunch)
@@ -495,31 +409,13 @@ spawn(function()
     while wait(0.01) do
         if FastPunch then
             pcall(function()
-                local Character = Player.Character
-                if Character then
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    local Punch = GetPunch()
-                    
-                    if Punch and Humanoid then
-                        if Punch.Parent ~= Character then
-                            Humanoid:EquipTool(Punch)
-                        end
-                        
-                        Punch:Activate()
-                        
-                        local MuscleEvent = Player:FindFirstChild("muscleEvent")
-                        if MuscleEvent then
-                            MuscleEvent:FireServer("punch", "leftHand")
-                            MuscleEvent:FireServer("punch", "rightHand")
-                        end
-                    end
-                end
+                DoPunch()
             end)
         end
     end
 end)
 
---// АВТО-КИНГ-КАМЕНЬ
+-- АВТО-КИНГ-КАМЕНЬ
 KingRockBtn.Activated:Connect(function()
     AutoKingRock = not AutoKingRock
     SetBtn(KingRockBtn, "🗿 Кинг-Камень", AutoKingRock)
@@ -532,26 +428,9 @@ spawn(function()
                 local Character = Player.Character
                 if Character then
                     local Root = Character:FindFirstChild("HumanoidRootPart")
-                    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-                    local Punch = GetPunch()
-                    
                     if Root then
                         Root.CFrame = CFrame.new(-8928.078, 13.199, -6004.433)
-                        
-                        if Punch and Humanoid then
-                            if Punch.Parent ~= Character then
-                                Humanoid:EquipTool(Punch)
-                                wait(0.1)
-                            end
-                            
-                            Punch:Activate()
-                            
-                            local MuscleEvent = Player:FindFirstChild("muscleEvent")
-                            if MuscleEvent then
-                                MuscleEvent:FireServer("punch", "leftHand")
-                                MuscleEvent:FireServer("punch", "rightHand")
-                            end
-                        end
+                        DoPunch()
                     end
                 end
             end)
