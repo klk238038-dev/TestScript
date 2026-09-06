@@ -356,7 +356,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (уклонение)
+-- АВТО-БОССЫ
 local function CheckDamage()
     local Character = Player.Character
     if Character then
@@ -390,13 +390,7 @@ BossBtn.Activated:Connect(function()
             if Character then
                 local Root = Character:FindFirstChild("HumanoidRootPart")
                 if Root then
-                    Root.Anchored = false
                     Root.CFrame = LastPosition
-                end
-                for _, part in ipairs(Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
                 end
             end
             LastPosition = nil
@@ -407,7 +401,7 @@ BossBtn.Activated:Connect(function()
 end)
 
 spawn(function()
-    while wait(0.001) do
+    while wait(0.5) do
         if AutoBoss then
             pcall(function()
                 local Character = Player.Character
@@ -415,8 +409,6 @@ spawn(function()
                     local Root = Character:FindFirstChild("HumanoidRootPart")
                     
                     if Root then
-                        Root.Anchored = false
-                        
                         if CheckDamage() and DodgeCount < MaxDodges then
                             DodgeCount = DodgeCount + 1
                             DodgeY = DodgeY - 3
@@ -429,15 +421,10 @@ spawn(function()
                             DodgeCount = 0
                         end
                         
-                        Root.Anchored = true
-                        
-                        for _, part in ipairs(Character:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                            end
+                        for i = 1, 10 do
+                            DoPunch()
+                            wait(0.05)
                         end
-                        
-                        DoPunch()
                     end
                 end
             end)
