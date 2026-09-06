@@ -352,7 +352,7 @@ spawn(function()
     end
 end)
 
--- АВТО-БОССЫ (ЗАМОРОЗКА + НОУКЛИП)
+-- АВТО-БОССЫ (заморожены только ноги)
 BossBtn.Activated:Connect(function()
     AutoBoss = not AutoBoss
     SetBossBtn(BossBtn, "👹 Авто-Боссы", AutoBoss)
@@ -401,26 +401,34 @@ spawn(function()
                     local Humanoid = Character:FindFirstChildOfClass("Humanoid")
                     
                     if Root and Humanoid then
-                        Root.CFrame = CFrame.new(4.670, 1.338, -1328.126) * CFrame.Angles(0, math.pi, 0)
+                        -- Телепорт X: 7 Y: 1 Z: -1299.706
+                        Root.CFrame = CFrame.new(7, 1, -1299.706) * CFrame.Angles(0, math.pi, 0)
                         
                         Humanoid.WalkSpeed = 0
                         Humanoid.JumpPower = 0
                         Humanoid.AutoRotate = false
                         
+                        -- НОУКЛИП для всех
                         for _, part in ipairs(Character:GetDescendants()) do
                             if part:IsA("BasePart") then
                                 part.CanCollide = false
-                                part.Anchored = true
-                                part.Velocity = Vector3.new(0, 0, 0)
-                                part.RotVelocity = Vector3.new(0, 0, 0)
+                                part.Anchored = false
                             end
                         end
                         
-                        local LeftArm = Character:FindFirstChild("Left Arm") or Character:FindFirstChild("LeftArm")
-                        local RightArm = Character:FindFirstChild("Right Arm") or Character:FindFirstChild("RightArm")
+                        -- ЗАМОРАЖИВАЕМ ТОЛЬКО НОГИ
+                        local LeftLeg = Character:FindFirstChild("Left Leg") or Character:FindFirstChild("LeftLeg")
+                        local RightLeg = Character:FindFirstChild("Right Leg") or Character:FindFirstChild("RightLeg")
                         
-                        if LeftArm then LeftArm.Anchored = false end
-                        if RightArm then RightArm.Anchored = false end
+                        if LeftLeg then
+                            LeftLeg.Anchored = true
+                            LeftLeg.Velocity = Vector3.new(0, 0, 0)
+                        end
+                        
+                        if RightLeg then
+                            RightLeg.Anchored = true
+                            RightLeg.Velocity = Vector3.new(0, 0, 0)
+                        end
                         
                         DoPunch()
                         ClickClaimReward()
