@@ -1485,10 +1485,7 @@ task.spawn(function()
                 -- ПРОВЕРКА НАГРАДЫ
                 --==================================
 
-                local GotChest =
-                    TryCollectBossChest()
-
-                if GotChest then
+                
 
                     -- награда получена
                     BossY = BossNormalY
