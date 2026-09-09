@@ -1,4 +1,5 @@
 --// KIRILL_PANEL NO KEY V1.55
+--// БЕЗ АВТО-СУНДУКА
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,16 +29,21 @@ local RebirthDone = 0
 
 local CurrentLanguage = "ru"
 
--- AutoBoss
+-- AUTO BOSS
 local BossX = 7
 local BossNormalY = 28
 local BossDamageY = 4
 local BossZ = -1300
 
+-- Сохранённая позиция игрока
 local BossSavedCFrame = nil
+
+-- Для Noclip
 local BossSavedCollision = {}
+
 local BossNoclipConnection = nil
 local BossFlyConnection = nil
+
 local BossY = BossNormalY
 local LastBossHealth = nil
 
@@ -46,12 +52,13 @@ local LastBossHealth = nil
 --==================================================
 
 local OldGui = PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY")
+
 if OldGui then
     OldGui:Destroy()
 end
 
 --==================================================
--- ЯЗЫК
+-- ВЫБОР ЯЗЫКА
 --==================================================
 
 local LangGui = Instance.new("ScreenGui")
@@ -262,24 +269,31 @@ local DragStart = nil
 local StartPos = nil
 
 TitleBar.InputBegan:Connect(function(Input)
+
     if Input.UserInputType == Enum.UserInputType.MouseButton1
     or Input.UserInputType == Enum.UserInputType.Touch then
 
         Dragging = true
         DragStart = Input.Position
         StartPos = Panel.Position
+
     end
+
 end)
 
 TitleBar.InputEnded:Connect(function(Input)
+
     if Input.UserInputType == Enum.UserInputType.MouseButton1
     or Input.UserInputType == Enum.UserInputType.Touch then
 
         Dragging = false
+
     end
+
 end)
 
 UserInputService.InputChanged:Connect(function(Input)
+
     if not Dragging then
         return
     end
@@ -287,7 +301,8 @@ UserInputService.InputChanged:Connect(function(Input)
     if Input.UserInputType == Enum.UserInputType.MouseMovement
     or Input.UserInputType == Enum.UserInputType.Touch then
 
-        local Delta = Input.Position - DragStart
+        local Delta =
+            Input.Position - DragStart
 
         Panel.Position = UDim2.new(
             StartPos.X.Scale,
@@ -295,7 +310,9 @@ UserInputService.InputChanged:Connect(function(Input)
             StartPos.Y.Scale,
             StartPos.Y.Offset + Delta.Y
         )
+
     end
+
 end)
 
 --==================================================
@@ -313,7 +330,7 @@ Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
 Scroll.Parent = Panel
 
 --==================================================
--- СОЗДАНИЕ КНОПКИ
+-- СОЗДАНИЕ КНОПОК
 --==================================================
 
 local function CreateButton(Text, Y)
@@ -323,9 +340,12 @@ local function CreateButton(Text, Y)
     Btn.Size = UDim2.new(1,-10,0,40)
     Btn.Position = UDim2.new(0,5,0,Y)
 
-    Btn.BackgroundColor3 = Color3.fromRGB(150,50,50)
+    Btn.BackgroundColor3 =
+        Color3.fromRGB(150,50,50)
 
-    Btn.TextColor3 = Color3.new(1,1,1)
+    Btn.TextColor3 =
+        Color3.new(1,1,1)
+
     Btn.Text = Text
     Btn.TextSize = 12
     Btn.Font = Enum.Font.GothamBlack
@@ -333,39 +353,68 @@ local function CreateButton(Text, Y)
     Btn.BorderSizePixel = 0
     Btn.Parent = Scroll
 
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,6)
+    Instance.new("UICorner", Btn)
+        .CornerRadius = UDim.new(0,6)
 
     return Btn
+
 end
 
 local TrainBtn =
-    CreateButton(L("train") .. ": " .. L("off"),2)
+    CreateButton(
+        L("train") .. ": " .. L("off"),
+        2
+    )
 
 local WeightBtn =
-    CreateButton(L("weight") .. ": " .. L("off"),46)
+    CreateButton(
+        L("weight") .. ": " .. L("off"),
+        46
+    )
 
 local RebirthBtn =
-    CreateButton(L("rebirth") .. ": " .. L("off"),90)
+    CreateButton(
+        L("rebirth") .. ": " .. L("off"),
+        90
+    )
 
 local KingBtn =
-    CreateButton(L("king") .. ": " .. L("off"),134)
+    CreateButton(
+        L("king") .. ": " .. L("off"),
+        134
+    )
 
 local AFKBtn =
-    CreateButton(L("afk") .. ": " .. L("off"),178)
+    CreateButton(
+        L("afk") .. ": " .. L("off"),
+        178
+    )
 
 local BossBtn =
-    CreateButton(L("boss") .. ": " .. L("off"),222)
+    CreateButton(
+        L("boss") .. ": " .. L("off"),
+        222
+    )
 
 local DurBtn =
-    CreateButton(L("durability") .. ": " .. L("off"),266)
+    CreateButton(
+        L("durability") .. ": " .. L("off"),
+        266
+    )
 
 local PunchBtn =
-    CreateButton(L("punch") .. ": " .. L("off"),310)
+    CreateButton(
+        L("punch") .. ": " .. L("off"),
+        310
+    )
 
 local KingRockBtn =
-    CreateButton(L("kingrock") .. ": " .. L("off"),354)
+    CreateButton(
+        L("kingrock") .. ": " .. L("off"),
+        354
+    )
 
--- маленькая надпись на AutoBoss
+-- маленький текст AutoBoss
 local BossSmall = Instance.new("TextLabel")
 BossSmall.Size = UDim2.new(0,95,0,15)
 BossSmall.Position = UDim2.new(1,-100,0,225)
@@ -386,15 +435,22 @@ local function SetBtn(Btn, Text, On)
 
     if On then
 
-        Btn.Text = Text .. ": " .. L("on")
-        Btn.BackgroundColor3 = Color3.fromRGB(50,160,70)
+        Btn.Text =
+            Text .. ": " .. L("on")
+
+        Btn.BackgroundColor3 =
+            Color3.fromRGB(50,160,70)
 
     else
 
-        Btn.Text = Text .. ": " .. L("off")
-        Btn.BackgroundColor3 = Color3.fromRGB(150,50,50)
+        Btn.Text =
+            Text .. ": " .. L("off")
+
+        Btn.BackgroundColor3 =
+            Color3.fromRGB(150,50,50)
 
     end
+
 end
 
 --==================================================
@@ -421,26 +477,36 @@ end)
 
 local function GetMuscleEvent()
 
-    local Event = Player:FindFirstChild("muscleEvent")
+    local Event =
+        Player:FindFirstChild("muscleEvent")
 
     if Event then
         return Event
     end
 
-    local Events = ReplicatedStorage:FindFirstChild("events")
+    local Events =
+        ReplicatedStorage:FindFirstChild("events")
 
     if Events then
 
-        Event = Events:FindFirstChild("muscleEvent")
+        Event =
+            Events:FindFirstChild(
+                "muscleEvent"
+            )
 
         if Event then
             return Event
         end
+
     end
 
-    Event = ReplicatedStorage:FindFirstChild("muscleEvent")
+    Event =
+        ReplicatedStorage:FindFirstChild(
+            "muscleEvent"
+        )
 
     return Event
+
 end
 
 --==================================================
@@ -449,11 +515,13 @@ end
 
 local function GetPunch()
 
-    local Character = Player.Character
+    local Character =
+        Player.Character
 
     if Character then
 
-        local Punch = Character:FindFirstChild("Punch")
+        local Punch =
+            Character:FindFirstChild("Punch")
 
         if Punch then
             return Punch
@@ -461,50 +529,71 @@ local function GetPunch()
 
     end
 
-    local Backpack = Player:FindFirstChild("Backpack")
+    local Backpack =
+        Player:FindFirstChild("Backpack")
 
     if Backpack then
         return Backpack:FindFirstChild("Punch")
     end
 
     return nil
+
 end
 
 local function DoPunch()
 
-    local Character = Player.Character
+    local Character =
+        Player.Character
 
     if not Character then
         return
     end
 
     local Humanoid =
-        Character:FindFirstChildOfClass("Humanoid")
+        Character:FindFirstChildOfClass(
+            "Humanoid"
+        )
 
-    local Punch = GetPunch()
+    local Punch =
+        GetPunch()
 
     if Punch and Humanoid then
 
         if Punch.Parent ~= Character then
+
             Humanoid:EquipTool(Punch)
+
         end
 
         Punch:Activate()
 
-        local MuscleEvent = GetMuscleEvent()
+        local MuscleEvent =
+            GetMuscleEvent()
 
         if MuscleEvent then
 
             pcall(function()
-                MuscleEvent:FireServer("punch","leftHand")
+
+                MuscleEvent:FireServer(
+                    "punch",
+                    "leftHand"
+                )
+
             end)
 
             pcall(function()
-                MuscleEvent:FireServer("punch","rightHand")
+
+                MuscleEvent:FireServer(
+                    "punch",
+                    "rightHand"
+                )
+
             end)
 
         end
+
     end
+
 end
 
 --==================================================
@@ -531,10 +620,15 @@ task.spawn(function()
 
             pcall(function()
 
-                local MuscleEvent = GetMuscleEvent()
+                local MuscleEvent =
+                    GetMuscleEvent()
 
                 if MuscleEvent then
-                    MuscleEvent:FireServer("rep")
+
+                    MuscleEvent:FireServer(
+                        "rep"
+                    )
+
                 end
 
             end)
@@ -559,33 +653,6 @@ WeightBtn.Activated:Connect(function()
         AutoWeight
     )
 
-    if not AutoWeight then
-
-        pcall(function()
-
-            local Character = Player.Character
-
-            if Character then
-
-                local Weight =
-                    Character:FindFirstChild("Weight")
-
-                if Weight then
-
-                    local Backpack =
-                        Player:FindFirstChild("Backpack")
-
-                    if Backpack then
-                        Weight.Parent = Backpack
-                    end
-
-                end
-            end
-
-        end)
-
-    end
-
 end)
 
 task.spawn(function()
@@ -596,32 +663,51 @@ task.spawn(function()
 
             pcall(function()
 
-                local Character = Player.Character
+                local Character =
+                    Player.Character
 
                 if not Character then
                     return
                 end
 
                 local Humanoid =
-                    Character:FindFirstChildOfClass("Humanoid")
+                    Character:FindFirstChildOfClass(
+                        "Humanoid"
+                    )
 
                 local Backpack =
-                    Player:FindFirstChild("Backpack")
+                    Player:FindFirstChild(
+                        "Backpack"
+                    )
 
                 local Weight = nil
 
                 if Backpack then
-                    Weight = Backpack:FindFirstChild("Weight")
+
+                    Weight =
+                        Backpack:FindFirstChild(
+                            "Weight"
+                        )
+
                 end
 
                 if not Weight then
-                    Weight = Character:FindFirstChild("Weight")
+
+                    Weight =
+                        Character:FindFirstChild(
+                            "Weight"
+                        )
+
                 end
 
                 if Weight and Humanoid then
 
                     if Weight.Parent ~= Character then
-                        Humanoid:EquipTool(Weight)
+
+                        Humanoid:EquipTool(
+                            Weight
+                        )
+
                     end
 
                     Weight:Activate()
@@ -630,7 +716,11 @@ task.spawn(function()
                         GetMuscleEvent()
 
                     if MuscleEvent then
-                        MuscleEvent:FireServer("rep")
+
+                        MuscleEvent:FireServer(
+                            "rep"
+                        )
+
                     end
 
                 end
@@ -644,21 +734,32 @@ task.spawn(function()
 end)
 
 --==================================================
--- ОКНО РЕБИТХОВ
+-- АВТО РЕБИТХИ
 --==================================================
 
 local function ShowRebirthPrompt()
 
-    local PromptGui = Instance.new("ScreenGui")
-    PromptGui.Name = "RebirthPrompt"
+    local PromptGui =
+        Instance.new("ScreenGui")
+
+    PromptGui.Name =
+        "RebirthPrompt"
+
     PromptGui.ResetOnSpawn = false
-    PromptGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+    PromptGui.ZIndexBehavior =
+        Enum.ZIndexBehavior.Global
+
     PromptGui.Parent = PlayerGui
 
-    local Frame = Instance.new("Frame")
+    local Frame =
+        Instance.new("Frame")
 
-    Frame.Size = UDim2.new(0,320,0,190)
-    Frame.Position = UDim2.new(0.5,-160,0.5,-95)
+    Frame.Size =
+        UDim2.new(0,320,0,190)
+
+    Frame.Position =
+        UDim2.new(0.5,-160,0.5,-95)
 
     Frame.BackgroundColor3 =
         Color3.fromRGB(25,25,25)
@@ -669,45 +770,59 @@ local function ShowRebirthPrompt()
     Instance.new("UICorner",Frame)
         .CornerRadius = UDim.new(0,10)
 
-    local Question = Instance.new("TextLabel")
+    local Question =
+        Instance.new("TextLabel")
 
-    Question.Size = UDim2.new(1,-20,0,50)
-    Question.Position = UDim2.new(0,10,0,10)
+    Question.Size =
+        UDim2.new(1,-20,0,50)
+
+    Question.Position =
+        UDim2.new(0,10,0,10)
 
     Question.BackgroundTransparency = 1
 
-    Question.Text = L("rebirthQuestion")
+    Question.Text =
+        L("rebirthQuestion")
 
     Question.TextColor3 =
         Color3.new(1,1,1)
 
     Question.TextSize = 16
-    Question.Font = Enum.Font.GothamBlack
-    Question.TextWrapped = true
+    Question.Font =
+        Enum.Font.GothamBlack
 
+    Question.TextWrapped = true
     Question.Parent = Frame
 
-    local Info = Instance.new("TextLabel")
+    local Info =
+        Instance.new("TextLabel")
 
-    Info.Size = UDim2.new(1,-20,0,30)
-    Info.Position = UDim2.new(0,10,0,58)
+    Info.Size =
+        UDim2.new(1,-20,0,30)
+
+    Info.Position =
+        UDim2.new(0,10,0,58)
 
     Info.BackgroundTransparency = 1
 
-    Info.Text = L("rebirthInfo")
+    Info.Text =
+        L("rebirthInfo")
 
     Info.TextColor3 =
         Color3.fromRGB(180,180,180)
 
     Info.TextSize = 12
     Info.Font = Enum.Font.Gotham
-
     Info.Parent = Frame
 
-    local Input = Instance.new("TextBox")
+    local Input =
+        Instance.new("TextBox")
 
-    Input.Size = UDim2.new(0,250,0,35)
-    Input.Position = UDim2.new(0.5,-125,0,95)
+    Input.Size =
+        UDim2.new(0,250,0,35)
+
+    Input.Position =
+        UDim2.new(0.5,-125,0,95)
 
     Input.BackgroundColor3 =
         Color3.fromRGB(45,45,45)
@@ -716,23 +831,24 @@ local function ShowRebirthPrompt()
         Color3.new(1,1,1)
 
     Input.PlaceholderText = "0"
-
     Input.Text = ""
-
     Input.TextSize = 16
     Input.Font = Enum.Font.GothamBold
 
     Input.ClearTextOnFocus = false
-
     Input.Parent = Frame
 
     Instance.new("UICorner",Input)
         .CornerRadius = UDim.new(0,6)
 
-    local OK = Instance.new("TextButton")
+    local OK =
+        Instance.new("TextButton")
 
-    OK.Size = UDim2.new(0,100,0,35)
-    OK.Position = UDim2.new(0.5,-50,0,145)
+    OK.Size =
+        UDim2.new(0,100,0,35)
+
+    OK.Position =
+        UDim2.new(0.5,-50,0,145)
 
     OK.BackgroundColor3 =
         Color3.fromRGB(50,160,70)
@@ -740,10 +856,12 @@ local function ShowRebirthPrompt()
     OK.TextColor3 =
         Color3.new(1,1,1)
 
-    OK.Text = L("ok")
+    OK.Text =
+        L("ok")
 
     OK.TextSize = 14
-    OK.Font = Enum.Font.GothamBlack
+    OK.Font =
+        Enum.Font.GothamBlack
 
     OK.Parent = Frame
 
@@ -759,7 +877,8 @@ local function ShowRebirthPrompt()
             Number = 0
         end
 
-        Number = math.floor(Number)
+        Number =
+            math.floor(Number)
 
         if Number < 0 then
             Number = 0
@@ -767,7 +886,6 @@ local function ShowRebirthPrompt()
 
         RebirthTarget = Number
         RebirthDone = 0
-
         AutoRebirth = true
 
         SetBtn(
@@ -824,11 +942,15 @@ task.spawn(function()
                 pcall(function()
 
                     local rEvents =
-                        ReplicatedStorage:FindFirstChild("rEvents")
+                        ReplicatedStorage:FindFirstChild(
+                            "rEvents"
+                        )
 
                     local Remote =
                         rEvents
-                        and rEvents:FindFirstChild("rebirthRemote")
+                        and rEvents:FindFirstChild(
+                            "rebirthRemote"
+                        )
 
                     if Remote then
 
@@ -837,7 +959,9 @@ task.spawn(function()
                         )
 
                         if RebirthTarget > 0 then
+
                             RebirthDone += 1
+
                         end
 
                     end
@@ -892,56 +1016,12 @@ task.spawn(function()
                     return
                 end
 
-                local MachinesFolder =
-                    workspace:FindFirstChild(
-                        "machinesFolder"
+                Root.CFrame =
+                    CFrame.new(
+                        -8744.821,
+                        121.183,
+                        -5859.323
                     )
-
-                if MachinesFolder then
-
-                    for _,Machine in
-                        ipairs(MachinesFolder:GetChildren()) do
-
-                        local Rock =
-                            Machine:FindFirstChild("Rock")
-
-                        if Rock
-                        and Rock:IsA("BasePart") then
-
-                            local MachineName =
-                                string.lower(Machine.Name)
-
-                            local RockName =
-                                string.lower(Rock.Name)
-
-                            if string.find(
-                                MachineName,
-                                "king"
-                            )
-                            or string.find(
-                                RockName,
-                                "king"
-                            ) then
-
-                                local TopY =
-                                    Rock.Position.Y
-                                    + Rock.Size.Y / 2
-
-                                Root.CFrame =
-                                    CFrame.new(
-                                        Rock.Position.X,
-                                        TopY + 5,
-                                        Rock.Position.Z
-                                    )
-
-                                break
-                            end
-
-                        end
-
-                    end
-
-                end
 
             end)
 
@@ -990,23 +1070,28 @@ task.spawn(function()
 end)
 
 --==================================================
--- AUTO BOSS: NOCLIP
+-- AUTO BOSS NOCLIP
 --==================================================
 
 local function StartBossNoclip()
 
     if BossNoclipConnection then
+
         BossNoclipConnection:Disconnect()
+
     end
 
     BossSavedCollision = {}
 
-    local Character = Player.Character
+    local Character =
+        Player.Character
 
     if Character then
 
         for _,Object in
-            ipairs(Character:GetDescendants()) do
+            ipairs(
+                Character:GetDescendants()
+            ) do
 
             if Object:IsA("BasePart") then
 
@@ -1022,29 +1107,36 @@ local function StartBossNoclip()
     end
 
     BossNoclipConnection =
-        RunService.Stepped:Connect(function()
+        RunService.Stepped:Connect(
+            function()
 
-            if not AutoBoss then
-                return
-            end
+                if not AutoBoss then
+                    return
+                end
 
-            local Character =
-                Player.Character
+                local Character =
+                    Player.Character
 
-            if not Character then
-                return
-            end
+                if not Character then
+                    return
+                end
 
-            for _,Object in
-                ipairs(Character:GetDescendants()) do
+                for _,Object in
+                    ipairs(
+                        Character:GetDescendants()
+                    ) do
 
-                if Object:IsA("BasePart") then
-                    Object.CanCollide = false
+                    if Object:IsA("BasePart") then
+
+                        Object.CanCollide =
+                            false
+
+                    end
+
                 end
 
             end
-
-        end)
+        )
 
 end
 
@@ -1057,6 +1149,7 @@ local function StopBossNoclip()
     if BossNoclipConnection then
 
         BossNoclipConnection:Disconnect()
+
         BossNoclipConnection = nil
 
     end
@@ -1067,11 +1160,14 @@ local function StopBossNoclip()
     if Character then
 
         for _,Object in
-            ipairs(Character:GetDescendants()) do
+            ipairs(
+                Character:GetDescendants()
+            ) do
 
             if Object:IsA("BasePart") then
 
-                if BossSavedCollision[Object] ~= nil then
+                if BossSavedCollision[Object]
+                ~= nil then
 
                     Object.CanCollide =
                         BossSavedCollision[Object]
@@ -1089,58 +1185,61 @@ local function StopBossNoclip()
 end
 
 --==================================================
--- AUTO BOSS: FLY
+-- AUTO BOSS FLY
 --==================================================
 
 local function StartBossFly()
 
     if BossFlyConnection then
+
         BossFlyConnection:Disconnect()
+
     end
 
     BossFlyConnection =
-        RunService.Heartbeat:Connect(function()
+        RunService.Heartbeat:Connect(
+            function()
 
-            if not AutoBoss then
-                return
+                if not AutoBoss then
+                    return
+                end
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Root then
+                    return
+                end
+
+                Root.CFrame =
+                    CFrame.new(
+                        BossX,
+                        BossY,
+                        BossZ
+                    ) *
+                    CFrame.Angles(
+                        0,
+                        math.rad(180),
+                        0
+                    )
+
+                Root.AssemblyLinearVelocity =
+                    Vector3.new(0,0,0)
+
+                Root.AssemblyAngularVelocity =
+                    Vector3.new(0,0,0)
+
             end
-
-            local Character =
-                Player.Character
-
-            if not Character then
-                return
-            end
-
-            local Root =
-                Character:FindFirstChild(
-                    "HumanoidRootPart"
-                )
-
-            if not Root then
-                return
-            end
-
-            -- удерживаем игрока в нужной точке
-            Root.CFrame =
-                CFrame.new(
-                    BossX,
-                    BossY,
-                    BossZ
-                ) *
-                CFrame.Angles(
-                    0,
-                    math.rad(180),
-                    0
-                )
-
-            Root.AssemblyLinearVelocity =
-                Vector3.new(0,0,0)
-
-            Root.AssemblyAngularVelocity =
-                Vector3.new(0,0,0)
-
-        end)
+        )
 
 end
 
@@ -1153,86 +1252,10 @@ local function StopBossFly()
     if BossFlyConnection then
 
         BossFlyConnection:Disconnect()
+
         BossFlyConnection = nil
 
     end
-
-end
-
---==================================================
--- ПОИСК И ПОДБОР НАГРАДЫ
---==================================================
-
-
-
-                if string.find(Name,"chest")
-                or string.find(Name,"reward")
-                or string.find(Name,"claim")
-                or string.find(Name,"награ")
-                or string.find(Name,"сундук")
-                or string.find(ParentName,"chest")
-                or string.find(ParentName,"reward") then
-
-                    pcall(function()
-
-                        if fireproximityprompt then
-                            fireproximityprompt(Object)
-                            Collected = true
-                        end
-
-                    end)
-
-                end
-
-            end
-
-        end
-
-    end)
-
-    -- GUI Claim / Reward
-    pcall(function()
-
-        for _,Object in
-            ipairs(PlayerGui:GetDescendants()) do
-
-            if Object:IsA("TextButton")
-            or Object:IsA("ImageButton") then
-
-                if Object.Visible then
-
-                    local Text = ""
-
-                    pcall(function()
-                        Text =
-                            string.lower(
-                                tostring(Object.Text)
-                            )
-                    end)
-
-                    if string.find(Text,"claim")
-                    or string.find(Text,"reward")
-                    or string.find(Text,"chest")
-                    or string.find(Text,"награ")
-                    or string.find(Text,"забра")
-                    or string.find(Text,"сундук") then
-
-                        pcall(function()
-                            Object:Activate()
-                            Collected = true
-                        end)
-
-                    end
-
-                end
-
-            end
-
-        end
-
-    end)
-
-    return Collected
 
 end
 
@@ -1250,15 +1273,16 @@ BossBtn.Activated:Connect(function()
         AutoBoss
     )
 
-    if AutoBoss then
+    --==============================================
+    -- ВКЛЮЧЕНИЕ
+    --==============================================
 
-        --==========================================
-        -- СОХРАНЯЕМ КООРДИНАТЫ ДО ТП
-        --==========================================
+    if AutoBoss then
 
         local Character =
             Player.Character
 
+        -- СОХРАНЯЕМ КООРДИНАТЫ
         if Character then
 
             local Root =
@@ -1275,10 +1299,10 @@ BossBtn.Activated:Connect(function()
 
         end
 
-        -- стартовая высота
+        -- Начальная высота
         BossY = BossNormalY
 
-        -- здоровье для определения урона
+        -- Запоминаем HP
         local Humanoid =
             Character
             and Character:FindFirstChildOfClass(
@@ -1286,21 +1310,23 @@ BossBtn.Activated:Connect(function()
             )
 
         if Humanoid then
-            LastBossHealth = Humanoid.Health
+
+            LastBossHealth =
+                Humanoid.Health
+
         else
+
             LastBossHealth = nil
+
         end
 
-        -- включаем noclip
+        -- Включаем Noclip
         StartBossNoclip()
 
-        -- включаем fly
+        -- Включаем Fly
         StartBossFly()
 
-        --==========================================
-        -- ТЕЛЕПОРТ К БОССУ
-        --==========================================
-
+        -- ТП к боссу
         pcall(function()
 
             if Character then
@@ -1330,19 +1356,19 @@ BossBtn.Activated:Connect(function()
 
         end)
 
+    --==============================================
+    -- ВЫКЛЮЧЕНИЕ
+    --==============================================
+
     else
 
-        --==========================================
-        -- ВЫКЛЮЧЕНИЕ
-        --==========================================
-
+        -- Выключаем Fly
         StopBossFly()
+
+        -- Выключаем Noclip
         StopBossNoclip()
 
-        --==========================================
-        -- ВОЗВРАЩАЕМ ИСХОДНЫЕ КООРДИНАТЫ
-        --==========================================
-
+        -- Возвращаем сохранённые координаты
         if BossSavedCFrame then
 
             pcall(function()
@@ -1371,7 +1397,9 @@ BossBtn.Activated:Connect(function()
         end
 
         BossSavedCFrame = nil
+
         BossY = BossNormalY
+
         LastBossHealth = nil
 
     end
@@ -1379,7 +1407,7 @@ BossBtn.Activated:Connect(function()
 end)
 
 --==================================================
--- ЦИКЛ AUTO BOSS
+-- AUTO BOSS LOOP
 --==================================================
 
 task.spawn(function()
@@ -1407,8 +1435,11 @@ task.spawn(function()
                         "HumanoidRootPart"
                     )
 
-                if not Humanoid or not Root then
+                if not Humanoid
+                or not Root then
+
                     return
+
                 end
 
                 --==================================
@@ -1421,7 +1452,7 @@ task.spawn(function()
                 if LastBossHealth
                 and Health < LastBossHealth then
 
-                    -- сначала опускаемся
+                    -- Сначала опускаемся
                     Root.AssemblyLinearVelocity =
                         Vector3.new(
                             0,
@@ -1431,8 +1462,9 @@ task.spawn(function()
 
                     task.wait(0.05)
 
-                    -- потом переводим на Y=4
-                    BossY = BossDamageY
+                    -- Потом Y=4
+                    BossY =
+                        BossDamageY
 
                     Root.CFrame =
                         CFrame.new(
@@ -1448,21 +1480,14 @@ task.spawn(function()
 
                 end
 
-                LastBossHealth = Health
+                LastBossHealth =
+                    Health
 
                 --==================================
-                -- УДАР
+                -- АТАКА
                 --==================================
 
                 DoPunch()
-
-                --==================================
-                -- ПРОВЕРКА НАГРАДЫ
-                --==================================
-                    -- награда получена
-                    BossY = BossNormalY
-
-                end
 
             end)
 
@@ -1509,29 +1534,37 @@ task.spawn(function()
                     )
 
                 local Backpack =
-                    Player:FindFirstChild("Backpack")
+                    Player:FindFirstChild(
+                        "Backpack"
+                    )
 
                 local Punch = nil
 
                 if Backpack then
+
                     Punch =
                         Backpack:FindFirstChild(
                             "Punch"
                         )
+
                 end
 
                 if not Punch then
+
                     Punch =
                         Character:FindFirstChild(
                             "Punch"
                         )
+
                 end
 
                 if Punch and Humanoid then
 
                     if Punch.Parent ~= Character then
 
-                        Humanoid:EquipTool(Punch)
+                        Humanoid:EquipTool(
+                            Punch
+                        )
 
                         task.wait(0.1)
 
@@ -1641,8 +1674,10 @@ task.spawn(function()
 
                                 local Position =
                                     BestRock.Position
-                                    - BestRock.CFrame.LookVector
-                                    * Distance
+                                    -
+                                    BestRock.CFrame.LookVector
+                                    *
+                                    Distance
 
                                 Root.CFrame =
                                     CFrame.lookAt(
@@ -1710,7 +1745,9 @@ task.spawn(function()
         if AutoPunch then
 
             pcall(function()
+
                 DoPunch()
+
             end)
 
         end
@@ -1779,7 +1816,9 @@ task.spawn(function()
 end)
 
 --==================================================
--- СМЕНА ЯЗЫКА ПРИ ПЕРЕЗАПУСКЕ НЕ НУЖНА
+-- ГОТОВО
 --==================================================
 
-print("⚡ KIRILL_PANEL NO KEY V1.55 LOADED")
+print(
+    "⚡ KIRILL_PANEL NO KEY V1.55 LOADED - NO AUTO CHEST"
+)
