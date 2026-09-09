@@ -1163,32 +1163,7 @@ end
 -- ПОИСК И ПОДБОР НАГРАДЫ
 --==================================================
 
-local function TryCollectBossChest()
 
-    local Collected = false
-
-    -- ProximityPrompt
-    pcall(function()
-
-        for _,Object in
-            ipairs(workspace:GetDescendants()) do
-
-            if Object:IsA("ProximityPrompt")
-            and Object.Enabled then
-
-                local Name =
-                    string.lower(
-                        Object.Name
-                    )
-
-                local ParentName = ""
-
-                if Object.Parent then
-                    ParentName =
-                        string.lower(
-                            Object.Parent.Name
-                        )
-                end
 
                 if string.find(Name,"chest")
                 or string.find(Name,"reward")
