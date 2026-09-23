@@ -1,8 +1,6 @@
---//==================================================
---// KIRILL_PANEL NO KEY V1.55
---// БЕЗ АВТО-СУНДУКА
---// АВТО-БОССЫ И ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- KIRILL_PANEL NO KEY V1.6
+--==================================================
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,9 +11,9 @@ local UserInputService = game:GetService("UserInputService")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
---//==================================================
---// VARIABLES
---//==================================================
+--==================================================
+-- VARIABLES
+--==================================================
 
 local AutoTrain = false
 local AutoWeight = false
@@ -33,9 +31,9 @@ local RebirthDone = 0
 
 local CurrentLanguage = "ru"
 
---//==================================================
---// ОПЫТНЫЙ AUTO BOSS
---//==================================================
+--==================================================
+-- ORDINARY AUTO BOSS
+--==================================================
 
 local BossX = 7
 local BossNormalY = 28
@@ -49,9 +47,9 @@ local BossFlyConnection = nil
 local BossY = BossNormalY
 local LastBossHealth = nil
 
---//==================================================
---// АВТО-БОССЫ И ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- AUTO BOSS & WEIGHT
+--==================================================
 
 local BossWeightX = 7
 local BossWeightY = 32
@@ -66,26 +64,18 @@ local BossWeightFlyConnection = nil
 local BossWeightHealthConnection = nil
 
 local BossWeightStage = 0
-
--- 0 = Y32 + Weight
--- 1 = Y28 + Punch
--- 2 = Y4 + Punch + 10 минут
-
-local BossWeightTimerRunning = false
 local BossWeightTimerEnd = 0
 local BossWeightTimerToken = 0
-
 local BossWeightLoopRunning = false
 
---//==================================================
---// TEXT
---//==================================================
+--==================================================
+-- TEXT
+--==================================================
 
 local T = {
 
     ru = {
-
-        title = "KIRILL_PANEL NO KEY V1.55",
+        title = "KIRILL_PANEL NO KEY V1.6",
 
         train = "💪 Авто-Прокачка",
         weight = "🏋️ Авто-Гантеля",
@@ -93,9 +83,7 @@ local T = {
         king = "👑 Тп-Кинг",
         afk = "🛡️ Анти-Афк",
         boss = "👹 Авто-Боссы",
-
         bossWeight = "👹 Авто-Боссы и Гантеля",
-
         durability = "🥊 Авто-Дурабилити",
         punch = "⚡ Авто-Удары",
         kingrock = "🗿 Кинг-Камень",
@@ -111,8 +99,7 @@ local T = {
     },
 
     en = {
-
-        title = "KIRILL_PANEL NO KEY V1.55",
+        title = "KIRILL_PANEL NO KEY V1.6",
 
         train = "💪 Auto-Train",
         weight = "🏋️ Auto-Weight",
@@ -120,9 +107,7 @@ local T = {
         king = "👑 TP-King",
         afk = "🛡️ Anti-AFK",
         boss = "👹 Auto-Boss",
-
         bossWeight = "👹 Auto-Boss & Weight",
-
         durability = "🥊 Auto-Durability",
         punch = "⚡ Auto-Punch",
         kingrock = "🗿 King-Rock",
@@ -138,9 +123,9 @@ local T = {
     }
 }
 
---//==================================================
---// GUI
---//==================================================
+--==================================================
+-- REMOVE OLD GUI
+--==================================================
 
 local OldGui = PlayerGui:FindFirstChild("KIRILL_PANEL")
 
@@ -148,14 +133,24 @@ if OldGui then
     OldGui:Destroy()
 end
 
+local OldLanguageGui = PlayerGui:FindFirstChild("KIRILL_LANGUAGE")
+
+if OldLanguageGui then
+    OldLanguageGui:Destroy()
+end
+
+--==================================================
+-- MAIN GUI
+--==================================================
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "KIRILL_PANEL"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
---//==================================================
---// OPEN BUTTON
---//==================================================
+--==================================================
+-- OPEN BUTTON
+--==================================================
 
 local OpenButton = Instance.new("TextButton")
 
@@ -173,25 +168,22 @@ OpenButton.Text = "💪"
 OpenButton.TextSize = 25
 
 OpenButton.BorderSizePixel = 0
+OpenButton.Visible = false
 OpenButton.Parent = ScreenGui
 
 local OpenCorner = Instance.new("UICorner")
-
-OpenCorner.CornerRadius =
-    UDim.new(1, 0)
-
+OpenCorner.CornerRadius = UDim.new(1, 0)
 OpenCorner.Parent = OpenButton
 
---//==================================================
---// MAIN FRAME
---//==================================================
+--==================================================
+-- MAIN FRAME
+--==================================================
 
 local MainFrame = Instance.new("Frame")
 
 MainFrame.Name = "MainFrame"
 
-MainFrame.Size =
-    UDim2.new(0, 230, 0, 280)
+MainFrame.Size = UDim2.new(0, 230, 0, 280)
 
 MainFrame.Position =
     UDim2.new(0.5, -115, 0.5, -140)
@@ -200,23 +192,24 @@ MainFrame.BackgroundColor3 =
     Color3.fromRGB(25, 25, 25)
 
 MainFrame.BorderSizePixel = 0
+
+-- ВАЖНО:
+-- панель скрыта до выбора языка
+MainFrame.Visible = false
+
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-
-MainCorner.CornerRadius =
-    UDim.new(0, 10)
-
+MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = MainFrame
 
---//==================================================
---// TITLE
---//==================================================
+--==================================================
+-- TITLE
+--==================================================
 
 local Title = Instance.new("TextLabel")
 
-Title.Size =
-    UDim2.new(1, 0, 0, 38)
+Title.Size = UDim2.new(1, 0, 0, 38)
 
 Title.Position =
     UDim2.new(0, 0, 0, 0)
@@ -228,7 +221,7 @@ Title.TextColor3 =
     Color3.fromRGB(255, 255, 255)
 
 Title.Text =
-    T[CurrentLanguage].title
+    T.ru.title
 
 Title.TextSize = 14
 Title.Font = Enum.Font.SourceSansBold
@@ -236,15 +229,12 @@ Title.Font = Enum.Font.SourceSansBold
 Title.Parent = MainFrame
 
 local TitleCorner = Instance.new("UICorner")
-
-TitleCorner.CornerRadius =
-    UDim.new(0, 10)
-
+TitleCorner.CornerRadius = UDim.new(0, 10)
 TitleCorner.Parent = Title
 
---//==================================================
---// SCROLL
---//==================================================
+--==================================================
+-- SCROLL
+--==================================================
 
 local Scroll = Instance.new("ScrollingFrame")
 
@@ -262,13 +252,13 @@ Scroll.BorderSizePixel = 0
 Scroll.ScrollBarThickness = 5
 
 Scroll.CanvasSize =
-    UDim2.new(0, 0, 0, 440)
+    UDim2.new(0, 0, 0, 445)
 
 Scroll.Parent = MainFrame
 
---//==================================================
---// BUTTON CREATOR
---//==================================================
+--==================================================
+-- BUTTON CREATOR
+--==================================================
 
 local function CreateToggleButton(Name, Text, Y)
 
@@ -289,8 +279,7 @@ local function CreateToggleButton(Name, Text, Y)
         Color3.fromRGB(255, 255, 255)
 
     Button.Text =
-        Text .. ": " ..
-        T[CurrentLanguage].off
+        Text .. ": " .. T.ru.off
 
     Button.TextSize = 14
     Button.Font = Enum.Font.SourceSansBold
@@ -309,49 +298,49 @@ local function CreateToggleButton(Name, Text, Y)
     return Button
 end
 
---//==================================================
---// BUTTONS
---//==================================================
+--==================================================
+-- BUTTONS
+--==================================================
 
 local TrainButton =
     CreateToggleButton(
         "TrainButton",
-        T[CurrentLanguage].train,
+        T.ru.train,
         2
     )
 
 local WeightButton =
     CreateToggleButton(
         "WeightButton",
-        T[CurrentLanguage].weight,
+        T.ru.weight,
         46
     )
 
 local RebirthButton =
     CreateToggleButton(
         "RebirthButton",
-        T[CurrentLanguage].rebirth,
+        T.ru.rebirth,
         90
     )
 
 local KingButton =
     CreateToggleButton(
         "KingButton",
-        T[CurrentLanguage].king,
+        T.ru.king,
         134
     )
 
 local AFKButton =
     CreateToggleButton(
         "AFKButton",
-        T[CurrentLanguage].afk,
+        T.ru.afk,
         178
     )
 
 local BossButton =
     CreateToggleButton(
         "BossButton",
-        T[CurrentLanguage].boss,
+        T.ru.boss,
         222
     )
 
@@ -371,7 +360,7 @@ BossSmall.TextColor3 =
     Color3.fromRGB(255, 220, 80)
 
 BossSmall.Text =
-    T[CurrentLanguage].bossSmall
+    T.ru.bossSmall
 
 BossSmall.TextSize = 10
 BossSmall.Font = Enum.Font.SourceSansBold
@@ -381,34 +370,34 @@ BossSmall.Parent = Scroll
 local DurabilityButton =
     CreateToggleButton(
         "DurabilityButton",
-        T[CurrentLanguage].durability,
+        T.ru.durability,
         266
     )
 
 local PunchButton =
     CreateToggleButton(
         "PunchButton",
-        T[CurrentLanguage].punch,
+        T.ru.punch,
         310
     )
 
 local KingRockButton =
     CreateToggleButton(
         "KingRockButton",
-        T[CurrentLanguage].kingrock,
+        T.ru.kingrock,
         354
     )
 
 local BossWeightButton =
     CreateToggleButton(
         "BossWeightButton",
-        T[CurrentLanguage].bossWeight,
+        T.ru.bossWeight,
         398
     )
 
---//==================================================
---// DRAG PANEL
---//==================================================
+--==================================================
+-- DRAG PANEL
+--==================================================
 
 local dragging = false
 local dragStart = nil
@@ -475,9 +464,9 @@ OpenButton.MouseButton1Click:Connect(function()
         not MainFrame.Visible
 end)
 
---//==================================================
---// MUSCLE EVENT
---//==================================================
+--==================================================
+-- MUSCLE EVENT
+--==================================================
 
 local function GetMuscleEvent()
 
@@ -504,9 +493,9 @@ local function GetMuscleEvent()
     return nil
 end
 
---//==================================================
---// REBIRTH REMOTE
---//==================================================
+--==================================================
+-- REBIRTH REMOTE
+--==================================================
 
 local function GetRebirthRemote()
 
@@ -520,9 +509,9 @@ local function GetRebirthRemote()
     return rEvents:FindFirstChild("rebirthRemote")
 end
 
---//==================================================
---// PUNCH
---//==================================================
+--==================================================
+-- PUNCH
+--==================================================
 
 local function GetPunch()
 
@@ -565,7 +554,9 @@ local function DoPunch()
     end
 
     local Humanoid =
-        Character:FindFirstChildOfClass("Humanoid")
+        Character:FindFirstChildOfClass(
+            "Humanoid"
+        )
 
     local Event =
         GetMuscleEvent()
@@ -609,9 +600,9 @@ local function DoPunch()
     end
 end
 
---//==================================================
---// AUTO TRAIN
---//==================================================
+--==================================================
+-- AUTO TRAIN
+--==================================================
 
 TrainButton.MouseButton1Click:Connect(function()
 
@@ -658,9 +649,9 @@ TrainButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// AUTO WEIGHT
---//==================================================
+--==================================================
+-- AUTO WEIGHT
+--==================================================
 
 WeightButton.MouseButton1Click:Connect(function()
 
@@ -690,19 +681,25 @@ WeightButton.MouseButton1Click:Connect(function()
                 local Humanoid =
                     Character
                     and
-                    Character:FindFirstChildOfClass("Humanoid")
+                    Character:FindFirstChildOfClass(
+                        "Humanoid"
+                    )
 
                 if Character
                 and Backpack
                 and Humanoid then
 
                     local Weight =
-                        Character:FindFirstChild("Weight")
+                        Character:FindFirstChild(
+                            "Weight"
+                        )
 
                     if not Weight then
 
                         Weight =
-                            Backpack:FindFirstChild("Weight")
+                            Backpack:FindFirstChild(
+                                "Weight"
+                            )
                     end
 
                     if Weight
@@ -747,9 +744,9 @@ WeightButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// REBIRTH PROMPT
---//==================================================
+--==================================================
+-- REBIRTH PROMPT
+--==================================================
 
 local function AskRebirthAmount()
 
@@ -847,6 +844,7 @@ local function AskRebirthAmount()
     Box.PlaceholderText = "0"
     Box.Text = ""
     Box.TextSize = 14
+
     Box.Parent = Frame
 
     local BoxCorner =
@@ -913,9 +911,9 @@ local function AskRebirthAmount()
     return Result or 0
 end
 
---//==================================================
---// AUTO REBIRTH
---//==================================================
+--==================================================
+-- AUTO REBIRTH
+--==================================================
 
 RebirthButton.MouseButton1Click:Connect(function()
 
@@ -989,9 +987,9 @@ RebirthButton.MouseButton1Click:Connect(function()
     end)
 end)
 
---//==================================================
---// TP KING
---//==================================================
+--==================================================
+-- TP KING
+--==================================================
 
 KingButton.MouseButton1Click:Connect(function()
 
@@ -1040,9 +1038,9 @@ KingButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// ANTI AFK
---//==================================================
+--==================================================
+-- ANTI AFK
+--==================================================
 
 Player.Idled:Connect(function()
 
@@ -1093,9 +1091,9 @@ AFKButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// ОБЫЧНЫЙ AUTO BOSS
---//==================================================
+--==================================================
+-- ORDINARY AUTO BOSS NOCLIP
+--==================================================
 
 local function StartBossNoclip()
 
@@ -1156,6 +1154,10 @@ local function StopBossNoclip()
     BossSavedCollision = {}
 end
 
+--==================================================
+-- ORDINARY AUTO BOSS POSITION
+--==================================================
+
 local function StartBossFly()
 
     if BossFlyConnection then
@@ -1205,6 +1207,10 @@ local function StopBossFly()
         BossFlyConnection = nil
     end
 end
+
+--==================================================
+-- ORDINARY AUTO BOSS
+--==================================================
 
 BossButton.MouseButton1Click:Connect(function()
 
@@ -1293,8 +1299,6 @@ BossButton.MouseButton1Click:Connect(function()
 
     else
 
-        AutoBoss = false
-
         StopBossFly()
         StopBossNoclip()
 
@@ -1330,9 +1334,9 @@ BossButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// AUTO БОССЫ И ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- AUTO BOSS & WEIGHT
+--==================================================
 
 local function BossWeightMove(Y)
 
@@ -1370,9 +1374,9 @@ local function BossWeightMove(Y)
         Vector3.zero
 end
 
---//==================================================
---// ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- WEIGHT LOGIC
+--==================================================
 
 local function BossWeightDoWeight()
 
@@ -1441,9 +1445,9 @@ local function BossWeightDoWeight()
     end
 end
 
---//==================================================
---// NOCLIP
---//==================================================
+--==================================================
+-- BOSS WEIGHT NOCLIP
+--==================================================
 
 local function BossWeightStartNoclip()
 
@@ -1483,14 +1487,13 @@ local function BossWeightStopNoclip()
     if BossWeightNoclipConnection then
 
         BossWeightNoclipConnection:Disconnect()
-
         BossWeightNoclipConnection = nil
     end
 end
 
---//==================================================
---// ФИКСАЦИЯ ПОЗИЦИИ
---//==================================================
+--==================================================
+-- BOSS WEIGHT POSITION LOCK
+--==================================================
 
 local function BossWeightStartFly()
 
@@ -1556,37 +1559,31 @@ local function BossWeightStopFly()
     if BossWeightFlyConnection then
 
         BossWeightFlyConnection:Disconnect()
-
         BossWeightFlyConnection = nil
     end
 end
 
---//==================================================
---// ТАЙМЕР
---//==================================================
+--==================================================
+-- 10 MINUTE TIMER
+--==================================================
 
 local function BossWeightStartTimer()
 
-    -- отменяем предыдущий таймер
     BossWeightTimerToken =
         BossWeightTimerToken + 1
 
     local MyToken =
         BossWeightTimerToken
 
-    BossWeightTimerRunning = true
-
-    -- сохраняем реальное время окончания
+    -- 600 секунд = 10 минут
     BossWeightTimerEnd =
-        os.clock() + 600
+        time() + 600
 
     task.spawn(function()
 
         while AutoBossAndWeight do
 
-            if MyToken
-                ~= BossWeightTimerToken then
-
+            if MyToken ~= BossWeightTimerToken then
                 return
             end
 
@@ -1594,31 +1591,24 @@ local function BossWeightStartTimer()
                 return
             end
 
-            -- проверяем реальное время
-            if os.clock()
-                >= BossWeightTimerEnd then
+            if time() >= BossWeightTimerEnd then
 
-                -- таймер закончился
-                BossWeightTimerRunning = false
-
-                -- новый цикл
-                BossWeightStage = 0
-
-                -- сброс времени
+                -- таймер закончен
                 BossWeightTimerEnd = 0
 
-                -- телепорт на Y32
+                -- начинаем новый цикл
+                BossWeightStage = 0
+
+                -- Y32
                 BossWeightMove(
                     BossWeightY
                 )
 
-                -- даём персонажу оказаться на месте
-                task.wait(0.15)
+                task.wait(0.2)
 
                 if AutoBossAndWeight
                 and BossWeightStage == 0 then
 
-                    -- снова гантеля
                     BossWeightDoWeight()
                 end
 
@@ -1627,21 +1617,18 @@ local function BossWeightStartTimer()
 
             task.wait(0.1)
         end
-
-        BossWeightTimerRunning = false
     end)
 end
 
---//==================================================
---// HEALTH
---//==================================================
+--==================================================
+-- HEALTH DAMAGE DETECTION
+--==================================================
 
 local function BossWeightConnectHealth()
 
     if BossWeightHealthConnection then
 
         BossWeightHealthConnection:Disconnect()
-
         BossWeightHealthConnection = nil
     end
 
@@ -1676,7 +1663,6 @@ local function BossWeightConnectHealth()
                     return
                 end
 
-                -- здоровье восстановилось
                 if NewHealth >= LastHealth then
 
                     LastHealth =
@@ -1685,13 +1671,12 @@ local function BossWeightConnectHealth()
                     return
                 end
 
-                -- получен урон
                 LastHealth =
                     NewHealth
 
-                --==================================
-                -- ПЕРВЫЙ УРОН
-                --==================================
+                --================================
+                -- FIRST DAMAGE
+                --================================
 
                 if BossWeightStage == 0 then
 
@@ -1704,9 +1689,9 @@ local function BossWeightConnectHealth()
                     return
                 end
 
-                --==================================
-                -- ВТОРОЙ УРОН
-                --==================================
+                --================================
+                -- SECOND DAMAGE
+                --================================
 
                 if BossWeightStage == 1 then
 
@@ -1716,7 +1701,7 @@ local function BossWeightConnectHealth()
                         BossWeightFinalY
                     )
 
-                    -- старт 10 минут
+                    -- запускаем 10 минут
                     BossWeightStartTimer()
 
                     return
@@ -1730,14 +1715,13 @@ local function BossWeightDisconnectHealth()
     if BossWeightHealthConnection then
 
         BossWeightHealthConnection:Disconnect()
-
         BossWeightHealthConnection = nil
     end
 end
 
---//==================================================
---// ОСНОВНОЙ ЦИКЛ
---//==================================================
+--==================================================
+-- BOSS WEIGHT MAIN LOOP
+--==================================================
 
 local function BossWeightStartLoop()
 
@@ -1751,28 +1735,22 @@ local function BossWeightStartLoop()
 
         while AutoBossAndWeight do
 
-            --======================================
-            -- Y32
-            --======================================
-
             if BossWeightStage == 0 then
 
+                -- Y32
+                -- Гантеля
                 BossWeightDoWeight()
-
-            --======================================
-            -- Y28
-            --======================================
 
             elseif BossWeightStage == 1 then
 
+                -- Y28
+                -- Удары
                 DoPunch()
-
-            --======================================
-            -- Y4
-            --======================================
 
             elseif BossWeightStage == 2 then
 
+                -- Y4
+                -- Удары во время 10 минут
                 DoPunch()
             end
 
@@ -1783,9 +1761,9 @@ local function BossWeightStartLoop()
     end)
 end
 
---//==================================================
---// START AUTO БОССЫ И ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- START BOSS & WEIGHT
+--==================================================
 
 local function StartBossWeight()
 
@@ -1820,7 +1798,6 @@ local function StartBossWeight()
 
     BossWeightStage = 0
 
-    BossWeightTimerRunning = false
     BossWeightTimerEnd = 0
 
     BossWeightTimerToken =
@@ -1829,24 +1806,18 @@ local function StartBossWeight()
     BossWeightSavedCFrame =
         Root.CFrame
 
-    -- NOCLIP
     BossWeightStartNoclip()
 
-    -- фиксация позиции
     BossWeightStartFly()
 
-    -- отслеживание урона
     BossWeightConnectHealth()
 
-    -- основной цикл
     BossWeightStartLoop()
 
-    -- сразу Y32
     BossWeightMove(
         BossWeightY
     )
 
-    -- сразу запускаем гантелю
     task.spawn(function()
 
         task.wait(0.15)
@@ -1859,19 +1830,17 @@ local function StartBossWeight()
     end)
 end
 
---//==================================================
---// STOP AUTO БОССЫ И ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- STOP BOSS & WEIGHT
+--==================================================
 
 local function StopBossWeight()
 
     AutoBossAndWeight = false
 
-    -- полностью отменяем таймер
     BossWeightTimerToken =
         BossWeightTimerToken + 1
 
-    BossWeightTimerRunning = false
     BossWeightTimerEnd = 0
 
     BossWeightDisconnectHealth()
@@ -1903,9 +1872,9 @@ local function StopBossWeight()
     BossWeightSavedCFrame = nil
 end
 
---//==================================================
---// BUTTON AUTO БОССЫ И ГАНТЕЛЯ
---//==================================================
+--==================================================
+-- BOSS & WEIGHT BUTTON
+--==================================================
 
 BossWeightButton.MouseButton1Click:Connect(function()
 
@@ -1938,9 +1907,9 @@ BossWeightButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// AUTO DURABILITY
---//==================================================
+--==================================================
+-- AUTO DURABILITY
+--==================================================
 
 DurabilityButton.MouseButton1Click:Connect(function()
 
@@ -1987,9 +1956,9 @@ DurabilityButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// AUTO PUNCH
---//==================================================
+--==================================================
+-- AUTO PUNCH
+--==================================================
 
 PunchButton.MouseButton1Click:Connect(function()
 
@@ -2028,9 +1997,9 @@ PunchButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// KING ROCK
---//==================================================
+--==================================================
+-- KING ROCK
+--==================================================
 
 KingRockButton.MouseButton1Click:Connect(function()
 
@@ -2087,15 +2056,15 @@ KingRockButton.MouseButton1Click:Connect(function()
     end
 end)
 
---//==================================================
---// LANGUAGE GUI
---//==================================================
+--==================================================
+-- LANGUAGE SELECTOR
+--==================================================
 
 local LanguageGui =
     Instance.new("ScreenGui")
 
 LanguageGui.Name =
-    "LanguageSelector"
+    "KIRILL_LANGUAGE"
 
 LanguageGui.ResetOnSpawn =
     false
@@ -2107,31 +2076,40 @@ local LanguageFrame =
     Instance.new("Frame")
 
 LanguageFrame.Size =
-    UDim2.new(0, 180, 0, 125)
+    UDim2.new(0, 300, 0, 190)
 
 LanguageFrame.Position =
-    UDim2.new(0.5, -90, 0.5, -62)
+    UDim2.new(0.5, -150, 0.5, -95)
 
 LanguageFrame.BackgroundColor3 =
     Color3.fromRGB(30, 30, 30)
 
 LanguageFrame.BorderSizePixel = 0
-LanguageFrame.Parent = LanguageGui
+
+LanguageFrame.Parent =
+    LanguageGui
 
 local LanguageCorner =
     Instance.new("UICorner")
 
 LanguageCorner.CornerRadius =
-    UDim.new(0, 10)
+    UDim.new(0, 12)
 
 LanguageCorner.Parent =
     LanguageFrame
+
+--==================================================
+-- LANGUAGE TITLE
+--==================================================
 
 local LanguageTitle =
     Instance.new("TextLabel")
 
 LanguageTitle.Size =
-    UDim2.new(1, 0, 0, 35)
+    UDim2.new(1, -20, 0, 45)
+
+LanguageTitle.Position =
+    UDim2.new(0, 10, 0, 10)
 
 LanguageTitle.BackgroundTransparency = 1
 
@@ -2139,23 +2117,28 @@ LanguageTitle.TextColor3 =
     Color3.fromRGB(255, 255, 255)
 
 LanguageTitle.Text =
-    "Language / Язык"
+    "🌐 Выберите язык / Choose language"
 
-LanguageTitle.TextSize = 14
+LanguageTitle.TextSize = 17
+
 LanguageTitle.Font =
     Enum.Font.SourceSansBold
 
 LanguageTitle.Parent =
     LanguageFrame
 
+--==================================================
+-- RUSSIAN
+--==================================================
+
 local RUButton =
     Instance.new("TextButton")
 
 RUButton.Size =
-    UDim2.new(1, -20, 0, 32)
+    UDim2.new(1, -30, 0, 50)
 
 RUButton.Position =
-    UDim2.new(0, 10, 0, 42)
+    UDim2.new(0, 15, 0, 65)
 
 RUButton.BackgroundColor3 =
     Color3.fromRGB(55, 55, 55)
@@ -2164,28 +2147,37 @@ RUButton.TextColor3 =
     Color3.fromRGB(255, 255, 255)
 
 RUButton.Text =
-    "🇷🇺 Русский"
+    "🇷🇺  Русский"
 
-RUButton.TextSize = 14
-RUButton.Parent = LanguageFrame
+RUButton.TextSize = 20
+
+RUButton.Font =
+    Enum.Font.SourceSans
+
+RUButton.Parent =
+    LanguageFrame
 
 local RUCorner =
     Instance.new("UICorner")
 
 RUCorner.CornerRadius =
-    UDim.new(0, 6)
+    UDim.new(0, 8)
 
 RUCorner.Parent =
     RUButton
+
+--==================================================
+-- ENGLISH
+--==================================================
 
 local ENButton =
     Instance.new("TextButton")
 
 ENButton.Size =
-    UDim2.new(1, -20, 0, 32)
+    UDim2.new(1, -30, 0, 50)
 
 ENButton.Position =
-    UDim2.new(0, 10, 0, 80)
+    UDim2.new(0, 15, 0, 125)
 
 ENButton.BackgroundColor3 =
     Color3.fromRGB(55, 55, 55)
@@ -2194,23 +2186,28 @@ ENButton.TextColor3 =
     Color3.fromRGB(255, 255, 255)
 
 ENButton.Text =
-    "🇬🇧 English"
+    "🇬🇧  English"
 
-ENButton.TextSize = 14
-ENButton.Parent = LanguageFrame
+ENButton.TextSize = 20
+
+ENButton.Font =
+    Enum.Font.SourceSans
+
+ENButton.Parent =
+    LanguageFrame
 
 local ENCorner =
     Instance.new("UICorner")
 
 ENCorner.CornerRadius =
-    UDim.new(0, 6)
+    UDim.new(0, 8)
 
 ENCorner.Parent =
     ENButton
 
---//==================================================
---// LANGUAGE
---//==================================================
+--==================================================
+-- APPLY LANGUAGE
+--==================================================
 
 local function ApplyLanguage()
 
@@ -2331,6 +2328,10 @@ local function ApplyLanguage()
         )
 end
 
+--==================================================
+-- LANGUAGE -> OPEN PANEL
+--==================================================
+
 RUButton.MouseButton1Click:Connect(function()
 
     CurrentLanguage = "ru"
@@ -2338,6 +2339,10 @@ RUButton.MouseButton1Click:Connect(function()
     ApplyLanguage()
 
     LanguageGui:Destroy()
+
+    -- только теперь показываем панель
+    MainFrame.Visible = true
+    OpenButton.Visible = true
 end)
 
 ENButton.MouseButton1Click:Connect(function()
@@ -2347,14 +2352,23 @@ ENButton.MouseButton1Click:Connect(function()
     ApplyLanguage()
 
     LanguageGui:Destroy()
+
+    -- только теперь показываем панель
+    MainFrame.Visible = true
+    OpenButton.Visible = true
 end)
 
-ApplyLanguage()
+--==================================================
+-- START
+--==================================================
+
+MainFrame.Visible = false
+OpenButton.Visible = false
 
 print(
-    "[KIRILL_PANEL] NO KEY V1.55 loaded"
+    "[KIRILL_PANEL NO KEY V1.6] Loaded"
 )
 
 print(
-    "[KIRILL_PANEL] Авто-Боссы и Гантеля loaded"
+    "[KIRILL_PANEL] Сначала выбор языка"
 )
