@@ -1,5 +1,6 @@
 --// KIRILL_PANEL NO KEY V1.55
 --// БЕЗ АВТО-СУНДУКА
+--// НОВАЯ ФУНКЦИЯ: АВТО-БОССЫИПРОКАЧКА
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,21 +25,25 @@ local AutoDurability = false
 local AutoPunch = false
 local AutoKingRock = false
 
+-- НОВАЯ ФУНКЦИЯ
+local AutoBossAndTrain = false
+
 local RebirthTarget = 0
 local RebirthDone = 0
 
 local CurrentLanguage = "ru"
 
+--==================================================
 -- AUTO BOSS
+--==================================================
+
 local BossX = 7
 local BossNormalY = 28
 local BossDamageY = 4
 local BossZ = -1300
 
--- Сохранённая позиция игрока
 local BossSavedCFrame = nil
 
--- Для Noclip
 local BossSavedCollision = {}
 
 local BossNoclipConnection = nil
@@ -48,10 +53,42 @@ local BossY = BossNormalY
 local LastBossHealth = nil
 
 --==================================================
+-- AUTO БОССЫИПРОКАЧКА
+--==================================================
+
+local BossTrainX = 7
+local BossTrainY = 32
+local BossTrainDamageY = 28
+local BossTrainFinalY = 4
+local BossTrainZ = -1300
+
+local BossTrainSavedCFrame = nil
+
+local BossTrainSavedCollision = {}
+
+local BossTrainNoclipConnection = nil
+local BossTrainFlyConnection = nil
+
+local BossTrainYCurrent = BossTrainY
+
+local BossTrainLastHealth = nil
+
+-- 0 = Y32, качаемся
+-- 1 = Y28, первый урон
+-- 2 = Y4, второй урон
+local BossTrainStage = 0
+
+-- Время следующего сброса
+local BossTrainResetTime = 0
+
+--==================================================
 -- УДАЛЯЕМ СТАРУЮ GUI
 --==================================================
 
-local OldGui = PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY")
+local OldGui =
+    PlayerGui:FindFirstChild(
+        "KIRILL_PANEL_NO_KEY"
+    )
 
 if OldGui then
     OldGui:Destroy()
@@ -61,68 +98,121 @@ end
 -- ВЫБОР ЯЗЫКА
 --==================================================
 
-local LangGui = Instance.new("ScreenGui")
+local LangGui =
+    Instance.new("ScreenGui")
+
 LangGui.Name = "KIRILL_LANGUAGE"
 LangGui.ResetOnSpawn = false
-LangGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+LangGui.ZIndexBehavior =
+    Enum.ZIndexBehavior.Sibling
 LangGui.Parent = PlayerGui
 
-local LangFrame = Instance.new("Frame")
-LangFrame.Size = UDim2.new(0,260,0,150)
-LangFrame.Position = UDim2.new(0.5,-130,0.5,-75)
-LangFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+local LangFrame =
+    Instance.new("Frame")
+
+LangFrame.Size =
+    UDim2.new(0,260,0,150)
+
+LangFrame.Position =
+    UDim2.new(0.5,-130,0.5,-75)
+
+LangFrame.BackgroundColor3 =
+    Color3.fromRGB(25,25,25)
+
 LangFrame.BorderSizePixel = 0
 LangFrame.Parent = LangGui
 
-Instance.new("UICorner", LangFrame).CornerRadius = UDim.new(0,10)
+Instance.new("UICorner", LangFrame)
+    .CornerRadius = UDim.new(0,10)
 
-local LangTitle = Instance.new("TextLabel")
-LangTitle.Size = UDim2.new(1,0,0,45)
+local LangTitle =
+    Instance.new("TextLabel")
+
+LangTitle.Size =
+    UDim2.new(1,0,0,45)
+
 LangTitle.BackgroundTransparency = 1
-LangTitle.Text = "Language / Язык"
-LangTitle.TextColor3 = Color3.new(1,1,1)
+
+LangTitle.Text =
+    "Language / Язык"
+
+LangTitle.TextColor3 =
+    Color3.new(1,1,1)
+
 LangTitle.TextSize = 20
-LangTitle.Font = Enum.Font.GothamBlack
+LangTitle.Font =
+    Enum.Font.GothamBlack
+
 LangTitle.Parent = LangFrame
 
-local EnglishBtn = Instance.new("TextButton")
-EnglishBtn.Size = UDim2.new(0,210,0,38)
-EnglishBtn.Position = UDim2.new(0.5,-105,0,55)
-EnglishBtn.BackgroundColor3 = Color3.fromRGB(50,100,180)
-EnglishBtn.TextColor3 = Color3.new(1,1,1)
+local EnglishBtn =
+    Instance.new("TextButton")
+
+EnglishBtn.Size =
+    UDim2.new(0,210,0,38)
+
+EnglishBtn.Position =
+    UDim2.new(0.5,-105,0,55)
+
+EnglishBtn.BackgroundColor3 =
+    Color3.fromRGB(50,100,180)
+
+EnglishBtn.TextColor3 =
+    Color3.new(1,1,1)
+
 EnglishBtn.Text = "English"
 EnglishBtn.TextSize = 15
-EnglishBtn.Font = Enum.Font.GothamBlack
+EnglishBtn.Font =
+    Enum.Font.GothamBlack
+
 EnglishBtn.BorderSizePixel = 0
 EnglishBtn.Parent = LangFrame
 
-Instance.new("UICorner", EnglishBtn).CornerRadius = UDim.new(0,6)
+Instance.new("UICorner", EnglishBtn)
+    .CornerRadius = UDim.new(0,6)
 
-local RussianBtn = Instance.new("TextButton")
-RussianBtn.Size = UDim2.new(0,210,0,38)
-RussianBtn.Position = UDim2.new(0.5,-105,0,102)
-RussianBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
-RussianBtn.TextColor3 = Color3.new(1,1,1)
+local RussianBtn =
+    Instance.new("TextButton")
+
+RussianBtn.Size =
+    UDim2.new(0,210,0,38)
+
+RussianBtn.Position =
+    UDim2.new(0.5,-105,0,102)
+
+RussianBtn.BackgroundColor3 =
+    Color3.fromRGB(150,50,50)
+
+RussianBtn.TextColor3 =
+    Color3.new(1,1,1)
+
 RussianBtn.Text = "Русский"
 RussianBtn.TextSize = 15
-RussianBtn.Font = Enum.Font.GothamBlack
+RussianBtn.Font =
+    Enum.Font.GothamBlack
+
 RussianBtn.BorderSizePixel = 0
 RussianBtn.Parent = LangFrame
 
-Instance.new("UICorner", RussianBtn).CornerRadius = UDim.new(0,6)
+Instance.new("UICorner", RussianBtn)
+    .CornerRadius = UDim.new(0,6)
 
 local LanguageChosen = false
 
 EnglishBtn.Activated:Connect(function()
+
     CurrentLanguage = "en"
     LanguageChosen = true
     LangGui:Destroy()
+
 end)
 
 RussianBtn.Activated:Connect(function()
+
     CurrentLanguage = "ru"
     LanguageChosen = true
     LangGui:Destroy()
+
 end)
 
 repeat
@@ -134,131 +224,264 @@ until LanguageChosen
 --==================================================
 
 local T = {
+
     ru = {
-        title = "KIRILL_PANEL NO KEY V1.55",
 
-        train = "💪 Авто-Прокачка",
-        weight = "🏋️ Авто-Гантеля",
-        rebirth = "🔄 Авто-Ребитхи",
-        king = "👑 Тп-Кинг",
-        afk = "🛡️ Анти-Афк",
-        boss = "👹 Авто-Боссы",
-        durability = "🥊 Авто-Дурабилити",
-        punch = "⚡ Авто-Удары",
-        kingrock = "🗿 Кинг-Камень",
+        title =
+            "KIRILL_PANEL NO KEY V1.55",
 
-        off = "ВЫКЛ",
-        on = "ВКЛ",
+        train =
+            "💪 Авто-Прокачка",
 
-        bossSmall = "[ТОЛЬКО РАЗМЕР 12]",
+        weight =
+            "🏋️ Авто-Гантеля",
 
-        rebirthQuestion = "Сколько ты хочешь сделать ребитхов?",
-        rebirthInfo = "Цифра 0 это бесконечно",
-        ok = "OK"
+        rebirth =
+            "🔄 Авто-Ребитхи",
+
+        king =
+            "👑 Тп-Кинг",
+
+        afk =
+            "🛡️ Анти-Афк",
+
+        boss =
+            "👹 Авто-Боссы",
+
+        bossTrain =
+            "👹 Авто-БоссыиПрокачка",
+
+        durability =
+            "🥊 Авто-Дурабилити",
+
+        punch =
+            "⚡ Авто-Удары",
+
+        kingrock =
+            "🗿 Кинг-Камень",
+
+        off =
+            "ВЫКЛ",
+
+        on =
+            "ВКЛ",
+
+        bossSmall =
+            "[ТОЛЬКО РАЗМЕР 12]",
+
+        rebirthQuestion =
+            "Сколько ты хочешь сделать ребитхов?",
+
+        rebirthInfo =
+            "Цифра 0 это бесконечно",
+
+        ok =
+            "OK"
     },
 
     en = {
-        title = "KIRILL_PANEL NO KEY V1.55",
 
-        train = "💪 Auto-Train",
-        weight = "🏋️ Auto-Weight",
-        rebirth = "🔄 Auto-Rebirth",
-        king = "👑 TP-King",
-        afk = "🛡️ Anti-AFK",
-        boss = "👹 Auto-Boss",
-        durability = "🥊 Auto-Durability",
-        punch = "⚡ Auto-Punch",
-        kingrock = "🗿 King-Rock",
+        title =
+            "KIRILL_PANEL NO KEY V1.55",
 
-        off = "OFF",
-        on = "ON",
+        train =
+            "💪 Auto-Train",
 
-        bossSmall = "[SIZE 12 ONLY]",
+        weight =
+            "🏋️ Auto-Weight",
 
-        rebirthQuestion = "How many rebirths do you want?",
-        rebirthInfo = "Number 0 means infinite",
-        ok = "OK"
+        rebirth =
+            "🔄 Auto-Rebirth",
+
+        king =
+            "👑 TP-King",
+
+        afk =
+            "🛡️ Anti-AFK",
+
+        boss =
+            "👹 Auto-Boss",
+
+        bossTrain =
+            "👹 Auto-Boss&Train",
+
+        durability =
+            "🥊 Auto-Durability",
+
+        punch =
+            "⚡ Auto-Punch",
+
+        kingrock =
+            "🗿 King-Rock",
+
+        off =
+            "OFF",
+
+        on =
+            "ON",
+
+        bossSmall =
+            "[SIZE 12 ONLY]",
+
+        rebirthQuestion =
+            "How many rebirths do you want?",
+
+        rebirthInfo =
+            "Number 0 means infinite",
+
+        ok =
+            "OK"
     }
 }
 
 local function L(Name)
+
     return T[CurrentLanguage][Name]
+
 end
 
 --==================================================
 -- GUI
 --==================================================
 
-local Gui = Instance.new("ScreenGui")
-Gui.Name = "KIRILL_PANEL_NO_KEY"
+local Gui =
+    Instance.new("ScreenGui")
+
+Gui.Name =
+    "KIRILL_PANEL_NO_KEY"
+
 Gui.ResetOnSpawn = false
-Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Gui.ZIndexBehavior =
+    Enum.ZIndexBehavior.Sibling
+
 Gui.Parent = PlayerGui
 
 --==================================================
 -- КНОПКА ОТКРЫТИЯ
 --==================================================
 
-local Open = Instance.new("TextButton")
-Open.Size = UDim2.new(0,45,0,45)
-Open.Position = UDim2.new(1,-65,0,10)
-Open.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Open.TextColor3 = Color3.new(1,1,1)
+local Open =
+    Instance.new("TextButton")
+
+Open.Size =
+    UDim2.new(0,45,0,45)
+
+Open.Position =
+    UDim2.new(1,-65,0,10)
+
+Open.BackgroundColor3 =
+    Color3.fromRGB(30,30,30)
+
+Open.TextColor3 =
+    Color3.new(1,1,1)
+
 Open.Text = "⚡"
+
 Open.TextSize = 22
-Open.Font = Enum.Font.GothamBlack
+
+Open.Font =
+    Enum.Font.GothamBlack
+
 Open.BorderSizePixel = 0
 Open.Parent = Gui
 
-Instance.new("UICorner", Open).CornerRadius = UDim.new(1,0)
+Instance.new("UICorner", Open)
+    .CornerRadius = UDim.new(1,0)
 
 --==================================================
 -- ПАНЕЛЬ
 --==================================================
 
-local Panel = Instance.new("Frame")
-Panel.Size = UDim2.new(0,230,0,280)
-Panel.Position = UDim2.new(0.5,-115,0.5,-140)
-Panel.BackgroundColor3 = Color3.fromRGB(25,25,25)
+local Panel =
+    Instance.new("Frame")
+
+Panel.Size =
+    UDim2.new(0,230,0,280)
+
+Panel.Position =
+    UDim2.new(0.5,-115,0.5,-140)
+
+Panel.BackgroundColor3 =
+    Color3.fromRGB(25,25,25)
+
 Panel.BorderSizePixel = 0
 Panel.Visible = false
 Panel.Parent = Gui
 
-Instance.new("UICorner", Panel).CornerRadius = UDim.new(0,10)
+Instance.new("UICorner", Panel)
+    .CornerRadius = UDim.new(0,10)
 
 --==================================================
 -- TITLE
 --==================================================
 
-local TitleBar = Instance.new("Frame")
-TitleBar.Size = UDim2.new(1,0,0,35)
-TitleBar.BackgroundColor3 = Color3.fromRGB(35,35,35)
+local TitleBar =
+    Instance.new("Frame")
+
+TitleBar.Size =
+    UDim2.new(1,0,0,35)
+
+TitleBar.BackgroundColor3 =
+    Color3.fromRGB(35,35,35)
+
 TitleBar.BorderSizePixel = 0
 TitleBar.Parent = Panel
 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1,-40,1,0)
-Title.Position = UDim2.new(0,10,0,0)
+local Title =
+    Instance.new("TextLabel")
+
+Title.Size =
+    UDim2.new(1,-40,1,0)
+
+Title.Position =
+    UDim2.new(0,10,0,0)
+
 Title.BackgroundTransparency = 1
-Title.Text = L("title")
-Title.TextColor3 = Color3.new(1,1,1)
+
+Title.Text =
+    L("title")
+
+Title.TextColor3 =
+    Color3.new(1,1,1)
+
 Title.TextSize = 10
-Title.Font = Enum.Font.GothamBlack
-Title.TextXAlignment = Enum.TextXAlignment.Left
+
+Title.Font =
+    Enum.Font.GothamBlack
+
+Title.TextXAlignment =
+    Enum.TextXAlignment.Left
+
 Title.Parent = TitleBar
 
-local Close = Instance.new("TextButton")
-Close.Size = UDim2.new(0,25,0,25)
-Close.Position = UDim2.new(1,-32,0,5)
-Close.BackgroundColor3 = Color3.fromRGB(170,50,50)
+local Close =
+    Instance.new("TextButton")
+
+Close.Size =
+    UDim2.new(0,25,0,25)
+
+Close.Position =
+    UDim2.new(1,-32,0,5)
+
+Close.BackgroundColor3 =
+    Color3.fromRGB(170,50,50)
+
 Close.Text = "×"
-Close.TextColor3 = Color3.new(1,1,1)
+
+Close.TextColor3 =
+    Color3.new(1,1,1)
+
 Close.TextSize = 16
-Close.Font = Enum.Font.GothamBlack
+
+Close.Font =
+    Enum.Font.GothamBlack
+
 Close.BorderSizePixel = 0
 Close.Parent = TitleBar
 
-Instance.new("UICorner", Close).CornerRadius = UDim.new(0,5)
+Instance.new("UICorner", Close)
+    .CornerRadius = UDim.new(0,5)
 
 --==================================================
 -- ПЕРЕТАСКИВАНИЕ
@@ -270,8 +493,11 @@ local StartPos = nil
 
 TitleBar.InputBegan:Connect(function(Input)
 
-    if Input.UserInputType == Enum.UserInputType.MouseButton1
-    or Input.UserInputType == Enum.UserInputType.Touch then
+    if Input.UserInputType ==
+        Enum.UserInputType.MouseButton1
+
+    or Input.UserInputType ==
+        Enum.UserInputType.Touch then
 
         Dragging = true
         DragStart = Input.Position
@@ -283,8 +509,11 @@ end)
 
 TitleBar.InputEnded:Connect(function(Input)
 
-    if Input.UserInputType == Enum.UserInputType.MouseButton1
-    or Input.UserInputType == Enum.UserInputType.Touch then
+    if Input.UserInputType ==
+        Enum.UserInputType.MouseButton1
+
+    or Input.UserInputType ==
+        Enum.UserInputType.Touch then
 
         Dragging = false
 
@@ -298,18 +527,22 @@ UserInputService.InputChanged:Connect(function(Input)
         return
     end
 
-    if Input.UserInputType == Enum.UserInputType.MouseMovement
-    or Input.UserInputType == Enum.UserInputType.Touch then
+    if Input.UserInputType ==
+        Enum.UserInputType.MouseMovement
+
+    or Input.UserInputType ==
+        Enum.UserInputType.Touch then
 
         local Delta =
             Input.Position - DragStart
 
-        Panel.Position = UDim2.new(
-            StartPos.X.Scale,
-            StartPos.X.Offset + Delta.X,
-            StartPos.Y.Scale,
-            StartPos.Y.Offset + Delta.Y
-        )
+        Panel.Position =
+            UDim2.new(
+                StartPos.X.Scale,
+                StartPos.X.Offset + Delta.X,
+                StartPos.Y.Scale,
+                StartPos.Y.Offset + Delta.Y
+            )
 
     end
 
@@ -319,26 +552,42 @@ end)
 -- SCROLL
 --==================================================
 
-local Scroll = Instance.new("ScrollingFrame")
-Scroll.Size = UDim2.new(1,-10,1,-40)
-Scroll.Position = UDim2.new(0,5,0,40)
+local Scroll =
+    Instance.new("ScrollingFrame")
+
+Scroll.Size =
+    UDim2.new(1,-10,1,-40)
+
+Scroll.Position =
+    UDim2.new(0,5,0,40)
+
 Scroll.BackgroundTransparency = 1
 Scroll.BorderSizePixel = 0
-Scroll.CanvasSize = UDim2.new(0,0,0,390)
+
+Scroll.CanvasSize =
+    UDim2.new(0,0,0,440)
+
 Scroll.ScrollBarThickness = 4
-Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+Scroll.ScrollingDirection =
+    Enum.ScrollingDirection.Y
+
 Scroll.Parent = Panel
 
 --==================================================
 -- СОЗДАНИЕ КНОПОК
 --==================================================
 
-local function CreateButton(Text, Y)
+local function CreateButton(Text,Y)
 
-    local Btn = Instance.new("TextButton")
+    local Btn =
+        Instance.new("TextButton")
 
-    Btn.Size = UDim2.new(1,-10,0,40)
-    Btn.Position = UDim2.new(0,5,0,Y)
+    Btn.Size =
+        UDim2.new(1,-10,0,40)
+
+    Btn.Position =
+        UDim2.new(0,5,0,Y)
 
     Btn.BackgroundColor3 =
         Color3.fromRGB(150,50,50)
@@ -347,10 +596,14 @@ local function CreateButton(Text, Y)
         Color3.new(1,1,1)
 
     Btn.Text = Text
+
     Btn.TextSize = 12
-    Btn.Font = Enum.Font.GothamBlack
+
+    Btn.Font =
+        Enum.Font.GothamBlack
 
     Btn.BorderSizePixel = 0
+
     Btn.Parent = Scroll
 
     Instance.new("UICorner", Btn)
@@ -414,16 +667,43 @@ local KingRockBtn =
         354
     )
 
--- маленький текст AutoBoss
-local BossSmall = Instance.new("TextLabel")
-BossSmall.Size = UDim2.new(0,95,0,15)
-BossSmall.Position = UDim2.new(1,-100,0,225)
+-- НОВАЯ КНОПКА
+
+local BossTrainBtn =
+    CreateButton(
+        L("bossTrain") .. ": " .. L("off"),
+        398
+    )
+
+--==================================================
+-- МАЛЕНЬКИЙ ТЕКСТ AUTO BOSS
+--==================================================
+
+local BossSmall =
+    Instance.new("TextLabel")
+
+BossSmall.Size =
+    UDim2.new(0,95,0,15)
+
+BossSmall.Position =
+    UDim2.new(1,-100,0,225)
+
 BossSmall.BackgroundTransparency = 1
-BossSmall.Text = L("bossSmall")
-BossSmall.TextColor3 = Color3.fromRGB(210,210,210)
+
+BossSmall.Text =
+    L("bossSmall")
+
+BossSmall.TextColor3 =
+    Color3.fromRGB(210,210,210)
+
 BossSmall.TextSize = 7
-BossSmall.Font = Enum.Font.Gotham
-BossSmall.TextXAlignment = Enum.TextXAlignment.Right
+
+BossSmall.Font =
+    Enum.Font.Gotham
+
+BossSmall.TextXAlignment =
+    Enum.TextXAlignment.Right
+
 BossSmall.ZIndex = 5
 BossSmall.Parent = Scroll
 
@@ -431,7 +711,7 @@ BossSmall.Parent = Scroll
 -- SET BUTTON
 --==================================================
 
-local function SetBtn(Btn, Text, On)
+local function SetBtn(Btn,Text,On)
 
     if On then
 
@@ -478,14 +758,18 @@ end)
 local function GetMuscleEvent()
 
     local Event =
-        Player:FindFirstChild("muscleEvent")
+        Player:FindFirstChild(
+            "muscleEvent"
+        )
 
     if Event then
         return Event
     end
 
     local Events =
-        ReplicatedStorage:FindFirstChild("events")
+        ReplicatedStorage:FindFirstChild(
+            "events"
+        )
 
     if Events then
 
@@ -521,7 +805,9 @@ local function GetPunch()
     if Character then
 
         local Punch =
-            Character:FindFirstChild("Punch")
+            Character:FindFirstChild(
+                "Punch"
+            )
 
         if Punch then
             return Punch
@@ -530,10 +816,16 @@ local function GetPunch()
     end
 
     local Backpack =
-        Player:FindFirstChild("Backpack")
+        Player:FindFirstChild(
+            "Backpack"
+        )
 
     if Backpack then
-        return Backpack:FindFirstChild("Punch")
+
+        return Backpack:FindFirstChild(
+            "Punch"
+        )
+
     end
 
     return nil
@@ -561,7 +853,9 @@ local function DoPunch()
 
         if Punch.Parent ~= Character then
 
-            Humanoid:EquipTool(Punch)
+            Humanoid:EquipTool(
+                Punch
+            )
 
         end
 
@@ -602,7 +896,8 @@ end
 
 TrainBtn.Activated:Connect(function()
 
-    AutoTrain = not AutoTrain
+    AutoTrain =
+        not AutoTrain
 
     SetBtn(
         TrainBtn,
@@ -645,7 +940,8 @@ end)
 
 WeightBtn.Activated:Connect(function()
 
-    AutoWeight = not AutoWeight
+    AutoWeight =
+        not AutoWeight
 
     SetBtn(
         WeightBtn,
@@ -768,7 +1064,8 @@ local function ShowRebirthPrompt()
     Frame.Parent = PromptGui
 
     Instance.new("UICorner",Frame)
-        .CornerRadius = UDim.new(0,10)
+        .CornerRadius =
+            UDim.new(0,10)
 
     local Question =
         Instance.new("TextLabel")
@@ -788,6 +1085,7 @@ local function ShowRebirthPrompt()
         Color3.new(1,1,1)
 
     Question.TextSize = 16
+
     Question.Font =
         Enum.Font.GothamBlack
 
@@ -812,7 +1110,10 @@ local function ShowRebirthPrompt()
         Color3.fromRGB(180,180,180)
 
     Info.TextSize = 12
-    Info.Font = Enum.Font.Gotham
+
+    Info.Font =
+        Enum.Font.Gotham
+
     Info.Parent = Frame
 
     local Input =
@@ -832,14 +1133,18 @@ local function ShowRebirthPrompt()
 
     Input.PlaceholderText = "0"
     Input.Text = ""
+
     Input.TextSize = 16
-    Input.Font = Enum.Font.GothamBold
+
+    Input.Font =
+        Enum.Font.GothamBold
 
     Input.ClearTextOnFocus = false
     Input.Parent = Frame
 
     Instance.new("UICorner",Input)
-        .CornerRadius = UDim.new(0,6)
+        .CornerRadius =
+            UDim.new(0,6)
 
     local OK =
         Instance.new("TextButton")
@@ -860,13 +1165,15 @@ local function ShowRebirthPrompt()
         L("ok")
 
     OK.TextSize = 14
+
     OK.Font =
         Enum.Font.GothamBlack
 
     OK.Parent = Frame
 
     Instance.new("UICorner",OK)
-        .CornerRadius = UDim.new(0,6)
+        .CornerRadius =
+            UDim.new(0,6)
 
     OK.Activated:Connect(function()
 
@@ -982,7 +1289,8 @@ end)
 
 KingBtn.Activated:Connect(function()
 
-    AutoKing = not AutoKing
+    AutoKing =
+        not AutoKing
 
     SetBtn(
         KingBtn,
@@ -1037,7 +1345,8 @@ end)
 
 AFKBtn.Activated:Connect(function()
 
-    AntiAFK = not AntiAFK
+    AntiAFK =
+        not AntiAFK
 
     SetBtn(
         AFKBtn,
@@ -1088,10 +1397,9 @@ local function StartBossNoclip()
 
     if Character then
 
-        for _,Object in
-            ipairs(
-                Character:GetDescendants()
-            ) do
+        for _,Object in ipairs(
+            Character:GetDescendants()
+        ) do
 
             if Object:IsA("BasePart") then
 
@@ -1121,10 +1429,9 @@ local function StartBossNoclip()
                     return
                 end
 
-                for _,Object in
-                    ipairs(
-                        Character:GetDescendants()
-                    ) do
+                for _,Object in ipairs(
+                    Character:GetDescendants()
+                ) do
 
                     if Object:IsA("BasePart") then
 
@@ -1159,10 +1466,9 @@ local function StopBossNoclip()
 
     if Character then
 
-        for _,Object in
-            ipairs(
-                Character:GetDescendants()
-            ) do
+        for _,Object in ipairs(
+            Character:GetDescendants()
+        ) do
 
             if Object:IsA("BasePart") then
 
@@ -1265,7 +1571,8 @@ end
 
 BossBtn.Activated:Connect(function()
 
-    AutoBoss = not AutoBoss
+    AutoBoss =
+        not AutoBoss
 
     SetBtn(
         BossBtn,
@@ -1273,16 +1580,11 @@ BossBtn.Activated:Connect(function()
         AutoBoss
     )
 
-    --==============================================
-    -- ВКЛЮЧЕНИЕ
-    --==============================================
-
     if AutoBoss then
 
         local Character =
             Player.Character
 
-        -- СОХРАНЯЕМ КООРДИНАТЫ
         if Character then
 
             local Root =
@@ -1299,10 +1601,9 @@ BossBtn.Activated:Connect(function()
 
         end
 
-        -- Начальная высота
-        BossY = BossNormalY
+        BossY =
+            BossNormalY
 
-        -- Запоминаем HP
         local Humanoid =
             Character
             and Character:FindFirstChildOfClass(
@@ -1320,13 +1621,9 @@ BossBtn.Activated:Connect(function()
 
         end
 
-        -- Включаем Noclip
         StartBossNoclip()
-
-        -- Включаем Fly
         StartBossFly()
 
-        -- ТП к боссу
         pcall(function()
 
             if Character then
@@ -1356,19 +1653,11 @@ BossBtn.Activated:Connect(function()
 
         end)
 
-    --==============================================
-    -- ВЫКЛЮЧЕНИЕ
-    --==============================================
-
     else
 
-        -- Выключаем Fly
         StopBossFly()
-
-        -- Выключаем Noclip
         StopBossNoclip()
 
-        -- Возвращаем сохранённые координаты
         if BossSavedCFrame then
 
             pcall(function()
@@ -1397,9 +1686,7 @@ BossBtn.Activated:Connect(function()
         end
 
         BossSavedCFrame = nil
-
         BossY = BossNormalY
-
         LastBossHealth = nil
 
     end
@@ -1437,14 +1724,8 @@ task.spawn(function()
 
                 if not Humanoid
                 or not Root then
-
                     return
-
                 end
-
-                --==================================
-                -- ПРОВЕРКА УРОНА
-                --==================================
 
                 local Health =
                     Humanoid.Health
@@ -1452,7 +1733,6 @@ task.spawn(function()
                 if LastBossHealth
                 and Health < LastBossHealth then
 
-                    -- Сначала опускаемся
                     Root.AssemblyLinearVelocity =
                         Vector3.new(
                             0,
@@ -1462,7 +1742,6 @@ task.spawn(function()
 
                     task.wait(0.05)
 
-                    -- Потом Y=4
                     BossY =
                         BossDamageY
 
@@ -1483,11 +1762,515 @@ task.spawn(function()
                 LastBossHealth =
                     Health
 
+                DoPunch()
+
+            end)
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- AUTO БОССЫИПРОКАЧКА
+--==================================================
+
+local function StartBossTrainNoclip()
+
+    if BossTrainNoclipConnection then
+
+        BossTrainNoclipConnection:Disconnect()
+
+    end
+
+    BossTrainSavedCollision = {}
+
+    local Character =
+        Player.Character
+
+    if Character then
+
+        for _,Object in ipairs(
+            Character:GetDescendants()
+        ) do
+
+            if Object:IsA("BasePart") then
+
+                BossTrainSavedCollision[Object] =
+                    Object.CanCollide
+
+                Object.CanCollide = false
+
+            end
+
+        end
+
+    end
+
+    BossTrainNoclipConnection =
+        RunService.Stepped:Connect(
+            function()
+
+                if not AutoBossAndTrain then
+                    return
+                end
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                for _,Object in ipairs(
+                    Character:GetDescendants()
+                ) do
+
+                    if Object:IsA("BasePart") then
+
+                        Object.CanCollide = false
+
+                    end
+
+                end
+
+            end
+        )
+
+end
+
+local function StopBossTrainNoclip()
+
+    if BossTrainNoclipConnection then
+
+        BossTrainNoclipConnection:Disconnect()
+
+        BossTrainNoclipConnection = nil
+
+    end
+
+    local Character =
+        Player.Character
+
+    if Character then
+
+        for _,Object in ipairs(
+            Character:GetDescendants()
+        ) do
+
+            if Object:IsA("BasePart") then
+
+                if BossTrainSavedCollision[Object]
+                ~= nil then
+
+                    Object.CanCollide =
+                        BossTrainSavedCollision[Object]
+
+                end
+
+            end
+
+        end
+
+    end
+
+    BossTrainSavedCollision = {}
+
+end
+
+--==================================================
+-- AUTO БОССЫИПРОКАЧКА FLY
+--==================================================
+
+local function StartBossTrainFly()
+
+    if BossTrainFlyConnection then
+
+        BossTrainFlyConnection:Disconnect()
+
+    end
+
+    BossTrainFlyConnection =
+        RunService.Heartbeat:Connect(
+            function()
+
+                if not AutoBossAndTrain then
+                    return
+                end
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Root then
+                    return
+                end
+
+                Root.CFrame =
+                    CFrame.new(
+                        BossTrainX,
+                        BossTrainYCurrent,
+                        BossTrainZ
+                    ) *
+                    CFrame.Angles(
+                        0,
+                        math.rad(180),
+                        0
+                    )
+
+                Root.AssemblyLinearVelocity =
+                    Vector3.new(0,0,0)
+
+                Root.AssemblyAngularVelocity =
+                    Vector3.new(0,0,0)
+
+            end
+        )
+
+end
+
+local function StopBossTrainFly()
+
+    if BossTrainFlyConnection then
+
+        BossTrainFlyConnection:Disconnect()
+
+        BossTrainFlyConnection = nil
+
+    end
+
+end
+
+--==================================================
+-- ПЕРЕЙТИ НА ВЫСОТУ
+--==================================================
+
+local function BossTrainMoveTo(Y)
+
+    BossTrainYCurrent = Y
+
+    local Character =
+        Player.Character
+
+    if not Character then
+        return
+    end
+
+    local Root =
+        Character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not Root then
+        return
+    end
+
+    Root.CFrame =
+        CFrame.new(
+            BossTrainX,
+            Y,
+            BossTrainZ
+        ) *
+        CFrame.Angles(
+            0,
+            math.rad(180),
+            0
+        )
+
+    Root.AssemblyLinearVelocity =
+        Vector3.new(0,0,0)
+
+    Root.AssemblyAngularVelocity =
+        Vector3.new(0,0,0)
+
+end
+
+--==================================================
+-- ВКЛЮЧЕНИЕ АВТО-БОССЫИПРОКАЧКА
+--==================================================
+
+local function StartBossAndTrain()
+
+    local Character =
+        Player.Character
+
+    if not Character then
+        return
+    end
+
+    local Root =
+        Character:FindFirstChild(
+            "HumanoidRootPart"
+        )
+
+    if not Root then
+        return
+    end
+
+    BossTrainSavedCFrame =
+        Root.CFrame
+
+    BossTrainStage = 0
+
+    BossTrainResetTime = 0
+
+    BossTrainYCurrent =
+        BossTrainY
+
+    local Humanoid =
+        Character:FindFirstChildOfClass(
+            "Humanoid"
+        )
+
+    if Humanoid then
+
+        BossTrainLastHealth =
+            Humanoid.Health
+
+    else
+
+        BossTrainLastHealth = nil
+
+    end
+
+    StartBossTrainNoclip()
+    StartBossTrainFly()
+
+    BossTrainMoveTo(
+        BossTrainY
+    )
+
+end
+
+--==================================================
+-- ВЫКЛЮЧЕНИЕ АВТО-БОССЫИПРОКАЧКА
+--==================================================
+
+local function StopBossAndTrain()
+
+    StopBossTrainFly()
+    StopBossTrainNoclip()
+
+    if BossTrainSavedCFrame then
+
+        pcall(function()
+
+            local Character =
+                Player.Character
+
+            if Character then
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if Root then
+
+                    Root.CFrame =
+                        BossTrainSavedCFrame
+
+                end
+
+            end
+
+        end)
+
+    end
+
+    BossTrainSavedCFrame = nil
+
+    BossTrainStage = 0
+
+    BossTrainYCurrent =
+        BossTrainY
+
+    BossTrainLastHealth = nil
+
+    BossTrainResetTime = 0
+
+end
+
+--==================================================
+-- КНОПКА АВТО-БОССЫИПРОКАЧКА
+--==================================================
+
+BossTrainBtn.Activated:Connect(function()
+
+    AutoBossAndTrain =
+        not AutoBossAndTrain
+
+    SetBtn(
+        BossTrainBtn,
+        L("bossTrain"),
+        AutoBossAndTrain
+    )
+
+    if AutoBossAndTrain then
+
+        StartBossAndTrain()
+
+    else
+
+        StopBossAndTrain()
+
+    end
+
+end)
+
+--==================================================
+-- ЦИКЛ АВТО-БОССЫИПРОКАЧКА
+--==================================================
+
+task.spawn(function()
+
+    while task.wait(0.05) do
+
+        if AutoBossAndTrain then
+
+            pcall(function()
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Humanoid =
+                    Character:FindFirstChildOfClass(
+                        "Humanoid"
+                    )
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Humanoid
+                or not Root then
+
+                    return
+
+                end
+
+                local CurrentHealth =
+                    Humanoid.Health
+
                 --==================================
-                -- АТАКА
+                -- 10 МИНУТ ПРОШЛО
                 --==================================
 
-                DoPunch()
+                if BossTrainResetTime > 0
+                and os.clock() >= BossTrainResetTime then
+
+                    BossTrainStage = 0
+
+                    BossTrainResetTime = 0
+
+                    BossTrainMoveTo(
+                        BossTrainY
+                    )
+
+                    BossTrainLastHealth =
+                        CurrentHealth
+
+                    return
+
+                end
+
+                --==================================
+                -- ПОЛУЧЕН УРОН
+                --==================================
+
+                if BossTrainLastHealth
+                and CurrentHealth <
+                    BossTrainLastHealth then
+
+                    --==============================
+                    -- ПЕРВЫЙ УРОН
+                    -- Y = 28
+                    --==============================
+
+                    if BossTrainStage == 0 then
+
+                        BossTrainStage = 1
+
+                        BossTrainMoveTo(
+                            BossTrainDamageY
+                        )
+
+                        DoPunch()
+
+                    --==============================
+                    -- ВТОРОЙ УРОН
+                    -- Y = 4
+                    --==============================
+
+                    elseif BossTrainStage == 1 then
+
+                        BossTrainStage = 2
+
+                        BossTrainMoveTo(
+                            BossTrainFinalY
+                        )
+
+                        DoPunch()
+
+                        -- 10 минут
+                        BossTrainResetTime =
+                            os.clock() + 600
+
+                    end
+
+                end
+
+                BossTrainLastHealth =
+                    CurrentHealth
+
+                --==================================
+                -- Y32 = ПРОКАЧКА
+                --==================================
+
+                if BossTrainStage == 0 then
+
+                    local MuscleEvent =
+                        GetMuscleEvent()
+
+                    if MuscleEvent then
+
+                        MuscleEvent:FireServer(
+                            "rep"
+                        )
+
+                    end
+
+                --==================================
+                -- Y28 = БЬЁМ
+                --==================================
+
+                elseif BossTrainStage == 1 then
+
+                    DoPunch()
+
+                --==================================
+                -- Y4 = БЬЁМ
+                --==================================
+
+                elseif BossTrainStage == 2 then
+
+                    DoPunch()
+
+                end
 
             end)
 
@@ -1503,7 +2286,8 @@ end)
 
 DurBtn.Activated:Connect(function()
 
-    AutoDurability = not AutoDurability
+    AutoDurability =
+        not AutoDurability
 
     SetBtn(
         DurBtn,
@@ -1594,10 +2378,9 @@ task.spawn(function()
                         local BestRock = nil
                         local BestRequired = -1
 
-                        for _,Machine in
-                            ipairs(
-                                MachinesFolder:GetChildren()
-                            ) do
+                        for _,Machine in ipairs(
+                            MachinesFolder:GetChildren()
+                        ) do
 
                             local Rock =
                                 Machine:FindFirstChild(
@@ -1728,7 +2511,8 @@ end)
 
 PunchBtn.Activated:Connect(function()
 
-    AutoPunch = not AutoPunch
+    AutoPunch =
+        not AutoPunch
 
     SetBtn(
         PunchBtn,
@@ -1762,7 +2546,8 @@ end)
 
 KingRockBtn.Activated:Connect(function()
 
-    AutoKingRock = not AutoKingRock
+    AutoKingRock =
+        not AutoKingRock
 
     SetBtn(
         KingRockBtn,
