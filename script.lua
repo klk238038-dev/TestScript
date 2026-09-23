@@ -1,6 +1,5 @@
---==================================================
--- KIRILL_PANEL NO KEY V1.6
---==================================================
+--// MUSCLE LEGENDS NO KEY V1.6
+--// БЕЗ АВТО-СУНДУКА
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,7 +11,7 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 --==================================================
--- VARIABLES
+-- НАСТРОЙКИ
 --==================================================
 
 local AutoTrain = false
@@ -24,58 +23,145 @@ local AutoBoss = false
 local AutoDurability = false
 local AutoPunch = false
 local AutoKingRock = false
-local AutoBossAndWeight = false
+
+-- НОВАЯ ФУНКЦИЯ
+local AutoBossAndTrain = false
 
 local RebirthTarget = 0
 local RebirthDone = 0
 
 local CurrentLanguage = "ru"
 
---==================================================
--- ORDINARY AUTO BOSS
---==================================================
-
+-- AUTO BOSS
 local BossX = 7
 local BossNormalY = 28
 local BossDamageY = 4
 local BossZ = -1300
 
+-- Сохранённая позиция игрока
 local BossSavedCFrame = nil
+
+-- Для Noclip
 local BossSavedCollision = {}
+
 local BossNoclipConnection = nil
 local BossFlyConnection = nil
+
 local BossY = BossNormalY
 local LastBossHealth = nil
 
 --==================================================
--- AUTO BOSS & WEIGHT
+-- НОВОЕ: AUTO BOSS + ПРОКАЧКА
 --==================================================
 
-local BossWeightX = 7
-local BossWeightY = 32
-local BossWeightDamageY = 28
-local BossWeightFinalY = 4
-local BossWeightZ = -1300
+local BossTrainX = 7
+local BossTrainWeightY = 32
+local BossTrainDamageY = 28
+local BossTrainFinalY = 4
+local BossTrainZ = -1300
 
-local BossWeightSavedCFrame = nil
+-- 0 = гантеля / прокачка
+-- 1 = первый урон / Y28 / удары
+-- 2 = второй урон / Y4 / удары / 10 минут
 
-local BossWeightNoclipConnection = nil
-local BossWeightFlyConnection = nil
-local BossWeightHealthConnection = nil
+local BossTrainStage = 0
 
-local BossWeightStage = 0
-local BossWeightTimerEnd = 0
-local BossWeightTimerToken = 0
-local BossWeightLoopRunning = false
+local BossTrainHealthConnection = nil
+local BossTrainFlyConnection = nil
+local BossTrainNoclipConnection = nil
+
+local BossTrainTimerEnd = 0
+local BossTrainTimerToken = 0
 
 --==================================================
--- TEXT
+-- УДАЛЯЕМ СТАРУЮ GUI
+--==================================================
+
+local OldGui = PlayerGui:FindFirstChild("KIRILL_PANEL_NO_KEY")
+
+if OldGui then
+    OldGui:Destroy()
+end
+
+--==================================================
+-- ВЫБОР ЯЗЫКА
+--==================================================
+
+local LangGui = Instance.new("ScreenGui")
+LangGui.Name = "KIRILL_LANGUAGE"
+LangGui.ResetOnSpawn = false
+LangGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+LangGui.Parent = PlayerGui
+
+local LangFrame = Instance.new("Frame")
+LangFrame.Size = UDim2.new(0,260,0,150)
+LangFrame.Position = UDim2.new(0.5,-130,0.5,-75)
+LangFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+LangFrame.BorderSizePixel = 0
+LangFrame.Parent = LangGui
+
+Instance.new("UICorner", LangFrame).CornerRadius = UDim.new(0,10)
+
+local LangTitle = Instance.new("TextLabel")
+LangTitle.Size = UDim2.new(1,0,0,45)
+LangTitle.BackgroundTransparency = 1
+LangTitle.Text = "Language / Язык"
+LangTitle.TextColor3 = Color3.new(1,1,1)
+LangTitle.TextSize = 20
+LangTitle.Font = Enum.Font.GothamBlack
+LangTitle.Parent = LangFrame
+
+local EnglishBtn = Instance.new("TextButton")
+EnglishBtn.Size = UDim2.new(0,210,0,38)
+EnglishBtn.Position = UDim2.new(0.5,-105,0,55)
+EnglishBtn.BackgroundColor3 = Color3.fromRGB(50,100,180)
+EnglishBtn.TextColor3 = Color3.new(1,1,1)
+EnglishBtn.Text = "English"
+EnglishBtn.TextSize = 15
+EnglishBtn.Font = Enum.Font.GothamBlack
+EnglishBtn.BorderSizePixel = 0
+EnglishBtn.Parent = LangFrame
+
+Instance.new("UICorner", EnglishBtn).CornerRadius = UDim.new(0,6)
+
+local RussianBtn = Instance.new("TextButton")
+RussianBtn.Size = UDim2.new(0,210,0,38)
+RussianBtn.Position = UDim2.new(0.5,-105,0,102)
+RussianBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
+RussianBtn.TextColor3 = Color3.new(1,1,1)
+RussianBtn.Text = "Русский"
+RussianBtn.TextSize = 15
+RussianBtn.Font = Enum.Font.GothamBlack
+RussianBtn.BorderSizePixel = 0
+RussianBtn.Parent = LangFrame
+
+Instance.new("UICorner", RussianBtn).CornerRadius = UDim.new(0,6)
+
+local LanguageChosen = false
+
+EnglishBtn.Activated:Connect(function()
+    CurrentLanguage = "en"
+    LanguageChosen = true
+    LangGui:Destroy()
+end)
+
+RussianBtn.Activated:Connect(function()
+    CurrentLanguage = "ru"
+    LanguageChosen = true
+    LangGui:Destroy()
+end)
+
+repeat
+    task.wait()
+until LanguageChosen
+
+--==================================================
+-- ТЕКСТЫ
 --==================================================
 
 local T = {
-
     ru = {
-        title = "KIRILL_PANEL NO KEY V1.6",
+        title = "MUSCLE LEGENDS NO KEY V1.6",
 
         train = "💪 Авто-Прокачка",
         weight = "🏋️ Авто-Гантеля",
@@ -83,10 +169,11 @@ local T = {
         king = "👑 Тп-Кинг",
         afk = "🛡️ Анти-Афк",
         boss = "👹 Авто-Боссы",
-        bossWeight = "👹 Авто-Боссы и Гантеля",
         durability = "🥊 Авто-Дурабилити",
         punch = "⚡ Авто-Удары",
         kingrock = "🗿 Кинг-Камень",
+
+        bossTrain = "👹 Авто-Боссы и Прокачка",
 
         off = "ВЫКЛ",
         on = "ВКЛ",
@@ -99,7 +186,7 @@ local T = {
     },
 
     en = {
-        title = "KIRILL_PANEL NO KEY V1.6",
+        title = "MUSCLE LEGENDS NO KEY V1.6",
 
         train = "💪 Auto-Train",
         weight = "🏋️ Auto-Weight",
@@ -107,10 +194,11 @@ local T = {
         king = "👑 TP-King",
         afk = "🛡️ Anti-AFK",
         boss = "👹 Auto-Boss",
-        bossWeight = "👹 Auto-Boss & Weight",
         durability = "🥊 Auto-Durability",
         punch = "⚡ Auto-Punch",
         kingrock = "🗿 King-Rock",
+
+        bossTrain = "👹 Auto-Boss & Training",
 
         off = "OFF",
         on = "ON",
@@ -123,345 +211,301 @@ local T = {
     }
 }
 
---==================================================
--- REMOVE OLD GUI
---==================================================
-
-local OldGui = PlayerGui:FindFirstChild("KIRILL_PANEL")
-
-if OldGui then
-    OldGui:Destroy()
-end
-
-local OldLanguageGui = PlayerGui:FindFirstChild("KIRILL_LANGUAGE")
-
-if OldLanguageGui then
-    OldLanguageGui:Destroy()
+local function L(Name)
+    return T[CurrentLanguage][Name]
 end
 
 --==================================================
--- MAIN GUI
+-- GUI
 --==================================================
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KIRILL_PANEL"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "KIRILL_PANEL_NO_KEY"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.Parent = PlayerGui
 
 --==================================================
--- OPEN BUTTON
+-- КНОПКА ОТКРЫТИЯ
 --==================================================
 
-local OpenButton = Instance.new("TextButton")
+local Open = Instance.new("TextButton")
+Open.Size = UDim2.new(0,45,0,45)
+Open.Position = UDim2.new(1,-65,0,10)
+Open.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Open.TextColor3 = Color3.new(1,1,1)
+Open.Text = "⚡"
+Open.TextSize = 22
+Open.Font = Enum.Font.GothamBlack
+Open.BorderSizePixel = 0
+Open.Parent = Gui
 
-OpenButton.Name = "OpenButton"
-OpenButton.Size = UDim2.new(0, 48, 0, 48)
-OpenButton.Position = UDim2.new(1, -60, 0, 15)
-
-OpenButton.BackgroundColor3 =
-    Color3.fromRGB(35, 35, 35)
-
-OpenButton.TextColor3 =
-    Color3.fromRGB(255, 255, 255)
-
-OpenButton.Text = "💪"
-OpenButton.TextSize = 25
-
-OpenButton.BorderSizePixel = 0
-OpenButton.Visible = false
-OpenButton.Parent = ScreenGui
-
-local OpenCorner = Instance.new("UICorner")
-OpenCorner.CornerRadius = UDim.new(1, 0)
-OpenCorner.Parent = OpenButton
+Instance.new("UICorner", Open).CornerRadius = UDim.new(1,0)
 
 --==================================================
--- MAIN FRAME
+-- ПАНЕЛЬ
 --==================================================
 
-local MainFrame = Instance.new("Frame")
+local Panel = Instance.new("Frame")
+Panel.Size = UDim2.new(0,230,0,280)
+Panel.Position = UDim2.new(0.5,-115,0.5,-140)
+Panel.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Panel.BorderSizePixel = 0
+Panel.Visible = false
+Panel.Parent = Gui
 
-MainFrame.Name = "MainFrame"
-
-MainFrame.Size = UDim2.new(0, 230, 0, 280)
-
-MainFrame.Position =
-    UDim2.new(0.5, -115, 0.5, -140)
-
-MainFrame.BackgroundColor3 =
-    Color3.fromRGB(25, 25, 25)
-
-MainFrame.BorderSizePixel = 0
-
--- ВАЖНО:
--- панель скрыта до выбора языка
-MainFrame.Visible = false
-
-MainFrame.Parent = ScreenGui
-
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 10)
-MainCorner.Parent = MainFrame
+Instance.new("UICorner", Panel).CornerRadius = UDim.new(0,10)
 
 --==================================================
 -- TITLE
 --==================================================
 
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1,0,0,35)
+TitleBar.BackgroundColor3 = Color3.fromRGB(35,35,35)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = Panel
+
 local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,-40,1,0)
+Title.Position = UDim2.new(0,10,0,0)
+Title.BackgroundTransparency = 1
+Title.Text = L("title")
+Title.TextColor3 = Color3.new(1,1,1)
+Title.TextSize = 10
+Title.Font = Enum.Font.GothamBlack
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TitleBar
 
-Title.Size = UDim2.new(1, 0, 0, 38)
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0,25,0,25)
+Close.Position = UDim2.new(1,-32,0,5)
+Close.BackgroundColor3 = Color3.fromRGB(170,50,50)
+Close.Text = "×"
+Close.TextColor3 = Color3.new(1,1,1)
+Close.TextSize = 16
+Close.Font = Enum.Font.GothamBlack
+Close.BorderSizePixel = 0
+Close.Parent = TitleBar
 
-Title.Position =
-    UDim2.new(0, 0, 0, 0)
+Instance.new("UICorner", Close).CornerRadius = UDim.new(0,5)
 
-Title.BackgroundColor3 =
-    Color3.fromRGB(35, 35, 35)
+--==================================================
+-- ПЕРЕТАСКИВАНИЕ
+--==================================================
 
-Title.TextColor3 =
-    Color3.fromRGB(255, 255, 255)
+local Dragging = false
+local DragStart = nil
+local StartPos = nil
 
-Title.Text =
-    T.ru.title
+TitleBar.InputBegan:Connect(function(Input)
 
-Title.TextSize = 14
-Title.Font = Enum.Font.SourceSansBold
+    if Input.UserInputType == Enum.UserInputType.MouseButton1
+    or Input.UserInputType == Enum.UserInputType.Touch then
 
-Title.Parent = MainFrame
+        Dragging = true
+        DragStart = Input.Position
+        StartPos = Panel.Position
 
-local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 10)
-TitleCorner.Parent = Title
+    end
+
+end)
+
+TitleBar.InputEnded:Connect(function(Input)
+
+    if Input.UserInputType == Enum.UserInputType.MouseButton1
+    or Input.UserInputType == Enum.UserInputType.Touch then
+
+        Dragging = false
+
+    end
+
+end)
+
+UserInputService.InputChanged:Connect(function(Input)
+
+    if not Dragging then
+        return
+    end
+
+    if Input.UserInputType == Enum.UserInputType.MouseMovement
+    or Input.UserInputType == Enum.UserInputType.Touch then
+
+        local Delta =
+            Input.Position - DragStart
+
+        Panel.Position = UDim2.new(
+            StartPos.X.Scale,
+            StartPos.X.Offset + Delta.X,
+            StartPos.Y.Scale,
+            StartPos.Y.Offset + Delta.Y
+        )
+
+    end
+
+end)
 
 --==================================================
 -- SCROLL
 --==================================================
 
 local Scroll = Instance.new("ScrollingFrame")
-
-Scroll.Name = "Scroll"
-
-Scroll.Size =
-    UDim2.new(1, -10, 1, -45)
-
-Scroll.Position =
-    UDim2.new(0, 5, 0, 40)
-
+Scroll.Size = UDim2.new(1,-10,1,-40)
+Scroll.Position = UDim2.new(0,5,0,40)
 Scroll.BackgroundTransparency = 1
 Scroll.BorderSizePixel = 0
-
-Scroll.ScrollBarThickness = 5
-
-Scroll.CanvasSize =
-    UDim2.new(0, 0, 0, 445)
-
-Scroll.Parent = MainFrame
+Scroll.CanvasSize = UDim2.new(0,0,0,435)
+Scroll.ScrollBarThickness = 4
+Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+Scroll.Parent = Panel
 
 --==================================================
--- BUTTON CREATOR
+-- СОЗДАНИЕ КНОПОК
 --==================================================
 
-local function CreateToggleButton(Name, Text, Y)
+local function CreateButton(Text, Y)
 
-    local Button = Instance.new("TextButton")
+    local Btn = Instance.new("TextButton")
 
-    Button.Name = Name
+    Btn.Size = UDim2.new(1,-10,0,40)
+    Btn.Position = UDim2.new(0,5,0,Y)
 
-    Button.Size =
-        UDim2.new(1, -10, 0, 38)
+    Btn.BackgroundColor3 =
+        Color3.fromRGB(150,50,50)
 
-    Button.Position =
-        UDim2.new(0, 5, 0, Y)
+    Btn.TextColor3 =
+        Color3.new(1,1,1)
 
-    Button.BackgroundColor3 =
-        Color3.fromRGB(160, 55, 55)
+    Btn.Text = Text
+    Btn.TextSize = 12
+    Btn.Font = Enum.Font.GothamBlack
 
-    Button.TextColor3 =
-        Color3.fromRGB(255, 255, 255)
+    Btn.BorderSizePixel = 0
+    Btn.Parent = Scroll
 
-    Button.Text =
-        Text .. ": " .. T.ru.off
+    Instance.new("UICorner", Btn)
+        .CornerRadius = UDim.new(0,6)
 
-    Button.TextSize = 14
-    Button.Font = Enum.Font.SourceSansBold
+    return Btn
 
-    Button.BorderSizePixel = 0
-
-    Button.Parent = Scroll
-
-    local Corner = Instance.new("UICorner")
-
-    Corner.CornerRadius =
-        UDim.new(0, 7)
-
-    Corner.Parent = Button
-
-    return Button
 end
 
---==================================================
--- BUTTONS
---==================================================
-
-local TrainButton =
-    CreateToggleButton(
-        "TrainButton",
-        T.ru.train,
+local TrainBtn =
+    CreateButton(
+        L("train") .. ": " .. L("off"),
         2
     )
 
-local WeightButton =
-    CreateToggleButton(
-        "WeightButton",
-        T.ru.weight,
+local WeightBtn =
+    CreateButton(
+        L("weight") .. ": " .. L("off"),
         46
     )
 
-local RebirthButton =
-    CreateToggleButton(
-        "RebirthButton",
-        T.ru.rebirth,
+local RebirthBtn =
+    CreateButton(
+        L("rebirth") .. ": " .. L("off"),
         90
     )
 
-local KingButton =
-    CreateToggleButton(
-        "KingButton",
-        T.ru.king,
+local KingBtn =
+    CreateButton(
+        L("king") .. ": " .. L("off"),
         134
     )
 
-local AFKButton =
-    CreateToggleButton(
-        "AFKButton",
-        T.ru.afk,
+local AFKBtn =
+    CreateButton(
+        L("afk") .. ": " .. L("off"),
         178
     )
 
-local BossButton =
-    CreateToggleButton(
-        "BossButton",
-        T.ru.boss,
+local BossBtn =
+    CreateButton(
+        L("boss") .. ": " .. L("off"),
         222
     )
 
-local BossSmall = Instance.new("TextLabel")
-
-BossSmall.Name = "BossSmall"
-
-BossSmall.Size =
-    UDim2.new(1, -10, 0, 18)
-
-BossSmall.Position =
-    UDim2.new(0, 5, 0, 223)
-
-BossSmall.BackgroundTransparency = 1
-
-BossSmall.TextColor3 =
-    Color3.fromRGB(255, 220, 80)
-
-BossSmall.Text =
-    T.ru.bossSmall
-
-BossSmall.TextSize = 10
-BossSmall.Font = Enum.Font.SourceSansBold
-
-BossSmall.Parent = Scroll
-
-local DurabilityButton =
-    CreateToggleButton(
-        "DurabilityButton",
-        T.ru.durability,
+local DurBtn =
+    CreateButton(
+        L("durability") .. ": " .. L("off"),
         266
     )
 
-local PunchButton =
-    CreateToggleButton(
-        "PunchButton",
-        T.ru.punch,
+local PunchBtn =
+    CreateButton(
+        L("punch") .. ": " .. L("off"),
         310
     )
 
-local KingRockButton =
-    CreateToggleButton(
-        "KingRockButton",
-        T.ru.kingrock,
+local KingRockBtn =
+    CreateButton(
+        L("kingrock") .. ": " .. L("off"),
         354
     )
 
-local BossWeightButton =
-    CreateToggleButton(
-        "BossWeightButton",
-        T.ru.bossWeight,
+-- НОВАЯ КНОПКА
+local BossTrainBtn =
+    CreateButton(
+        L("bossTrain") .. ": " .. L("off"),
         398
     )
 
+-- маленький текст AutoBoss
+local BossSmall = Instance.new("TextLabel")
+BossSmall.Size = UDim2.new(0,95,0,15)
+BossSmall.Position = UDim2.new(1,-100,0,225)
+BossSmall.BackgroundTransparency = 1
+BossSmall.Text = L("bossSmall")
+BossSmall.TextColor3 = Color3.fromRGB(210,210,210)
+BossSmall.TextSize = 7
+BossSmall.Font = Enum.Font.Gotham
+BossSmall.TextXAlignment = Enum.TextXAlignment.Right
+BossSmall.ZIndex = 5
+BossSmall.Parent = Scroll
+
 --==================================================
--- DRAG PANEL
+-- SET BUTTON
 --==================================================
 
-local dragging = false
-local dragStart = nil
-local startPos = nil
+local function SetBtn(Btn, Text, On)
 
-Title.InputBegan:Connect(function(Input)
+    if On then
 
-    if Input.UserInputType ==
-        Enum.UserInputType.MouseButton1
-        or
-        Input.UserInputType ==
-        Enum.UserInputType.Touch then
+        Btn.Text =
+            Text .. ": " .. L("on")
 
-        dragging = true
+        Btn.BackgroundColor3 =
+            Color3.fromRGB(50,160,70)
 
-        dragStart =
-            Input.Position
+    else
 
-        startPos =
-            MainFrame.Position
+        Btn.Text =
+            Text .. ": " .. L("off")
+
+        Btn.BackgroundColor3 =
+            Color3.fromRGB(150,50,50)
+
     end
+
+end
+
+--==================================================
+-- OPEN / CLOSE
+--==================================================
+
+Open.Activated:Connect(function()
+
+    Panel.Visible = true
+    Open.Visible = false
+
 end)
 
-UserInputService.InputChanged:Connect(function(Input)
+Close.Activated:Connect(function()
 
-    if not dragging then
-        return
-    end
+    Panel.Visible = false
+    Open.Visible = true
 
-    if Input.UserInputType ==
-        Enum.UserInputType.MouseMovement
-        or
-        Input.UserInputType ==
-        Enum.UserInputType.Touch then
-
-        local Delta =
-            Input.Position - dragStart
-
-        MainFrame.Position =
-            UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + Delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + Delta.Y
-            )
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(Input)
-
-    if Input.UserInputType ==
-        Enum.UserInputType.MouseButton1
-        or
-        Input.UserInputType ==
-        Enum.UserInputType.Touch then
-
-        dragging = false
-    end
-end)
-
-OpenButton.MouseButton1Click:Connect(function()
-
-    MainFrame.Visible =
-        not MainFrame.Visible
 end)
 
 --==================================================
@@ -473,40 +517,33 @@ local function GetMuscleEvent()
     local Event =
         Player:FindFirstChild("muscleEvent")
 
-    if Event and Event:IsA("RemoteEvent") then
+    if Event then
         return Event
     end
 
-    local rEvents =
-        ReplicatedStorage:FindFirstChild("rEvents")
+    local Events =
+        ReplicatedStorage:FindFirstChild("events")
 
-    if rEvents then
+    if Events then
 
-        local Event2 =
-            rEvents:FindFirstChild("muscleEvent")
+        Event =
+            Events:FindFirstChild(
+                "muscleEvent"
+            )
 
-        if Event2 and Event2:IsA("RemoteEvent") then
-            return Event2
+        if Event then
+            return Event
         end
+
     end
 
-    return nil
-end
+    Event =
+        ReplicatedStorage:FindFirstChild(
+            "muscleEvent"
+        )
 
---==================================================
--- REBIRTH REMOTE
---==================================================
+    return Event
 
-local function GetRebirthRemote()
-
-    local rEvents =
-        ReplicatedStorage:FindFirstChild("rEvents")
-
-    if not rEvents then
-        return nil
-    end
-
-    return rEvents:FindFirstChild("rebirthRemote")
 end
 
 --==================================================
@@ -518,30 +555,26 @@ local function GetPunch()
     local Character =
         Player.Character
 
-    local Backpack =
-        Player:FindFirstChild("Backpack")
-
     if Character then
 
         local Punch =
             Character:FindFirstChild("Punch")
 
-        if Punch and Punch:IsA("Tool") then
+        if Punch then
             return Punch
         end
+
     end
 
+    local Backpack =
+        Player:FindFirstChild("Backpack")
+
     if Backpack then
-
-        local Punch =
-            Backpack:FindFirstChild("Punch")
-
-        if Punch and Punch:IsA("Tool") then
-            return Punch
-        end
+        return Backpack:FindFirstChild("Punch")
     end
 
     return nil
+
 end
 
 local function DoPunch()
@@ -558,197 +591,190 @@ local function DoPunch()
             "Humanoid"
         )
 
-    local Event =
-        GetMuscleEvent()
-
     local Punch =
         GetPunch()
 
-    if Punch
-    and Humanoid
-    and Punch.Parent ~= Character then
+    if Punch and Humanoid then
 
-        pcall(function()
+        if Punch.Parent ~= Character then
+
             Humanoid:EquipTool(Punch)
-        end)
 
-        task.wait(0.02)
+        end
+
+        Punch:Activate()
+
+        local MuscleEvent =
+            GetMuscleEvent()
+
+        if MuscleEvent then
+
+            pcall(function()
+
+                MuscleEvent:FireServer(
+                    "punch",
+                    "leftHand"
+                )
+
+            end)
+
+            pcall(function()
+
+                MuscleEvent:FireServer(
+                    "punch",
+                    "rightHand"
+                )
+
+            end)
+
+        end
+
     end
 
-    if Event then
-
-        pcall(function()
-            Event:FireServer(
-                "punch",
-                "rightHand"
-            )
-        end)
-
-        pcall(function()
-            Event:FireServer(
-                "punch",
-                "leftHand"
-            )
-        end)
-    end
-
-    if Punch then
-
-        pcall(function()
-            Punch:Activate()
-        end)
-    end
 end
 
 --==================================================
 -- AUTO TRAIN
 --==================================================
 
-TrainButton.MouseButton1Click:Connect(function()
+TrainBtn.Activated:Connect(function()
 
-    AutoTrain =
-        not AutoTrain
+    AutoTrain = not AutoTrain
 
-    if AutoTrain then
+    SetBtn(
+        TrainBtn,
+        L("train"),
+        AutoTrain
+    )
 
-        TrainButton.Text =
-            T[CurrentLanguage].train ..
-            ": " ..
-            T[CurrentLanguage].on
+end)
 
-        TrainButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
+task.spawn(function()
 
-        task.spawn(function()
+    while task.wait(0.1) do
 
-            while AutoTrain do
+        if AutoTrain then
 
-                local Event =
+            pcall(function()
+
+                local MuscleEvent =
                     GetMuscleEvent()
 
-                if Event then
+                if MuscleEvent then
 
-                    pcall(function()
-                        Event:FireServer("rep")
-                    end)
+                    MuscleEvent:FireServer(
+                        "rep"
+                    )
+
                 end
 
-                task.wait(0.05)
-            end
-        end)
+            end)
 
-    else
+        end
 
-        TrainButton.Text =
-            T[CurrentLanguage].train ..
-            ": " ..
-            T[CurrentLanguage].off
-
-        TrainButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
     end
+
 end)
 
 --==================================================
 -- AUTO WEIGHT
 --==================================================
 
-WeightButton.MouseButton1Click:Connect(function()
+WeightBtn.Activated:Connect(function()
 
-    AutoWeight =
-        not AutoWeight
+    AutoWeight = not AutoWeight
 
-    if AutoWeight then
+    SetBtn(
+        WeightBtn,
+        L("weight"),
+        AutoWeight
+    )
 
-        WeightButton.Text =
-            T[CurrentLanguage].weight ..
-            ": " ..
-            T[CurrentLanguage].on
+end)
 
-        WeightButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
+task.spawn(function()
 
-        task.spawn(function()
+    while task.wait(0.001) do
 
-            while AutoWeight do
+        if AutoWeight then
+
+            pcall(function()
 
                 local Character =
                     Player.Character
 
-                local Backpack =
-                    Player:FindFirstChild("Backpack")
+                if not Character then
+                    return
+                end
 
                 local Humanoid =
-                    Character
-                    and
                     Character:FindFirstChildOfClass(
                         "Humanoid"
                     )
 
-                if Character
-                and Backpack
-                and Humanoid then
+                local Backpack =
+                    Player:FindFirstChild(
+                        "Backpack"
+                    )
 
-                    local Weight =
+                local Weight = nil
+
+                if Backpack then
+
+                    Weight =
+                        Backpack:FindFirstChild(
+                            "Weight"
+                        )
+
+                end
+
+                if not Weight then
+
+                    Weight =
                         Character:FindFirstChild(
                             "Weight"
                         )
 
-                    if not Weight then
-
-                        Weight =
-                            Backpack:FindFirstChild(
-                                "Weight"
-                            )
-                    end
-
-                    if Weight
-                    and Weight:IsA("Tool") then
-
-                        pcall(function()
-
-                            if Weight.Parent
-                                ~= Character then
-
-                                Humanoid:EquipTool(
-                                    Weight
-                                )
-                            end
-                        end)
-                    end
                 end
 
-                local Event =
-                    GetMuscleEvent()
+                if Weight and Humanoid then
 
-                if Event then
+                    if Weight.Parent ~= Character then
 
-                    pcall(function()
-                        Event:FireServer("rep")
-                    end)
+                        Humanoid:EquipTool(
+                            Weight
+                        )
+
+                    end
+
+                    Weight:Activate()
+
+                    local MuscleEvent =
+                        GetMuscleEvent()
+
+                    if MuscleEvent then
+
+                        MuscleEvent:FireServer(
+                            "rep"
+                        )
+
+                    end
+
                 end
 
-                task.wait(0.05)
-            end
-        end)
+            end)
 
-    else
+        end
 
-        WeightButton.Text =
-            T[CurrentLanguage].weight ..
-            ": " ..
-            T[CurrentLanguage].off
-
-        WeightButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
     end
+
 end)
 
 --==================================================
--- REBIRTH PROMPT
+-- АВТО РЕБИТХИ
 --==================================================
 
-local function AskRebirthAmount()
+local function ShowRebirthPrompt()
 
     local PromptGui =
         Instance.new("ScreenGui")
@@ -756,591 +782,1083 @@ local function AskRebirthAmount()
     PromptGui.Name =
         "RebirthPrompt"
 
-    PromptGui.ResetOnSpawn =
-        false
+    PromptGui.ResetOnSpawn = false
 
-    PromptGui.Parent =
-        PlayerGui
+    PromptGui.ZIndexBehavior =
+        Enum.ZIndexBehavior.Global
+
+    PromptGui.Parent = PlayerGui
 
     local Frame =
         Instance.new("Frame")
 
     Frame.Size =
-        UDim2.new(0, 260, 0, 160)
+        UDim2.new(0,320,0,190)
 
     Frame.Position =
-        UDim2.new(0.5, -130, 0.5, -80)
+        UDim2.new(0.5,-160,0.5,-95)
 
     Frame.BackgroundColor3 =
-        Color3.fromRGB(30, 30, 30)
+        Color3.fromRGB(25,25,25)
 
     Frame.BorderSizePixel = 0
     Frame.Parent = PromptGui
 
-    local Corner =
-        Instance.new("UICorner")
-
-    Corner.CornerRadius =
-        UDim.new(0, 10)
-
-    Corner.Parent = Frame
+    Instance.new("UICorner",Frame)
+        .CornerRadius = UDim.new(0,10)
 
     local Question =
         Instance.new("TextLabel")
 
     Question.Size =
-        UDim2.new(1, -20, 0, 45)
+        UDim2.new(1,-20,0,50)
 
     Question.Position =
-        UDim2.new(0, 10, 0, 10)
+        UDim2.new(0,10,0,10)
 
     Question.BackgroundTransparency = 1
 
-    Question.TextColor3 =
-        Color3.fromRGB(255, 255, 255)
-
     Question.Text =
-        T[CurrentLanguage].rebirthQuestion
+        L("rebirthQuestion")
+
+    Question.TextColor3 =
+        Color3.new(1,1,1)
+
+    Question.TextSize = 16
+    Question.Font =
+        Enum.Font.GothamBlack
 
     Question.TextWrapped = true
-    Question.TextSize = 14
     Question.Parent = Frame
 
     local Info =
         Instance.new("TextLabel")
 
     Info.Size =
-        UDim2.new(1, -20, 0, 20)
+        UDim2.new(1,-20,0,30)
 
     Info.Position =
-        UDim2.new(0, 10, 0, 55)
+        UDim2.new(0,10,0,58)
 
     Info.BackgroundTransparency = 1
 
-    Info.TextColor3 =
-        Color3.fromRGB(255, 220, 80)
-
     Info.Text =
-        T[CurrentLanguage].rebirthInfo
+        L("rebirthInfo")
+
+    Info.TextColor3 =
+        Color3.fromRGB(180,180,180)
 
     Info.TextSize = 12
+    Info.Font = Enum.Font.Gotham
     Info.Parent = Frame
 
-    local Box =
+    local Input =
         Instance.new("TextBox")
 
-    Box.Size =
-        UDim2.new(1, -20, 0, 32)
+    Input.Size =
+        UDim2.new(0,250,0,35)
 
-    Box.Position =
-        UDim2.new(0, 10, 0, 82)
+    Input.Position =
+        UDim2.new(0.5,-125,0,95)
 
-    Box.BackgroundColor3 =
-        Color3.fromRGB(45, 45, 45)
+    Input.BackgroundColor3 =
+        Color3.fromRGB(45,45,45)
 
-    Box.TextColor3 =
-        Color3.fromRGB(255, 255, 255)
+    Input.TextColor3 =
+        Color3.new(1,1,1)
 
-    Box.PlaceholderText = "0"
-    Box.Text = ""
-    Box.TextSize = 14
+    Input.PlaceholderText = "0"
+    Input.Text = ""
+    Input.TextSize = 16
+    Input.Font = Enum.Font.GothamBold
 
-    Box.Parent = Frame
+    Input.ClearTextOnFocus = false
+    Input.Parent = Frame
 
-    local BoxCorner =
-        Instance.new("UICorner")
-
-    BoxCorner.CornerRadius =
-        UDim.new(0, 6)
-
-    BoxCorner.Parent = Box
+    Instance.new("UICorner",Input)
+        .CornerRadius = UDim.new(0,6)
 
     local OK =
         Instance.new("TextButton")
 
     OK.Size =
-        UDim2.new(1, -20, 0, 30)
+        UDim2.new(0,100,0,35)
 
     OK.Position =
-        UDim2.new(0, 10, 0, 120)
+        UDim2.new(0.5,-50,0,145)
 
     OK.BackgroundColor3 =
-        Color3.fromRGB(45, 170, 70)
+        Color3.fromRGB(50,160,70)
 
     OK.TextColor3 =
-        Color3.fromRGB(255, 255, 255)
+        Color3.new(1,1,1)
 
     OK.Text =
-        T[CurrentLanguage].ok
+        L("ok")
 
     OK.TextSize = 14
+    OK.Font =
+        Enum.Font.GothamBlack
+
     OK.Parent = Frame
 
-    local OKCorner =
-        Instance.new("UICorner")
+    Instance.new("UICorner",OK)
+        .CornerRadius = UDim.new(0,6)
 
-    OKCorner.CornerRadius =
-        UDim.new(0, 6)
-
-    OKCorner.Parent = OK
-
-    local Result = nil
-
-    OK.MouseButton1Click:Connect(function()
+    OK.Activated:Connect(function()
 
         local Number =
-            tonumber(Box.Text)
+            tonumber(Input.Text)
 
-        if Number then
-
-            Result =
-                math.max(
-                    0,
-                    math.floor(Number)
-                )
-
-            PromptGui:Destroy()
+        if not Number then
+            Number = 0
         end
+
+        Number =
+            math.floor(Number)
+
+        if Number < 0 then
+            Number = 0
+        end
+
+        RebirthTarget = Number
+        RebirthDone = 0
+        AutoRebirth = true
+
+        SetBtn(
+            RebirthBtn,
+            L("rebirth"),
+            true
+        )
+
+        PromptGui:Destroy()
+
     end)
 
-    repeat
-        task.wait()
-    until Result ~= nil
-    or not PromptGui.Parent
-
-    return Result or 0
 end
 
---==================================================
--- AUTO REBIRTH
---==================================================
-
-RebirthButton.MouseButton1Click:Connect(function()
+RebirthBtn.Activated:Connect(function()
 
     if AutoRebirth then
 
         AutoRebirth = false
 
-        RebirthButton.Text =
-            T[CurrentLanguage].rebirth ..
-            ": " ..
-            T[CurrentLanguage].off
+        SetBtn(
+            RebirthBtn,
+            L("rebirth"),
+            false
+        )
 
-        RebirthButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
+    else
 
-        return
+        ShowRebirthPrompt()
+
     end
 
-    RebirthTarget =
-        AskRebirthAmount()
+end)
 
-    RebirthDone = 0
-    AutoRebirth = true
+task.spawn(function()
 
-    RebirthButton.Text =
-        T[CurrentLanguage].rebirth ..
-        ": " ..
-        T[CurrentLanguage].on
+    while task.wait(0.08) do
 
-    RebirthButton.BackgroundColor3 =
-        Color3.fromRGB(45, 170, 70)
-
-    task.spawn(function()
-
-        while AutoRebirth do
-
-            local Remote =
-                GetRebirthRemote()
-
-            if Remote then
-
-                pcall(function()
-
-                    Remote:InvokeServer(
-                        "rebirthRequest"
-                    )
-                end)
-
-                RebirthDone =
-                    RebirthDone + 1
-            end
+        if AutoRebirth then
 
             if RebirthTarget > 0
             and RebirthDone >= RebirthTarget then
 
                 AutoRebirth = false
 
-                RebirthButton.Text =
-                    T[CurrentLanguage].rebirth ..
-                    ": " ..
-                    T[CurrentLanguage].off
+                SetBtn(
+                    RebirthBtn,
+                    L("rebirth"),
+                    false
+                )
 
-                RebirthButton.BackgroundColor3 =
-                    Color3.fromRGB(160, 55, 55)
+            else
 
-                break
+                pcall(function()
+
+                    local rEvents =
+                        ReplicatedStorage:FindFirstChild(
+                            "rEvents"
+                        )
+
+                    local Remote =
+                        rEvents
+                        and rEvents:FindFirstChild(
+                            "rebirthRemote"
+                        )
+
+                    if Remote then
+
+                        Remote:InvokeServer(
+                            "rebirthRequest"
+                        )
+
+                        if RebirthTarget > 0 then
+
+                            RebirthDone += 1
+
+                        end
+
+                    end
+
+                end)
+
             end
 
-            task.wait(0.1)
         end
-    end)
+
+    end
+
 end)
 
 --==================================================
 -- TP KING
 --==================================================
 
-KingButton.MouseButton1Click:Connect(function()
+KingBtn.Activated:Connect(function()
 
-    AutoKing =
-        not AutoKing
+    AutoKing = not AutoKing
 
-    if AutoKing then
+    SetBtn(
+        KingBtn,
+        L("king"),
+        AutoKing
+    )
 
-        KingButton.Text =
-            T[CurrentLanguage].king ..
-            ": " ..
-            T[CurrentLanguage].on
+end)
 
-        KingButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
+task.spawn(function()
 
-        local Character =
-            Player.Character
+    while task.wait(0.001) do
 
-        local Root =
-            Character
-            and
-            Character:FindFirstChild(
-                "HumanoidRootPart"
-            )
+        if AutoKing then
 
-        if Root then
+            pcall(function()
 
-            Root.CFrame =
-                CFrame.new(
-                    4195.27344,
-                    990.221802,
-                    -3876.88794
-                )
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Root then
+                    return
+                end
+
+                Root.CFrame =
+                    CFrame.new(
+                        -8744.821,
+                        121.183,
+                        -5859.323
+                    )
+
+            end)
+
         end
 
-    else
-
-        KingButton.Text =
-            T[CurrentLanguage].king ..
-            ": " ..
-            T[CurrentLanguage].off
-
-        KingButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
     end
+
 end)
 
 --==================================================
 -- ANTI AFK
 --==================================================
 
-Player.Idled:Connect(function()
+AFKBtn.Activated:Connect(function()
 
-    if not AntiAFK then
-        return
-    end
+    AntiAFK = not AntiAFK
 
-    pcall(function()
+    SetBtn(
+        AFKBtn,
+        L("afk"),
+        AntiAFK
+    )
 
-        VirtualUser:Button2Down(
-            Vector2.new(0, 0),
-            workspace.CurrentCamera.CFrame
-        )
-
-        task.wait(1)
-
-        VirtualUser:Button2Up(
-            Vector2.new(0, 0),
-            workspace.CurrentCamera.CFrame
-        )
-    end)
 end)
 
-AFKButton.MouseButton1Click:Connect(function()
+task.spawn(function()
 
-    AntiAFK =
-        not AntiAFK
+    while task.wait(900) do
 
-    if AntiAFK then
+        if AntiAFK then
 
-        AFKButton.Text =
-            T[CurrentLanguage].afk ..
-            ": " ..
-            T[CurrentLanguage].on
+            pcall(function()
 
-        AFKButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
+                VirtualUser:CaptureController()
 
-    else
+                VirtualUser:ClickButton2(
+                    Vector2.new(0,0)
+                )
 
-        AFKButton.Text =
-            T[CurrentLanguage].afk ..
-            ": " ..
-            T[CurrentLanguage].off
+            end)
 
-        AFKButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
+        end
+
     end
+
 end)
 
 --==================================================
--- ORDINARY AUTO BOSS NOCLIP
+-- AUTO BOSS NOCLIP
 --==================================================
 
 local function StartBossNoclip()
 
     if BossNoclipConnection then
+
         BossNoclipConnection:Disconnect()
+
+    end
+
+    BossSavedCollision = {}
+
+    local Character =
+        Player.Character
+
+    if Character then
+
+        for _,Object in
+            ipairs(
+                Character:GetDescendants()
+            ) do
+
+            if Object:IsA("BasePart") then
+
+                BossSavedCollision[Object] =
+                    Object.CanCollide
+
+                Object.CanCollide = false
+
+            end
+
+        end
+
     end
 
     BossNoclipConnection =
-        RunService.Stepped:Connect(function()
+        RunService.Stepped:Connect(
+            function()
 
-            if not AutoBoss then
-                return
-            end
+                if not AutoBoss then
+                    return
+                end
 
-            local Character =
-                Player.Character
+                local Character =
+                    Player.Character
 
-            if not Character then
-                return
-            end
+                if not Character then
+                    return
+                end
 
-            for _, Part in
-                ipairs(
-                    Character:GetDescendants()
-                ) do
+                for _,Object in
+                    ipairs(
+                        Character:GetDescendants()
+                    ) do
 
-                if Part:IsA("BasePart") then
+                    if Object:IsA("BasePart") then
 
-                    if BossSavedCollision[Part]
-                        == nil then
+                        Object.CanCollide =
+                            false
 
-                        BossSavedCollision[Part] =
-                            Part.CanCollide
                     end
 
-                    Part.CanCollide = false
                 end
+
             end
-        end)
+        )
+
 end
+
+--==================================================
+-- STOP NOCLIP
+--==================================================
 
 local function StopBossNoclip()
 
     if BossNoclipConnection then
 
         BossNoclipConnection:Disconnect()
+
         BossNoclipConnection = nil
+
     end
 
-    for Part, Value in
-        pairs(BossSavedCollision) do
+    local Character =
+        Player.Character
 
-        if Part and Part.Parent then
-            Part.CanCollide = Value
+    if Character then
+
+        for _,Object in
+            ipairs(
+                Character:GetDescendants()
+            ) do
+
+            if Object:IsA("BasePart") then
+
+                if BossSavedCollision[Object]
+                ~= nil then
+
+                    Object.CanCollide =
+                        BossSavedCollision[Object]
+
+                end
+
+            end
+
         end
+
     end
 
     BossSavedCollision = {}
+
 end
 
 --==================================================
--- ORDINARY AUTO BOSS POSITION
+-- AUTO BOSS FLY
 --==================================================
 
 local function StartBossFly()
 
     if BossFlyConnection then
+
         BossFlyConnection:Disconnect()
+
     end
 
     BossFlyConnection =
-        RunService.Heartbeat:Connect(function()
+        RunService.Heartbeat:Connect(
+            function()
 
-            if not AutoBoss then
-                return
-            end
+                if not AutoBoss then
+                    return
+                end
 
-            local Character =
-                Player.Character
+                local Character =
+                    Player.Character
 
-            local Root =
-                Character
-                and
-                Character:FindFirstChild(
-                    "HumanoidRootPart"
-                )
+                if not Character then
+                    return
+                end
 
-            if Root then
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Root then
+                    return
+                end
 
                 Root.CFrame =
                     CFrame.new(
                         BossX,
                         BossY,
                         BossZ
+                    ) *
+                    CFrame.Angles(
+                        0,
+                        math.rad(180),
+                        0
                     )
 
                 Root.AssemblyLinearVelocity =
-                    Vector3.zero
+                    Vector3.new(0,0,0)
 
                 Root.AssemblyAngularVelocity =
-                    Vector3.zero
+                    Vector3.new(0,0,0)
+
             end
-        end)
+        )
+
 end
+
+--==================================================
+-- STOP FLY
+--==================================================
 
 local function StopBossFly()
 
     if BossFlyConnection then
 
         BossFlyConnection:Disconnect()
+
         BossFlyConnection = nil
+
     end
+
 end
 
 --==================================================
--- ORDINARY AUTO BOSS
+-- AUTO BOSS
 --==================================================
 
-BossButton.MouseButton1Click:Connect(function()
+BossBtn.Activated:Connect(function()
 
-    AutoBoss =
-        not AutoBoss
+    AutoBoss = not AutoBoss
+
+    SetBtn(
+        BossBtn,
+        L("boss"),
+        AutoBoss
+    )
+
+    --==============================================
+    -- ВКЛЮЧЕНИЕ
+    --==============================================
 
     if AutoBoss then
 
         local Character =
             Player.Character
 
+        -- СОХРАНЯЕМ КООРДИНАТЫ
+        if Character then
+
+            local Root =
+                Character:FindFirstChild(
+                    "HumanoidRootPart"
+                )
+
+            if Root then
+
+                BossSavedCFrame =
+                    Root.CFrame
+
+            end
+
+        end
+
+        -- Начальная высота
+        BossY = BossNormalY
+
+        -- Запоминаем HP
         local Humanoid =
             Character
-            and
-            Character:FindFirstChildOfClass(
+            and Character:FindFirstChildOfClass(
                 "Humanoid"
             )
 
-        local Root =
-            Character
-            and
-            Character:FindFirstChild(
-                "HumanoidRootPart"
-            )
+        if Humanoid then
 
-        if Root then
-            BossSavedCFrame =
-                Root.CFrame
+            LastBossHealth =
+                Humanoid.Health
+
+        else
+
+            LastBossHealth = nil
+
         end
 
-        BossY =
-            BossNormalY
-
-        LastBossHealth =
-            Humanoid
-            and
-            Humanoid.Health
-            or
-            nil
-
+        -- Включаем Noclip
         StartBossNoclip()
+
+        -- Включаем Fly
         StartBossFly()
 
-        BossButton.Text =
-            T[CurrentLanguage].boss ..
-            ": " ..
-            T[CurrentLanguage].on
+        -- ТП к боссу
+        pcall(function()
 
-        BossButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
+            if Character then
 
-        task.spawn(function()
-
-            while AutoBoss do
-
-                local Character2 =
-                    Player.Character
-
-                local Humanoid2 =
-                    Character2
-                    and
-                    Character2:FindFirstChildOfClass(
-                        "Humanoid"
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
                     )
 
-                if Humanoid2 then
+                if Root then
 
-                    if LastBossHealth
-                    and
-                    Humanoid2.Health
-                    < LastBossHealth then
+                    Root.CFrame =
+                        CFrame.new(
+                            BossX,
+                            BossNormalY,
+                            BossZ
+                        ) *
+                        CFrame.Angles(
+                            0,
+                            math.rad(180),
+                            0
+                        )
 
-                        BossY =
-                            BossDamageY
-                    end
-
-                    LastBossHealth =
-                        Humanoid2.Health
                 end
 
-                DoPunch()
-
-                task.wait(0.05)
             end
+
         end)
+
+    --==============================================
+    -- ВЫКЛЮЧЕНИЕ
+    --==============================================
 
     else
 
+        -- Выключаем Fly
         StopBossFly()
+
+        -- Выключаем Noclip
         StopBossNoclip()
 
-        local Character =
-            Player.Character
+        -- Возвращаем сохранённые координаты
+        if BossSavedCFrame then
 
-        local Root =
-            Character
-            and
-            Character:FindFirstChild(
-                "HumanoidRootPart"
-            )
+            pcall(function()
 
-        if Root
-        and
-        BossSavedCFrame then
+                local Character =
+                    Player.Character
 
-            Root.CFrame =
-                BossSavedCFrame
+                if Character then
+
+                    local Root =
+                        Character:FindFirstChild(
+                            "HumanoidRootPart"
+                        )
+
+                    if Root then
+
+                        Root.CFrame =
+                            BossSavedCFrame
+
+                    end
+
+                end
+
+            end)
+
         end
 
         BossSavedCFrame = nil
+
         BossY = BossNormalY
+
         LastBossHealth = nil
 
-        BossButton.Text =
-            T[CurrentLanguage].boss ..
-            ": " ..
-            T[CurrentLanguage].off
-
-        BossButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
     end
+
 end)
 
 --==================================================
--- AUTO BOSS & WEIGHT
+-- AUTO BOSS LOOP
 --==================================================
 
-local function BossWeightMove(Y)
+task.spawn(function()
 
-    if not AutoBossAndWeight then
+    while task.wait(0.01) do
+
+        if AutoBoss then
+
+            pcall(function()
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Humanoid =
+                    Character:FindFirstChildOfClass(
+                        "Humanoid"
+                    )
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Humanoid
+                or not Root then
+
+                    return
+
+                end
+
+                --==================================
+                -- ПРОВЕРКА УРОНА
+                --==================================
+
+                local Health =
+                    Humanoid.Health
+
+                if LastBossHealth
+                and Health < LastBossHealth then
+
+                    -- Сначала опускаемся
+                    Root.AssemblyLinearVelocity =
+                        Vector3.new(
+                            0,
+                            -100,
+                            0
+                        )
+
+                    task.wait(0.05)
+
+                    -- Потом Y=4
+                    BossY =
+                        BossDamageY
+
+                    Root.CFrame =
+                        CFrame.new(
+                            BossX,
+                            BossDamageY,
+                            BossZ
+                        ) *
+                        CFrame.Angles(
+                            0,
+                            math.rad(180),
+                            0
+                        )
+
+                end
+
+                LastBossHealth =
+                    Health
+
+                --==================================
+                -- АТАКА
+                --==================================
+
+                DoPunch()
+
+            end)
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- AUTO DURABILITY
+--==================================================
+
+DurBtn.Activated:Connect(function()
+
+    AutoDurability = not AutoDurability
+
+    SetBtn(
+        DurBtn,
+        L("durability"),
+        AutoDurability
+    )
+
+end)
+
+task.spawn(function()
+
+    while task.wait(0.12) do
+
+        if AutoDurability then
+
+            pcall(function()
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Humanoid =
+                    Character:FindFirstChildOfClass(
+                        "Humanoid"
+                    )
+
+                local Backpack =
+                    Player:FindFirstChild(
+                        "Backpack"
+                    )
+
+                local Punch = nil
+
+                if Backpack then
+
+                    Punch =
+                        Backpack:FindFirstChild(
+                            "Punch"
+                        )
+
+                end
+
+                if not Punch then
+
+                    Punch =
+                        Character:FindFirstChild(
+                            "Punch"
+                        )
+
+                end
+
+                if Punch and Humanoid then
+
+                    if Punch.Parent ~= Character then
+
+                        Humanoid:EquipTool(
+                            Punch
+                        )
+
+                        task.wait(0.1)
+
+                    end
+
+                    local Durability =
+                        Player:FindFirstChild(
+                            "Durability"
+                        )
+
+                    if not Durability then
+                        return
+                    end
+
+                    local CurrentDurability =
+                        tonumber(
+                            Durability.Value
+                        ) or 0
+
+                    local MachinesFolder =
+                        workspace:FindFirstChild(
+                            "machinesFolder"
+                        )
+
+                    if MachinesFolder then
+
+                        local BestRock = nil
+                        local BestRequired = -1
+
+                        for _,Machine in
+                            ipairs(
+                                MachinesFolder:GetChildren()
+                            ) do
+
+                            local Rock =
+                                Machine:FindFirstChild(
+                                    "Rock"
+                                )
+
+                            if Rock
+                            and Rock:IsA("BasePart") then
+
+                                local Needed =
+                                    Machine:FindFirstChild(
+                                        "neededDurability"
+                                    )
+
+                                local Required = nil
+
+                                if Needed then
+
+                                    Required =
+                                        tonumber(
+                                            Needed.Value
+                                        )
+
+                                end
+
+                                if not Required then
+
+                                    Needed =
+                                        Rock:FindFirstChild(
+                                            "neededDurability"
+                                        )
+
+                                    if Needed then
+
+                                        Required =
+                                            tonumber(
+                                                Needed.Value
+                                            )
+
+                                    end
+
+                                end
+
+                                if Required
+                                and Required <= CurrentDurability
+                                and Required > BestRequired then
+
+                                    BestRequired =
+                                        Required
+
+                                    BestRock =
+                                        Rock
+
+                                end
+
+                            end
+
+                        end
+
+                        if BestRock then
+
+                            local Root =
+                                Character:FindFirstChild(
+                                    "HumanoidRootPart"
+                                )
+
+                            if Root then
+
+                                local Distance =
+                                    math.max(
+                                        BestRock.Size.Z / 2 + 2,
+                                        4
+                                    )
+
+                                local Position =
+                                    BestRock.Position
+                                    -
+                                    BestRock.CFrame.LookVector
+                                    *
+                                    Distance
+
+                                Root.CFrame =
+                                    CFrame.lookAt(
+                                        Position,
+                                        BestRock.Position
+                                    )
+
+                            end
+
+                            Punch:Activate()
+
+                            local MuscleEvent =
+                                GetMuscleEvent()
+
+                            if MuscleEvent then
+
+                                MuscleEvent:FireServer(
+                                    "punch",
+                                    "leftHand"
+                                )
+
+                                task.wait(0.06)
+
+                                MuscleEvent:FireServer(
+                                    "punch",
+                                    "rightHand"
+                                )
+
+                            end
+
+                        end
+
+                    end
+
+                end
+
+            end)
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- AUTO PUNCH
+--==================================================
+
+PunchBtn.Activated:Connect(function()
+
+    AutoPunch = not AutoPunch
+
+    SetBtn(
+        PunchBtn,
+        L("punch"),
+        AutoPunch
+    )
+
+end)
+
+task.spawn(function()
+
+    while task.wait(0.01) do
+
+        if AutoPunch then
+
+            pcall(function()
+
+                DoPunch()
+
+            end)
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- AUTO KING ROCK
+--==================================================
+
+KingRockBtn.Activated:Connect(function()
+
+    AutoKingRock = not AutoKingRock
+
+    SetBtn(
+        KingRockBtn,
+        L("kingrock"),
+        AutoKingRock
+    )
+
+end)
+
+task.spawn(function()
+
+    while task.wait(0.15) do
+
+        if AutoKingRock then
+
+            pcall(function()
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Root then
+                    return
+                end
+
+                Root.CFrame =
+                    CFrame.new(
+                        -8928.078,
+                        13.199,
+                        -6004.433
+                    )
+
+                task.wait(0.1)
+
+                DoPunch()
+
+            end)
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- AUTO BOSS + ПРОКАЧКА
+--==================================================
+
+local function BossTrainMove(Y)
+
+    if not AutoBossAndTrain then
         return
     end
 
@@ -1362,41 +1880,42 @@ local function BossWeightMove(Y)
 
     Root.CFrame =
         CFrame.new(
-            BossWeightX,
+            BossTrainX,
             Y,
-            BossWeightZ
+            BossTrainZ
+        ) *
+        CFrame.Angles(
+            0,
+            math.rad(180),
+            0
         )
 
     Root.AssemblyLinearVelocity =
-        Vector3.zero
+        Vector3.new(0,0,0)
 
     Root.AssemblyAngularVelocity =
-        Vector3.zero
+        Vector3.new(0,0,0)
+
 end
 
 --==================================================
--- WEIGHT LOGIC
+-- НОВАЯ ПРОКАЧКА
 --==================================================
 
-local function BossWeightDoWeight()
+local function BossTrainDoTraining()
 
-    if not AutoBossAndWeight then
+    if not AutoBossAndTrain then
         return
     end
 
-    if BossWeightStage ~= 0 then
+    if BossTrainStage ~= 0 then
         return
     end
 
     local Character =
         Player.Character
 
-    local Backpack =
-        Player:FindFirstChild("Backpack")
-
-    if not Character
-    or
-    not Backpack then
+    if not Character then
         return
     end
 
@@ -1405,231 +1924,288 @@ local function BossWeightDoWeight()
             "Humanoid"
         )
 
-    if not Humanoid then
+    local Backpack =
+        Player:FindFirstChild("Backpack")
+
+    if not Humanoid
+    or not Backpack then
         return
     end
 
     local Weight =
-        Character:FindFirstChild("Weight")
+        Character:FindFirstChild(
+            "Weight"
+        )
 
     if not Weight then
 
         Weight =
-            Backpack:FindFirstChild("Weight")
+            Backpack:FindFirstChild(
+                "Weight"
+            )
+
     end
 
     if Weight
-    and
-    Weight:IsA("Tool") then
+    and Weight:IsA("Tool") then
 
         pcall(function()
 
-            if Weight.Parent
-                ~= Character then
+            if Weight.Parent ~= Character then
 
                 Humanoid:EquipTool(
                     Weight
                 )
+
             end
+
         end)
-    end
-
-    local Event =
-        GetMuscleEvent()
-
-    if Event then
 
         pcall(function()
-            Event:FireServer("rep")
+
+            Weight:Activate()
+
         end)
+
     end
+
+    local MuscleEvent =
+        GetMuscleEvent()
+
+    if MuscleEvent then
+
+        pcall(function()
+
+            MuscleEvent:FireServer(
+                "rep"
+            )
+
+        end)
+
+    end
+
 end
 
 --==================================================
--- BOSS WEIGHT NOCLIP
+-- НОВЫЙ NOCLIP
 --==================================================
 
-local function BossWeightStartNoclip()
+local function StartBossTrainNoclip()
 
-    if BossWeightNoclipConnection then
+    if BossTrainNoclipConnection then
 
-        BossWeightNoclipConnection:Disconnect()
+        BossTrainNoclipConnection:Disconnect()
+
     end
 
-    BossWeightNoclipConnection =
-        RunService.Stepped:Connect(function()
+    BossTrainNoclipConnection =
+        RunService.Stepped:Connect(
+            function()
 
-            if not AutoBossAndWeight then
-                return
-            end
-
-            local Character =
-                Player.Character
-
-            if not Character then
-                return
-            end
-
-            for _, Part in
-                ipairs(
-                    Character:GetDescendants()
-                ) do
-
-                if Part:IsA("BasePart") then
-                    Part.CanCollide = false
+                if not AutoBossAndTrain then
+                    return
                 end
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                for _,Object in
+                    ipairs(
+                        Character:GetDescendants()
+                    ) do
+
+                    if Object:IsA("BasePart") then
+
+                        Object.CanCollide =
+                            false
+
+                    end
+
+                end
+
             end
-        end)
+        )
+
 end
 
-local function BossWeightStopNoclip()
+local function StopBossTrainNoclip()
 
-    if BossWeightNoclipConnection then
+    if BossTrainNoclipConnection then
 
-        BossWeightNoclipConnection:Disconnect()
-        BossWeightNoclipConnection = nil
+        BossTrainNoclipConnection:Disconnect()
+
+        BossTrainNoclipConnection = nil
+
     end
+
 end
 
 --==================================================
--- BOSS WEIGHT POSITION LOCK
+-- НОВАЯ ФИКСАЦИЯ ПОЗИЦИИ
 --==================================================
 
-local function BossWeightStartFly()
+local function StartBossTrainFly()
 
-    if BossWeightFlyConnection then
-        BossWeightFlyConnection:Disconnect()
+    if BossTrainFlyConnection then
+
+        BossTrainFlyConnection:Disconnect()
+
     end
 
-    BossWeightFlyConnection =
-        RunService.Heartbeat:Connect(function()
+    BossTrainFlyConnection =
+        RunService.Heartbeat:Connect(
+            function()
 
-            if not AutoBossAndWeight then
-                return
+                if not AutoBossAndTrain then
+                    return
+                end
+
+                local Character =
+                    Player.Character
+
+                if not Character then
+                    return
+                end
+
+                local Root =
+                    Character:FindFirstChild(
+                        "HumanoidRootPart"
+                    )
+
+                if not Root then
+                    return
+                end
+
+                local Y
+
+                if BossTrainStage == 0 then
+
+                    Y =
+                        BossTrainWeightY
+
+                elseif BossTrainStage == 1 then
+
+                    Y =
+                        BossTrainDamageY
+
+                else
+
+                    Y =
+                        BossTrainFinalY
+
+                end
+
+                Root.CFrame =
+                    CFrame.new(
+                        BossTrainX,
+                        Y,
+                        BossTrainZ
+                    ) *
+                    CFrame.Angles(
+                        0,
+                        math.rad(180),
+                        0
+                    )
+
+                Root.AssemblyLinearVelocity =
+                    Vector3.new(0,0,0)
+
+                Root.AssemblyAngularVelocity =
+                    Vector3.new(0,0,0)
+
             end
+        )
 
-            local Character =
-                Player.Character
-
-            if not Character then
-                return
-            end
-
-            local Root =
-                Character:FindFirstChild(
-                    "HumanoidRootPart"
-                )
-
-            if not Root then
-                return
-            end
-
-            local Y
-
-            if BossWeightStage == 0 then
-
-                Y = BossWeightY
-
-            elseif BossWeightStage == 1 then
-
-                Y = BossWeightDamageY
-
-            else
-
-                Y = BossWeightFinalY
-            end
-
-            Root.CFrame =
-                CFrame.new(
-                    BossWeightX,
-                    Y,
-                    BossWeightZ
-                )
-
-            Root.AssemblyLinearVelocity =
-                Vector3.zero
-
-            Root.AssemblyAngularVelocity =
-                Vector3.zero
-        end)
 end
 
-local function BossWeightStopFly()
+local function StopBossTrainFly()
 
-    if BossWeightFlyConnection then
+    if BossTrainFlyConnection then
 
-        BossWeightFlyConnection:Disconnect()
-        BossWeightFlyConnection = nil
+        BossTrainFlyConnection:Disconnect()
+
+        BossTrainFlyConnection = nil
+
     end
+
 end
 
 --==================================================
--- 10 MINUTE TIMER
+-- 10 МИНУТ
 --==================================================
 
-local function BossWeightStartTimer()
+local function StartBossTrainTimer()
 
-    BossWeightTimerToken =
-        BossWeightTimerToken + 1
+    BossTrainTimerToken =
+        BossTrainTimerToken + 1
 
     local MyToken =
-        BossWeightTimerToken
+        BossTrainTimerToken
 
     -- 600 секунд = 10 минут
-    BossWeightTimerEnd =
+    BossTrainTimerEnd =
         time() + 600
 
     task.spawn(function()
 
-        while AutoBossAndWeight do
+        while AutoBossAndTrain do
 
-            if MyToken ~= BossWeightTimerToken then
+            if MyToken ~= BossTrainTimerToken then
                 return
             end
 
-            if BossWeightStage ~= 2 then
+            if BossTrainStage ~= 2 then
                 return
             end
 
-            if time() >= BossWeightTimerEnd then
+            if time() >= BossTrainTimerEnd then
 
-                -- таймер закончен
-                BossWeightTimerEnd = 0
+                BossTrainTimerEnd = 0
 
-                -- начинаем новый цикл
-                BossWeightStage = 0
+                -- НОВЫЙ ЦИКЛ
+                BossTrainStage = 0
 
-                -- Y32
-                BossWeightMove(
-                    BossWeightY
+                -- Возврат на Y32
+                BossTrainMove(
+                    BossTrainWeightY
                 )
 
                 task.wait(0.2)
 
-                if AutoBossAndWeight
-                and BossWeightStage == 0 then
+                if AutoBossAndTrain
+                and BossTrainStage == 0 then
 
-                    BossWeightDoWeight()
+                    BossTrainDoTraining()
+
                 end
 
                 return
+
             end
 
             task.wait(0.1)
+
         end
+
     end)
+
 end
 
 --==================================================
--- HEALTH DAMAGE DETECTION
+-- ОТСЛЕЖИВАНИЕ УРОНА
 --==================================================
 
-local function BossWeightConnectHealth()
+local function ConnectBossTrainHealth()
 
-    if BossWeightHealthConnection then
+    if BossTrainHealthConnection then
 
-        BossWeightHealthConnection:Disconnect()
-        BossWeightHealthConnection = nil
+        BossTrainHealthConnection:Disconnect()
+        BossTrainHealthConnection = nil
+
     end
 
     local Character =
@@ -1651,123 +2227,132 @@ local function BossWeightConnectHealth()
     local LastHealth =
         Humanoid.Health
 
-    BossWeightHealthConnection =
+    BossTrainHealthConnection =
         Humanoid.HealthChanged:Connect(
             function(NewHealth)
 
-                if not AutoBossAndWeight then
+                if not AutoBossAndTrain then
 
                     LastHealth =
                         NewHealth
 
                     return
+
                 end
 
+                -- Игнорируем лечение
                 if NewHealth >= LastHealth then
 
                     LastHealth =
                         NewHealth
 
                     return
+
                 end
 
+                -- Запоминаем новое HP
                 LastHealth =
                     NewHealth
 
-                --================================
-                -- FIRST DAMAGE
-                --================================
+                --==================================
+                -- ПЕРВЫЙ УРОН
+                --==================================
 
-                if BossWeightStage == 0 then
+                if BossTrainStage == 0 then
 
-                    BossWeightStage = 1
+                    BossTrainStage = 1
 
-                    BossWeightMove(
-                        BossWeightDamageY
+                    BossTrainMove(
+                        BossTrainDamageY
                     )
 
                     return
+
                 end
 
-                --================================
-                -- SECOND DAMAGE
-                --================================
+                --==================================
+                -- ВТОРОЙ УРОН
+                --==================================
 
-                if BossWeightStage == 1 then
+                if BossTrainStage == 1 then
 
-                    BossWeightStage = 2
+                    BossTrainStage = 2
 
-                    BossWeightMove(
-                        BossWeightFinalY
+                    BossTrainMove(
+                        BossTrainFinalY
                     )
 
                     -- запускаем 10 минут
-                    BossWeightStartTimer()
+                    StartBossTrainTimer()
 
                     return
+
                 end
+
             end
         )
+
 end
 
-local function BossWeightDisconnectHealth()
+local function DisconnectBossTrainHealth()
 
-    if BossWeightHealthConnection then
+    if BossTrainHealthConnection then
 
-        BossWeightHealthConnection:Disconnect()
-        BossWeightHealthConnection = nil
+        BossTrainHealthConnection:Disconnect()
+
+        BossTrainHealthConnection = nil
+
     end
+
 end
 
 --==================================================
--- BOSS WEIGHT MAIN LOOP
+-- ОСНОВНОЙ ЦИКЛ НОВОЙ ФУНКЦИИ
 --==================================================
 
-local function BossWeightStartLoop()
-
-    if BossWeightLoopRunning then
-        return
-    end
-
-    BossWeightLoopRunning = true
+local function StartBossTrainLoop()
 
     task.spawn(function()
 
-        while AutoBossAndWeight do
+        while AutoBossAndTrain do
 
-            if BossWeightStage == 0 then
+            if BossTrainStage == 0 then
 
                 -- Y32
-                -- Гантеля
-                BossWeightDoWeight()
+                -- Гантеля / прокачка
+                BossTrainDoTraining()
 
-            elseif BossWeightStage == 1 then
+            elseif BossTrainStage == 1 then
 
                 -- Y28
-                -- Удары
+                -- Первый урон
+                -- Бьём
                 DoPunch()
 
-            elseif BossWeightStage == 2 then
+            elseif BossTrainStage == 2 then
 
                 -- Y4
-                -- Удары во время 10 минут
+                -- После второго урона
+                -- Бьём 10 минут
                 DoPunch()
+
             end
 
             task.wait(0.05)
+
         end
 
-        BossWeightLoopRunning = false
     end)
+
 end
 
 --==================================================
--- START BOSS & WEIGHT
+-- ВКЛЮЧЕНИЕ НОВОЙ ФУНКЦИИ
 --==================================================
 
-local function StartBossWeight()
+local function StartBossAndTrain()
 
-    if AutoBossAndWeight then
+    if AutoBossAndTrain then
         return
     end
 
@@ -1789,586 +2374,115 @@ local function StartBossWeight()
         )
 
     if not Humanoid
-    or
-    not Root then
+    or not Root then
         return
     end
 
-    AutoBossAndWeight = true
+    AutoBossAndTrain = true
 
-    BossWeightStage = 0
+    BossTrainStage = 0
 
-    BossWeightTimerEnd = 0
+    BossTrainTimerEnd = 0
 
-    BossWeightTimerToken =
-        BossWeightTimerToken + 1
+    BossTrainTimerToken =
+        BossTrainTimerToken + 1
 
-    BossWeightSavedCFrame =
-        Root.CFrame
+    StartBossTrainNoclip()
 
-    BossWeightStartNoclip()
+    StartBossTrainFly()
 
-    BossWeightStartFly()
+    ConnectBossTrainHealth()
 
-    BossWeightConnectHealth()
+    StartBossTrainLoop()
 
-    BossWeightStartLoop()
-
-    BossWeightMove(
-        BossWeightY
+    -- Сразу Y32
+    BossTrainMove(
+        BossTrainWeightY
     )
 
     task.spawn(function()
 
         task.wait(0.15)
 
-        if AutoBossAndWeight
-        and BossWeightStage == 0 then
+        if AutoBossAndTrain
+        and BossTrainStage == 0 then
 
-            BossWeightDoWeight()
+            BossTrainDoTraining()
+
         end
+
     end)
+
 end
 
 --==================================================
--- STOP BOSS & WEIGHT
+-- ВЫКЛЮЧЕНИЕ НОВОЙ ФУНКЦИИ
 --==================================================
 
-local function StopBossWeight()
+local function StopBossAndTrain()
 
-    AutoBossAndWeight = false
+    AutoBossAndTrain = false
 
-    BossWeightTimerToken =
-        BossWeightTimerToken + 1
+    BossTrainTimerToken =
+        BossTrainTimerToken + 1
 
-    BossWeightTimerEnd = 0
+    BossTrainTimerEnd = 0
 
-    BossWeightDisconnectHealth()
+    DisconnectBossTrainHealth()
 
-    BossWeightStopFly()
+    StopBossTrainFly()
 
-    BossWeightStopNoclip()
+    StopBossTrainNoclip()
 
-    BossWeightStage = 0
+    BossTrainStage = 0
 
-    local Character =
-        Player.Character
-
-    local Root =
-        Character
-        and
-        Character:FindFirstChild(
-            "HumanoidRootPart"
-        )
-
-    if Root
-    and
-    BossWeightSavedCFrame then
-
-        Root.CFrame =
-            BossWeightSavedCFrame
-    end
-
-    BossWeightSavedCFrame = nil
 end
 
 --==================================================
--- BOSS & WEIGHT BUTTON
+-- КНОПКА НОВОЙ ФУНКЦИИ
 --==================================================
 
-BossWeightButton.MouseButton1Click:Connect(function()
+BossTrainBtn.Activated:Connect(function()
 
-    if AutoBossAndWeight then
+    AutoBossAndTrain =
+        not AutoBossAndTrain
 
-        StopBossWeight()
+    if AutoBossAndTrain then
 
-        BossWeightButton.Text =
-            T[CurrentLanguage].bossWeight ..
-            ": " ..
-            T[CurrentLanguage].off
+        StartBossAndTrain()
 
-        BossWeightButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
+        if AutoBossAndTrain then
 
-    else
+            SetBtn(
+                BossTrainBtn,
+                L("bossTrain"),
+                true
+            )
 
-        StartBossWeight()
-
-        if AutoBossAndWeight then
-
-            BossWeightButton.Text =
-                T[CurrentLanguage].bossWeight ..
-                ": " ..
-                T[CurrentLanguage].on
-
-            BossWeightButton.BackgroundColor3 =
-                Color3.fromRGB(45, 170, 70)
         end
-    end
-end)
-
---==================================================
--- AUTO DURABILITY
---==================================================
-
-DurabilityButton.MouseButton1Click:Connect(function()
-
-    AutoDurability =
-        not AutoDurability
-
-    if AutoDurability then
-
-        DurabilityButton.Text =
-            T[CurrentLanguage].durability ..
-            ": " ..
-            T[CurrentLanguage].on
-
-        DurabilityButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
-
-        task.spawn(function()
-
-            while AutoDurability do
-
-                local Event =
-                    GetMuscleEvent()
-
-                if Event then
-
-                    pcall(function()
-                        Event:FireServer("rep")
-                    end)
-                end
-
-                task.wait(0.05)
-            end
-        end)
 
     else
 
-        DurabilityButton.Text =
-            T[CurrentLanguage].durability ..
-            ": " ..
-            T[CurrentLanguage].off
+        StopBossAndTrain()
 
-        DurabilityButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
+        SetBtn(
+            BossTrainBtn,
+            L("bossTrain"),
+            false
+        )
+
     end
+
 end)
 
 --==================================================
--- AUTO PUNCH
+-- ГОТОВО
 --==================================================
-
-PunchButton.MouseButton1Click:Connect(function()
-
-    AutoPunch =
-        not AutoPunch
-
-    if AutoPunch then
-
-        PunchButton.Text =
-            T[CurrentLanguage].punch ..
-            ": " ..
-            T[CurrentLanguage].on
-
-        PunchButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
-
-        task.spawn(function()
-
-            while AutoPunch do
-
-                DoPunch()
-
-                task.wait(0.03)
-            end
-        end)
-
-    else
-
-        PunchButton.Text =
-            T[CurrentLanguage].punch ..
-            ": " ..
-            T[CurrentLanguage].off
-
-        PunchButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
-    end
-end)
-
---==================================================
--- KING ROCK
---==================================================
-
-KingRockButton.MouseButton1Click:Connect(function()
-
-    AutoKingRock =
-        not AutoKingRock
-
-    if AutoKingRock then
-
-        KingRockButton.Text =
-            T[CurrentLanguage].kingrock ..
-            ": " ..
-            T[CurrentLanguage].on
-
-        KingRockButton.BackgroundColor3 =
-            Color3.fromRGB(45, 170, 70)
-
-        task.spawn(function()
-
-            while AutoKingRock do
-
-                local Character =
-                    Player.Character
-
-                local Root =
-                    Character
-                    and
-                    Character:FindFirstChild(
-                        "HumanoidRootPart"
-                    )
-
-                if Root then
-
-                    Root.CFrame =
-                        CFrame.new(
-                            4195.27344,
-                            990.221802,
-                            -3876.88794
-                        )
-                end
-
-                task.wait(0.2)
-            end
-        end)
-
-    else
-
-        KingRockButton.Text =
-            T[CurrentLanguage].kingrock ..
-            ": " ..
-            T[CurrentLanguage].off
-
-        KingRockButton.BackgroundColor3 =
-            Color3.fromRGB(160, 55, 55)
-    end
-end)
-
---==================================================
--- LANGUAGE SELECTOR
---==================================================
-
-local LanguageGui =
-    Instance.new("ScreenGui")
-
-LanguageGui.Name =
-    "KIRILL_LANGUAGE"
-
-LanguageGui.ResetOnSpawn =
-    false
-
-LanguageGui.Parent =
-    PlayerGui
-
-local LanguageFrame =
-    Instance.new("Frame")
-
-LanguageFrame.Size =
-    UDim2.new(0, 300, 0, 190)
-
-LanguageFrame.Position =
-    UDim2.new(0.5, -150, 0.5, -95)
-
-LanguageFrame.BackgroundColor3 =
-    Color3.fromRGB(30, 30, 30)
-
-LanguageFrame.BorderSizePixel = 0
-
-LanguageFrame.Parent =
-    LanguageGui
-
-local LanguageCorner =
-    Instance.new("UICorner")
-
-LanguageCorner.CornerRadius =
-    UDim.new(0, 12)
-
-LanguageCorner.Parent =
-    LanguageFrame
-
---==================================================
--- LANGUAGE TITLE
---==================================================
-
-local LanguageTitle =
-    Instance.new("TextLabel")
-
-LanguageTitle.Size =
-    UDim2.new(1, -20, 0, 45)
-
-LanguageTitle.Position =
-    UDim2.new(0, 10, 0, 10)
-
-LanguageTitle.BackgroundTransparency = 1
-
-LanguageTitle.TextColor3 =
-    Color3.fromRGB(255, 255, 255)
-
-LanguageTitle.Text =
-    "🌐 Выберите язык / Choose language"
-
-LanguageTitle.TextSize = 17
-
-LanguageTitle.Font =
-    Enum.Font.SourceSansBold
-
-LanguageTitle.Parent =
-    LanguageFrame
-
---==================================================
--- RUSSIAN
---==================================================
-
-local RUButton =
-    Instance.new("TextButton")
-
-RUButton.Size =
-    UDim2.new(1, -30, 0, 50)
-
-RUButton.Position =
-    UDim2.new(0, 15, 0, 65)
-
-RUButton.BackgroundColor3 =
-    Color3.fromRGB(55, 55, 55)
-
-RUButton.TextColor3 =
-    Color3.fromRGB(255, 255, 255)
-
-RUButton.Text =
-    "🇷🇺  Русский"
-
-RUButton.TextSize = 20
-
-RUButton.Font =
-    Enum.Font.SourceSans
-
-RUButton.Parent =
-    LanguageFrame
-
-local RUCorner =
-    Instance.new("UICorner")
-
-RUCorner.CornerRadius =
-    UDim.new(0, 8)
-
-RUCorner.Parent =
-    RUButton
-
---==================================================
--- ENGLISH
---==================================================
-
-local ENButton =
-    Instance.new("TextButton")
-
-ENButton.Size =
-    UDim2.new(1, -30, 0, 50)
-
-ENButton.Position =
-    UDim2.new(0, 15, 0, 125)
-
-ENButton.BackgroundColor3 =
-    Color3.fromRGB(55, 55, 55)
-
-ENButton.TextColor3 =
-    Color3.fromRGB(255, 255, 255)
-
-ENButton.Text =
-    "🇬🇧  English"
-
-ENButton.TextSize = 20
-
-ENButton.Font =
-    Enum.Font.SourceSans
-
-ENButton.Parent =
-    LanguageFrame
-
-local ENCorner =
-    Instance.new("UICorner")
-
-ENCorner.CornerRadius =
-    UDim.new(0, 8)
-
-ENCorner.Parent =
-    ENButton
-
---==================================================
--- APPLY LANGUAGE
---==================================================
-
-local function ApplyLanguage()
-
-    Title.Text =
-        T[CurrentLanguage].title
-
-    TrainButton.Text =
-        T[CurrentLanguage].train ..
-        ": " ..
-        (
-            AutoTrain
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    WeightButton.Text =
-        T[CurrentLanguage].weight ..
-        ": " ..
-        (
-            AutoWeight
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    RebirthButton.Text =
-        T[CurrentLanguage].rebirth ..
-        ": " ..
-        (
-            AutoRebirth
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    KingButton.Text =
-        T[CurrentLanguage].king ..
-        ": " ..
-        (
-            AutoKing
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    AFKButton.Text =
-        T[CurrentLanguage].afk ..
-        ": " ..
-        (
-            AntiAFK
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    BossButton.Text =
-        T[CurrentLanguage].boss ..
-        ": " ..
-        (
-            AutoBoss
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    BossSmall.Text =
-        T[CurrentLanguage].bossSmall
-
-    DurabilityButton.Text =
-        T[CurrentLanguage].durability ..
-        ": " ..
-        (
-            AutoDurability
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    PunchButton.Text =
-        T[CurrentLanguage].punch ..
-        ": " ..
-        (
-            AutoPunch
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    KingRockButton.Text =
-        T[CurrentLanguage].kingrock ..
-        ": " ..
-        (
-            AutoKingRock
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-
-    BossWeightButton.Text =
-        T[CurrentLanguage].bossWeight ..
-        ": " ..
-        (
-            AutoBossAndWeight
-            and
-            T[CurrentLanguage].on
-            or
-            T[CurrentLanguage].off
-        )
-end
-
---==================================================
--- LANGUAGE -> OPEN PANEL
---==================================================
-
-RUButton.MouseButton1Click:Connect(function()
-
-    CurrentLanguage = "ru"
-
-    ApplyLanguage()
-
-    LanguageGui:Destroy()
-
-    -- только теперь показываем панель
-    MainFrame.Visible = true
-    OpenButton.Visible = true
-end)
-
-ENButton.MouseButton1Click:Connect(function()
-
-    CurrentLanguage = "en"
-
-    ApplyLanguage()
-
-    LanguageGui:Destroy()
-
-    -- только теперь показываем панель
-    MainFrame.Visible = true
-    OpenButton.Visible = true
-end)
-
---==================================================
--- START
---==================================================
-
-MainFrame.Visible = false
-OpenButton.Visible = false
 
 print(
-    "[KIRILL_PANEL NO KEY V1.6] Loaded"
+    "⚡ MUSCLE LEGENDS NO KEY V1.6 LOADED - NO AUTO CHEST"
 )
 
 print(
-    "[KIRILL_PANEL] Сначала выбор языка"
+    "👹 AUTO BOSS + ПРОКАЧКА LOADED"
 )
