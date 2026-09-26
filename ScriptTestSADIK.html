@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Академия-садик Roblox Lua</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  font-family:Arial,sans-serif;
+  background:#f4f7fb;
+  color:#182230;
+  overflow:hidden;
+}
+
+button{
+  font:inherit;
+  border:0;
+  cursor:pointer;
+}
+
+#app{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+.header{
+  background:#fff;
+  border-bottom:1px solid #dfe6ee;
+  padding:14px;
+}
+
+.title{
+  font-size:22px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.progress-wrap{
+  width:100%;
+  height:10px;
+  background:#e7edf4;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.progress{
+  height:100%;
+  width:0%;
+  background:#4c8bf5;
+  border-radius:999px;
+  transition:.25s;
+}
+
+.subline{
+  margin-top:7px;
+  color:#697586;
+  font-size:13px;
+}
+
+.main{
+  flex:1;
+  display:flex;
+  min-height:0;
+}
+
+.sidebar{
+  width:290px;
+  background:#fff;
+  border-right:1px solid #dfe6ee;
+  overflow:auto;
+  padding:12px;
+}
+
+.sidebar h2{
+  margin:4px;
+  margin-bottom:10px;
+  font-size:16px;
+}
+
+.lesson-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.lesson-item{
+  width:100%;
+  text-align:left;
+  padding:10px 11px;
+  border-radius:12px;
+  background:#f5f7fa;
+  color:#303b49;
+  border:1px solid #e4e9ef;
+}
+
+.lesson-item.active{
+  background:#eaf2ff;
+  border-color:#92b8ff;
+}
+
+.lesson-item.locked{
+  opacity:.48;
+  cursor:not-allowed;
+}
+
+.lesson-top{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.lesson-number{
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  border-radius:8px;
+  background:#dfe8f7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+}
+
+.lesson-item.active .lesson-number{
+  background:#4c8bf5;
+  color:#fff;
+}
+
+.lesson-name{
+  font-size:13px;
+  line-height:1.25;
+  font-weight:700;
+}
+
+.done-mark{
+  margin-left:auto;
+  font-size:14px;
+}
+
+.content{
+  flex:1;
+  min-width:0;
+  overflow:auto;
+  padding:18px;
+}
+
+.card{
+  max-width:900px;
+  margin:0 auto 20px;
+  background:#fff;
+  border:1px solid #dfe6ee;
+  border-radius:18px;
+  box-shadow:0 4px 16px rgba(22,34,51,.05);
+  padding:20px;
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  background:#eef4ff;
+  color:#3267c5;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.lesson-title{
+  margin:12px 0 8px;
+  font-size:28px;
+}
+
+.description{
+  color:#5f6c7c;
+  line-height:1.55;
+  margin-bottom:18px;
+}
+
+.theory{
+  background:#f8fafc;
+  border:1px solid #e7edf4;
+  border-radius:14px;
+  padding:16px;
+  line-height:1.6;
+}
+
+.theory h3,
+.examples h3,
+.question-box h3{
+  margin:0 0 10px;
+  font-size:17px;
+}
+
+.theory p{
+  margin:8px 0;
+}
+
+.example-box{
+  background:#161b22;
+  color:#e6edf3;
+  border-radius:12px;
+  padding:14px;
+  overflow:auto;
+  margin-top:10px;
+}
+
+.example-box code{
+  font-family:Consolas,monospace;
+  font-size:14px;
+  white-space:pre-wrap;
+}
+
+.note{
+  margin-top:12px;
+  padding:12px;
+  background:#fff9e7;
+  border:1px solid #f3df9e;
+  border-radius:11px;
+}
+
+.question-box{
+  margin-top:18px;
+  padding:16px;
+  border-radius:14px;
+  background:#f7fbff;
+  border:1px solid #d8e8ff;
+}
+
+.question{
+  font-size:16px;
+  font-weight:700;
+  line-height:1.45;
+  margin-bottom:13px;
+}
+
+.options{
+  display:grid;
+  gap:9px;
+}
+
+.option{
+  width:100%;
+  text-align:left;
+  padding:13px;
+  border-radius:12px;
+  background:#fff;
+  border:1px solid #d9e2ec;
+  transition:.15s;
+}
+
+.option:hover{
+  background:#f3f7fd;
+}
+
+.option.correct{
+  border-color:#68b681;
+  background:#ecfbf1;
+}
+
+.option.wrong{
+  border-color:#dc7777;
+  background:#fff0f0;
+}
+
+.option.disabled{
+  pointer-events:none;
+}
+
+.feedback{
+  margin-top:12px;
+  font-weight:700;
+  line-height:1.45;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+  flex-wrap:wrap;
+}
+
+.primary{
+  padding:12px 16px;
+  border-radius:11px;
+  background:#4c8bf5;
+  color:#fff;
+  font-weight:800;
+}
+
+.primary:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.mobile-bar{
+  display:none;
+}
+
+@media(max-width:800px){
+  .sidebar{
+    width:235px;
+  }
+}
+
+@media(max-width:650px){
+  .main{
+    position:relative;
+  }
+
+  .sidebar{
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:82%;
+    max-width:320px;
+    z-index:20;
+    box-shadow:8px 0 24px rgba(0,0,0,.12);
+    transform:translateX(-105%);
+    transition:.22s;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .content{
+    width:100%;
+    padding:12px;
+  }
+
+  .card{
+    padding:16px;
+    border-radius:16px;
+  }
+
+  .lesson-title{
+    font-size:23px;
+  }
+
+  .mobile-bar{
+    display:flex;
+    padding:10px;
+    background:#fff;
+    border-bottom:1px solid #dfe6ee;
+    gap:8px;
+  }
+
+  .menu-btn{
+    padding:10px 13px;
+    border-radius:10px;
+    background:#edf3fb;
+    font-weight:800;
+  }
+
+  .mobile-title{
+    flex:1;
+    display:flex;
+    align-items:center;
+    font-size:14px;
+    font-weight:800;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <div class="header">
+    <div class="title">🧸 Академия-садик Roblox Lua</div>
+
+    <div class="progress-wrap">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="subline" id="progressText">
+      Пройдено: 0 из 60 • Урок 1 из 60
+    </div>
+  </div>
+
+  <div class="mobile-bar">
+    <button class="menu-btn" id="menuBtn">☰ Уроки</button>
+    <div class="mobile-title" id="mobileTitle">Урок 1</div>
+  </div>
+
+  <div class="main">
+
+    <aside class="sidebar" id="sidebar">
+      <h2>📚 Все уроки</h2>
+      <div class="lesson-list" id="lessonList"></div>
+    </aside>
+
+    <section class="content" id="content"></section>
+
+  </div>
+</div>
+
+<script>
+
+const lessons = [
+
+{
+title:"Что такое Lua",
+desc:"Познакомимся с языком программирования Lua.",
+theory:[
+"Lua — язык программирования.",
+"В Roblox используется Luau, основанный на Lua.",
+"С помощью языка мы пишем инструкции для программы."
+],
+example:'print("Привет!")',
+note:"Lua — язык программирования."
+},
+
+{
+title:"Что такое Luau",
+desc:"Поймём, что такое Luau в Roblox.",
+theory:[
+"Luau — язык программирования Roblox.",
+"Он основан на Lua.",
+"Именно Luau используется для Roblox-скриптов."
+],
+example:'print("Я учу Luau")',
+note:"Roblox → Luau."
+},
+
+{
+title:"Что такое скрипт",
+desc:"Разберём понятие скрипта.",
+theory:[
+"Скрипт содержит инструкции.",
+"Инструкции выполняются программой.",
+"Скрипт позволяет игре выполнять действия."
+],
+example:'print("Первая команда")\nprint("Вторая команда")',
+note:"Скрипт — набор инструкций."
+},
+
+{
+title:"Что такое команда",
+desc:"Поймём, что такое команда.",
+theory:[
+"Команда — инструкция программе.",
+"Каждая команда делает определённое действие.",
+"Несколько команд образуют скрипт."
+],
+example:'print("Привет")',
+note:"Команда сообщает программе, что делать."
+},
+
+{
+title:"Что такое print",
+desc:"Познакомимся с print.",
+theory:[
+"print выводит значение.",
+"Он используется для проверки скрипта.",
+"Через print можно выводить текст и числа."
+],
+example:'print("Привет")',
+note:"print выводит информацию."
+},
+
+{
+title:"Что такое текст",
+desc:"Учимся работать со строками.",
+theory:[
+"Текст называется строкой.",
+"Строки записываются в кавычках.",
+"В строке могут быть слова и символы."
+],
+example:'print("Roblox")',
+note:"Текст обычно пишется в кавычках."
+},
+
+{
+title:"Что такое число",
+desc:"Познакомимся с числами.",
+theory:[
+"Числа используются для числовых значений.",
+"Их можно складывать и сравнивать.",
+"Числа пишутся без кавычек."
+],
+example:"print(16)",
+note:"16 — число."
+},
+
+{
+title:"Что такое true",
+desc:"Познакомимся с true.",
+theory:[
+"true означает истину.",
+"Это логическое значение.",
+"Его можно использовать как включённое состояние."
+],
+example:"print(true)",
+note:"true = истина."
+},
+
+{
+title:"Что такое false",
+desc:"Познакомимся с false.",
+theory:[
+"false означает ложь.",
+"Это логическое значение.",
+"Его можно использовать как выключенное состояние."
+],
+example:"print(false)",
+note:"false = ложь."
+},
+
+{
+title:"Что такое переменная",
+desc:"Поймём, что такое переменная.",
+theory:[
+"Переменная — имя, под которым хранится значение.",
+"Она может хранить числа, текст и логические значения.",
+"Через имя можно получить сохранённое значение."
+],
+example:"local Speed = 16",
+note:"Speed — имя переменной."
+},
+
+{
+title:"Создание переменной",
+desc:"Научимся создавать переменную.",
+theory:[
+"Для локальной переменной используется local.",
+"После local пишется имя.",
+"Переменной можно сразу дать значение."
+],
+example:"local Speed",
+note:"local создаёт локальную переменную."
+},
+
+{
+title:"local",
+desc:"Разберём слово local.",
+theory:[
+"local создаёт локальную переменную.",
+"Это один из самых первых элементов Roblox-скрипта.",
+"После local указывается имя."
+],
+example:"local Coins = 10",
+note:"local объявляет переменную."
+},
+
+{
+title:"Знак =",
+desc:"Поймём присваивание.",
+theory:[
+"Знак = используется для присваивания.",
+"Слева находится переменная.",
+"Справа находится значение."
+],
+example:"local Speed = 100",
+note:"Слева Speed, справа 100."
+},
+
+{
+title:"Изменение переменной",
+desc:"Учимся изменять значение.",
+theory:[
+"Переменную можно изменить.",
+"Новое значение заменяет старое.",
+"Так программа может менять данные."
+],
+example:"local Speed = 16\nSpeed = 100",
+note:"После второй строки Speed хранит 100."
+},
+
+{
+title:"Переменная с текстом",
+desc:"Храним текст.",
+theory:[
+"В переменную можно записать строку.",
+"Строка записывается в кавычках.",
+"Потом можно использовать имя переменной."
+],
+example:'local Name = "Player"',
+note:"Name хранит текст."
+},
+
+{
+title:"Переменная true/false",
+desc:"Храним состояние.",
+theory:[
+"В переменной можно хранить true.",
+"Также можно хранить false.",
+"Так создаются состояния систем."
+],
+example:"local SpeedEnabled = true",
+note:"SpeedEnabled хранит состояние."
+},
+
+{
+title:"Несколько переменных",
+desc:"Используем несколько переменных.",
+theory:[
+"Можно создать много переменных.",
+"У каждой будет своё имя.",
+"Каждая может хранить своё значение."
+],
+example:"local Speed = 16\nlocal Coins = 10",
+note:"Переменных может быть много."
+},
+
+{
+title:"Переменная в print",
+desc:"Выводим переменную.",
+theory:[
+"Имя переменной можно передать в print.",
+"Тогда выводится её значение.",
+"Это помогает проверять код."
+],
+example:"local Speed = 16\nprint(Speed)",
+note:"print показывает значение Speed."
+},
+
+{
+title:"Левая и правая часть",
+desc:"Разбираем присваивание.",
+theory:[
+"Слева находится то, куда записывают значение.",
+"Справа находится то, что записывают.",
+"Нужно смотреть на строку целиком."
+],
+example:"local Speed = 100",
+note:"Слева — Speed, справа — 100."
+},
+
+{
+title:"Сложение",
+desc:"Познакомимся с оператором +.",
+theory:[
+"+ складывает числа.",
+"Результат можно сохранить в переменную.",
+"Это математический оператор."
+],
+example:"local Coins = 10\nCoins = Coins + 5",
+note:"Получится 15."
+},
+
+{
+title:"Вычитание",
+desc:"Познакомимся с оператором -.",
+theory:[
+"- вычитает число.",
+"Можно уменьшить значение переменной.",
+"Оператор используется в математике."
+],
+example:"local Coins = 10\nCoins = Coins - 3",
+note:"Получится 7."
+},
+
+{
+title:"Умножение",
+desc:"Познакомимся с оператором *.",
+theory:[
+"* выполняет умножение.",
+"Можно умножать значения.",
+"Результат можно сохранить."
+],
+example:"local Power = 5\nPower = Power * 2",
+note:"Получится 10."
+},
+
+{
+title:"Деление",
+desc:"Познакомимся с оператором /.",
+theory:[
+"/ выполняет деление.",
+"Это математический оператор.",
+"Результат можно сохранить."
+],
+example:"local Coins = 10\nCoins = Coins / 2",
+note:"Получится 5."
+},
+
+{
+title:"Сравнение",
+desc:"Учимся сравнивать значения.",
+theory:[
+"Программа может сравнивать числа.",
+"Сравнение даёт true или false.",
+"Сравнения используются в условиях."
+],
+example:"print(10 > 5)",
+note:"Результат — true."
+},
+
+{
+title:"if",
+desc:"Познакомимся с if.",
+theory:[
+"if проверяет условие.",
+"Если условие истинно, код внутри выполняется.",
+"if используется для выбора действий."
+],
+example:'if true then\n  print("Да")\nend',
+note:"if = если."
+},
+
+{
+title:"then",
+desc:"Разберём then.",
+theory:[
+"then ставится после условия.",
+"Он начинает блок действий if.",
+"Блок заканчивается end."
+],
+example:'if true then\n  print("Работаем")\nend',
+note:"then = тогда."
+},
+
+{
+title:"end",
+desc:"Поймём end.",
+theory:[
+"end закрывает блок.",
+"Он завершает if.",
+"end также используется с функциями."
+],
+example:'if true then\n  print("Привет")\nend',
+note:"end = конец блока."
+},
+
+{
+title:"if с переменной",
+desc:"Используем переменную в if.",
+theory:[
+"В условии можно проверять переменную.",
+"Если значение true, блок выполняется.",
+"Это основа логики системы."
+],
+example:'local Enabled = true\nif Enabled then\n  print("Включено")\nend',
+note:"if проверяет Enabled."
+},
+
+{
+title:"else",
+desc:"Добавляем второй вариант.",
+theory:[
+"else выполняется, если условие if ложно.",
+"Получается два варианта.",
+"else относится к if."
+],
+example:'if false then\n  print("Да")\nelse\n  print("Нет")\nend',
+note:"else = иначе."
+},
+
+{
+title:"not",
+desc:"Познакомимся с not.",
+theory:[
+"not меняет логическое значение.",
+"not true становится false.",
+"not false становится true."
+],
+example:"print(not true)",
+note:"not = не."
+},
+
+{
+title:"function",
+desc:"Начинаем изучать функции.",
+theory:[
+"Функция — блок кода с именем.",
+"Функцию можно запускать.",
+"Функции объединяют действия."
+],
+example:'local function SayHello()\n  print("Привет")\nend',
+note:"Это создание функции."
+},
+
+{
+title:"Вызов функции",
+desc:"Запускаем функцию.",
+theory:[
+"Функцию вызывают по имени.",
+"После имени ставятся скобки.",
+"Функцию можно вызвать несколько раз."
+],
+example:'local function SayHello()\n  print("Привет")\nend\nSayHello()',
+note:"Создание и вызов функции — разные действия."
+},
+
+{
+title:"Параметр",
+desc:"Передаём данные в функцию.",
+theory:[
+"Параметр пишется в скобках функции.",
+"Он получает переданное значение.",
+"Параметры делают функцию гибкой."
+],
+example:"local function Speed(Value)\n  print(Value)\nend",
+note:"Value — параметр."
+},
+
+{
+title:"Аргумент",
+desc:"Разберём аргумент.",
+theory:[
+"Аргумент — конкретное значение при вызове функции.",
+"Параметр получает аргумент.",
+"Можно передавать разные значения."
+],
+example:"Speed(100)",
+note:"100 — аргумент."
+},
+
+{
+title:"if внутри функции",
+desc:"Соединяем if и function.",
+theory:[
+"Внутри функции можно использовать if.",
+"Функция может выбирать разные действия.",
+"Все блоки нужно закрывать end."
+],
+example:'local function Test(Enabled)\n  if Enabled then\n    print("ON")\n  else\n    print("OFF")\n  end\nend',
+note:"Один end закрывает if, другой функцию."
+},
+
+{
+title:"Функция и переменная",
+desc:"Используем состояние внутри функции.",
+theory:[
+"Функция может использовать переменную.",
+"Так можно проверять состояние системы.",
+"Это пригодится для переключателей."
+],
+example:'local SpeedEnabled = true\nlocal function Speed()\n  if SpeedEnabled then\n    print("100")\n  end\nend',
+note:"Функция читает SpeedEnabled."
+},
+
+{
+title:"Toggle",
+desc:"Познакомимся с переключением.",
+theory:[
+"Toggle меняет состояние.",
+"false превращается в true.",
+"true превращается в false."
+],
+example:"local Enabled = false\nEnabled = not Enabled",
+note:"not удобно для toggle."
+},
+
+{
+title:"Два состояния",
+desc:"Разберём ON и OFF.",
+theory:[
+"Система может иметь два состояния.",
+"true можно использовать для включения.",
+"false можно использовать для выключения."
+],
+example:'if Enabled then\n  print("Включено")\nelse\n  print("Выключено")\nend',
+note:"Два состояния удобно хранить в boolean."
+},
+
+{
+title:"Toggle через not",
+desc:"Закрепим способ переключения.",
+theory:[
+"not может менять состояние автоматически.",
+"false становится true.",
+"true становится false."
+],
+example:"Enabled = not Enabled",
+note:"Это простейшая форма toggle."
+},
+
+{
+title:"Зачем нужен Toggle",
+desc:"Поймём назначение переключателя.",
+theory:[
+"Toggle позволяет включать и выключать систему.",
+"Одна кнопка может выполнять оба действия.",
+"Состояние хранится в переменной."
+],
+example:"Enabled → not Enabled",
+note:"Toggle нужен для ON/OFF."
+},
+
+{
+title:"game",
+desc:"Переходим к Roblox-объектам.",
+theory:[
+"game представляет текущую игру.",
+"Через game можно получать сервисы.",
+"Это специальное значение Roblox."
+],
+example:"print(game)",
+note:"game используется в Roblox-скриптах."
+},
+
+{
+title:"Точка .",
+desc:"Познакомимся с точкой.",
+theory:[
+"Точка используется для обращения к члену объекта.",
+"Через неё обращаются к свойствам и объектам.",
+"Например, Players.LocalPlayer."
+],
+example:"Players.LocalPlayer",
+note:". позволяет обратиться к члену объекта."
+},
+
+{
+title:"Двоеточие :",
+desc:"Познакомимся с двоеточием.",
+theory:[
+"Двоеточие используется при вызове метода.",
+"В Roblox это встречается очень часто.",
+"Например, GetService."
+],
+example:'game:GetService("Players")',
+note:": используется для вызова метода."
+},
+
+{
+title:"GetService",
+desc:"Получаем сервис Roblox.",
+theory:[
+"GetService получает нужный сервис.",
+"Например, Players.",
+"Полученный сервис можно сохранить."
+],
+example:'local Players = game:GetService("Players")',
+note:"GetService получает сервис."
+},
+
+{
+title:"Players",
+desc:"Познакомимся с Players.",
+theory:[
+"Players — сервис игроков.",
+"Он связан с игроками игры.",
+"Из него можно получить LocalPlayer."
+],
+example:'local Players = game:GetService("Players")',
+note:"Players — сервис Roblox."
+},
+
+{
+title:"LocalPlayer",
+desc:"Получаем своего игрока.",
+theory:[
+"LocalPlayer представляет локального игрока.",
+"В LocalScript это игрок, для которого выполняется код.",
+"Его можно сохранить в Player."
+],
+example:"local Player = Players.LocalPlayer",
+note:"Player хранит LocalPlayer."
+},
+
+{
+title:"Character",
+desc:"Получаем персонажа.",
+theory:[
+"Character — персонаж игрока.",
+"В нём находятся части персонажа.",
+"Через Character можно получить Humanoid."
+],
+example:"local Character = Player.Character",
+note:"Player → Character."
+},
+
+{
+title:"FindFirstChild",
+desc:"Ищем дочерний объект.",
+theory:[
+"FindFirstChild ищет объект по имени.",
+"Он используется через двоеточие.",
+"Найденный объект можно сохранить."
+],
+example:'local Humanoid = Character:FindFirstChild("Humanoid")',
+note:"Character ищет Humanoid."
+},
+
+{
+title:"Humanoid",
+desc:"Познакомимся с Humanoid.",
+theory:[
+"Humanoid — важный объект персонажа.",
+"Он связан с движением персонажа.",
+"У него есть полезные свойства."
+],
+example:'local Humanoid = Character:FindFirstChild("Humanoid")',
+note:"Humanoid нужен для систем движения."
+},
+
+{
+title:"WalkSpeed",
+desc:"Познакомимся со скоростью.",
+theory:[
+"WalkSpeed — свойство Humanoid.",
+"Оно отвечает за скорость ходьбы.",
+"Ему можно присвоить число."
+],
+example:"Humanoid.WalkSpeed = 100",
+note:"WalkSpeed изменяет скорость."
+},
+
+{
+title:"Player → Character",
+desc:"Строим первую часть цепочки.",
+theory:[
+"Сначала получаем Players.",
+"Потом LocalPlayer.",
+"После этого Character."
+],
+example:"Players → Player → Character",
+note:"Так идём от сервиса к персонажу."
+},
+
+{
+title:"Character → Humanoid",
+desc:"Продолжаем цепочку.",
+theory:[
+"После Character находим Humanoid.",
+"Используем FindFirstChild.",
+"Теперь можно обращаться к Humanoid."
+],
+example:"Character → Humanoid",
+note:"Humanoid находится внутри Character."
+},
+
+{
+title:"Изменение WalkSpeed",
+desc:"Меняем свойство Humanoid.",
+theory:[
+"Слева находится объект и его свойство.",
+"Справа находится новое значение.",
+"Используется знак =."
+],
+example:"Humanoid.WalkSpeed = 100",
+note:"Так задаётся новая скорость."
+},
+
+{
+title:"Простой Speed",
+desc:"Собираем базовую систему скорости.",
+theory:[
+"Получаем Players.",
+"Получаем Player.",
+"Получаем Character.",
+"Получаем Humanoid.",
+"Меняем WalkSpeed."
+],
+example:"Players → Player → Character → Humanoid → WalkSpeed",
+note:"Это основа системы Speed."
+},
+
+{
+title:"SpeedEnabled",
+desc:"Добавляем состояние.",
+theory:[
+"SpeedEnabled хранит true или false.",
+"true — скорость включена.",
+"false — скорость выключена."
+],
+example:"local SpeedEnabled = false",
+note:"Это переменная состояния."
+},
+
+{
+title:"Speed + if",
+desc:"Связываем состояние со скоростью.",
+theory:[
+"if проверяет SpeedEnabled.",
+"При true ставится высокая скорость.",
+"При false ставится обычная."
+],
+example:'if SpeedEnabled then\n  Humanoid.WalkSpeed = 100\nelse\n  Humanoid.WalkSpeed = 16\nend',
+note:"if выбирает нужную скорость."
+},
+
+{
+title:"ToggleSpeed",
+desc:"Создаём переключатель скорости.",
+theory:[
+"ToggleSpeed меняет состояние.",
+"Для этого можно использовать not.",
+"После изменения состояния используется логика Speed."
+],
+example:"SpeedEnabled = not SpeedEnabled",
+note:"ToggleSpeed переключает ON/OFF."
+},
+
+{
+title:"Кнопка",
+desc:"Понимаем идею кнопки скорости.",
+theory:[
+"Игрок нажимает кнопку.",
+"Нажатие должно запускать переключение.",
+"Кнопка будет связана с функцией."
+],
+example:"Кнопка → переключение Speed",
+note:"Кнопка запускает действие."
+},
+
+{
+title:"Activated",
+desc:"Познакомимся с Activated.",
+theory:[
+"Activated — событие GUI-кнопки.",
+"Оно сообщает, что кнопку активировали.",
+"Его можно соединить с функцией."
+],
+example:"Button.Activated",
+note:"Activated — событие активации."
+},
+
+{
+title:"Connect и финальная система",
+desc:"Завершаем 60 уроков и соединяем изученное.",
+theory:[
+"Connect подключает функцию к событию.",
+"Activated сообщает об активации кнопки.",
+"ToggleSpeed меняет состояние скорости.",
+"Так получается цепочка: кнопка → событие → функция → действие."
+],
+example:"Button.Activated:Connect(ToggleSpeed)",
+note:"60-й урок — финальная связь кнопки с системой."
+}
+
+];
+
+const questions = [
+
+["Что такое Lua?","Язык программирования","Кнопка","Сервис Roblox","Объект персонажа",0],
+["Какой язык используется в Roblox?","Python","Luau","Java","C++",1],
+["Что такое скрипт?","Картинка","Набор инструкций","Скин","Игрок",1],
+["Что такое команда?","Инструкция программе","Игрок","Сервис","Кнопка",0],
+["Для чего нужен print?","Для вывода значения","Для создания игрока","Для скорости","Для GUI",0],
+["Что такое строка?","Число","Текст","Сервис","Событие",1],
+["Что такое 16 без кавычек?","Текст","Число","Функция","Кнопка",1],
+["Что означает true?","Ложь","Истина","Текст","Число",1],
+["Что означает false?","Истина","Ложь","Игрок","Сервис",1],
+["Что такое переменная?","Имя, которое хранит значение","Только кнопка","Только игрок","Только функция",0],
+
+["Для чего нужен local?","Для создания локальной переменной","Для создания карты","Для нажатия кнопки","Для поиска Humanoid",0],
+["Что хранит переменная?","Значение","Только картинку","Только кнопку","Только игрока",0],
+["Что делает =?","Удаляет значение","Присваивает значение","Создаёт событие","Вызывает игру",1],
+["Можно ли изменить переменную?","Нет","Да","Только один раз","Только на телефоне",1],
+["Как записывается текст?","В кавычках","Без кавычек","Через двоеточие","Через точку",0],
+["Что можно хранить в переменной?","Только числа","Только текст","Разные значения","Только true",2],
+["Можно ли создать несколько переменных?","Да","Нет","Только две","Только пять",0],
+["Что делает print(Speed)?","Выводит значение Speed","Меняет скорость","Удаляет Speed","Создаёт кнопку",0],
+["Где находится значение в Speed = 100?","Слева","Справа","В имени","В точке",1],
+["Что произойдёт после Speed = 100, если раньше Speed было 16?","Speed станет 100","Speed удалится","Станет текстом","Ничего",0],
+
+["Какой оператор складывает?","+","-","*","/",0],
+["Какой оператор вычитает?","+","-","*","/",1],
+["Какой оператор умножает?","+","-","*","/",2],
+["Какой оператор делит?","+","-","*","/",3],
+["Что даёт сравнение?","Число","true или false","Текст","Кнопку",1],
+["Для чего нужен if?","Для проверки условия","Для создания игрока","Для GUI","Для удаления",0],
+["Что ставят после условия if?","then","print","local","Players",0],
+["Что закрывает if?","local","end","game","Connect",1],
+["Для чего нужен else?","Для второго варианта","Для создания функции","Для вывода текста","Для игрока",0],
+["Что делает not false?","false","true","16","nil",1],
+
+["Что такое function?","Блок кода с именем","Игрок","Сервис","Кнопка",0],
+["Как вызвать функцию?","Имя со скобками","Через print","Через local","Через Players",0],
+["Что такое параметр?","Имя принимаемого значения","Кнопка","Сервис","Игрок",0],
+["Что такое аргумент?","Переданное значение","Сервис","Событие","Свойство",0],
+["Можно ли использовать if внутри функции?","Нет","Да","Только на ПК","Только один раз",1],
+["Может ли функция использовать переменную?","Да","Нет","Только текст","Только число",0],
+["Что такое toggle?","Переключение состояния","Создание игрока","Удаление объекта","Смена языка",0],
+["Какие два состояния часто используются?","true/false","1/2","A/B","X/Y",0],
+["Что делает not true?","true","false","100","nil",1],
+["Зачем нужен Toggle?","Для переключения состояния","Для создания карты","Для удаления GUI","Для смены персонажа",0],
+
+["Что такое game?","Текущая игра","Игрок","Кнопка","Число",0],
+["Для чего нужна точка .?","Для обращения к члену объекта","Для создания цикла","Для закрытия функции","Для вывода текста",0],
+["Для чего используется :?","Для вызова метода","Для создания числа","Для комментария","Для GUI",0],
+["Что делает GetService?","Получает сервис","Удаляет сервис","Меняет скорость","Создаёт игрока",0],
+["Что такое Players?","Сервис игроков","Кнопка","Число","Персонаж",0],
+["Что такое LocalPlayer?","Локальный игрок","Любой игрок","Кнопка","Humanoid",0],
+["Что такое Character?","Персонаж игрока","Сервис","Число","Скрипт",0],
+["Что делает FindFirstChild?","Ищет дочерний объект","Создаёт карту","Запускает кнопку","Меняет скорость",0],
+["Что такое Humanoid?","Объект персонажа","Сервис игры","Кнопка","Переменная",0],
+["Что такое WalkSpeed?","Свойство скорости Humanoid","Сервис","Кнопка","Функция",0],
+
+["Что идёт после Players в цепочке?","LocalPlayer","WalkSpeed","Button","Connect",0],
+["Что идёт после Player?","Character","Players","WalkSpeed","Connect",0],
+["Что идёт после Character?","Humanoid","Players","Button","Connect",0],
+["Что делает Humanoid.WalkSpeed = 100?","Устанавливает скорость","Создаёт Humanoid","Удаляет Character","Включает GUI",0],
+["Что такое простая система Speed?","Цепочка получения Humanoid и изменения WalkSpeed","Только кнопка","Только print","Только Players",0],
+["Для чего SpeedEnabled?","Для хранения состояния скорости","Для хранения имени игрока","Для создания карты","Для GUI",0],
+["Что делает if SpeedEnabled then?","Проверяет состояние","Создаёт игрока","Вызывает Connect","Получает Players",0],
+["Что делает ToggleSpeed?","Переключает состояние скорости","Создаёт Character","Удаляет Humanoid","Создаёт сервис",0],
+["Что такое Activated?","Событие активации GUI-кнопки","Число","Переменная","Сервис",0],
+["Что делает Connect?","Подключает функцию к событию","Создаёт кнопку","Меняет WalkSpeed","Получает Player",0]
+
+];
+
+const TOTAL = 60;
+
+let state = {
+  unlocked:1,
+  current:1,
+  answered:{}
+};
+
+try{
+  const saved = JSON.parse(
+    localStorage.getItem("roblox_lua_school_garden_60_v4")
+  );
+
+  if(saved){
+
+    state.unlocked =
+      Math.min(TOTAL,Math.max(1,Number(saved.unlocked)||1));
+
+    state.current =
+      Math.min(TOTAL,Math.max(1,Number(saved.current)||1));
+
+    state.answered = saved.answered || {};
+
+  }
+
+}catch(e){}
+
+function save(){
+  localStorage.setItem(
+    "roblox_lua_school_garden_60_v4",
+    JSON.stringify(state)
+  );
+}
+
+function updateHeader(){
+
+  let done = 0;
+
+  for(let i=1;i<=TOTAL;i++){
+    if(state.answered[i] === true){
+      done++;
+    }
+  }
+
+  const percent = Math.round((done/TOTAL)*100);
+
+  document.getElementById("progress").style.width =
+    percent + "%";
+
+  document.getElementById("progressText").textContent =
+    "Пройдено: " +
+    done +
+    " из " +
+    TOTAL +
+    " • Урок " +
+    state.current +
+    " из " +
+    TOTAL;
+
+  document.getElementById("mobileTitle").textContent =
+    "Урок " + state.current;
+}
+
+function buildLessonList(){
+
+  const list =
+    document.getElementById("lessonList");
+
+  list.innerHTML = "";
+
+  lessons.forEach((lesson,index)=>{
+
+    const number = index + 1;
+
+    const item =
+      document.createElement("button");
+
+    item.className = "lesson-item";
+
+    if(number === state.current){
+      item.classList.add("active");
+    }
+
+    if(number > state.unlocked){
+      item.classList.add("locked");
+    }
+
+    const top =
+      document.createElement("div");
+
+    top.className = "lesson-top";
+
+    const num =
+      document.createElement("div");
+
+    num.className = "lesson-number";
+    num.textContent = number;
+
+    const name =
+      document.createElement("div");
+
+    name.className = "lesson-name";
+    name.textContent = lesson.title;
+
+    const mark =
+      document.createElement("div");
+
+    mark.className = "done-mark";
+
+    if(state.answered[number]){
+      mark.textContent = "✓";
+    }else if(number > state.unlocked){
+      mark.textContent = "🔒";
+    }
+
+    top.appendChild(num);
+    top.appendChild(name);
+    top.appendChild(mark);
+
+    item.appendChild(top);
+
+    if(number <= state.unlocked){
+
+      item.addEventListener("click",()=>{
+
+        state.current = number;
+
+        save();
+        render();
+
+        if(window.innerWidth <= 650){
+          document
+            .getElementById("sidebar")
+            .classList.remove("open");
+        }
+
+      });
+
+    }
+
+    list.appendChild(item);
+
+  });
+}
+
+function escapeHTML(text){
+
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function render(){
+
+  updateHeader();
+  buildLessonList();
+
+  const lesson =
+    lessons[state.current-1];
+
+  const q =
+    questions[state.current-1];
+
+  if(!lesson || !q){
+    return;
+  }
+
+  const alreadyPassed =
+    state.answered[state.current] === true;
+
+  const content =
+    document.getElementById("content");
+
+  let theoryHTML = "";
+
+  lesson.theory.forEach(text=>{
+    theoryHTML +=
+      "<p>" +
+      escapeHTML(text) +
+      "</p>";
+  });
+
+  content.innerHTML = `
+
+    <div class="card">
+
+      <div class="badge">
+        УРОК ${state.current} / ${TOTAL}
+      </div>
+
+      <h1 class="lesson-title">
+        ${escapeHTML(lesson.title)}
+      </h1>
+
+      <div class="description">
+        ${escapeHTML(lesson.desc)}
+      </div>
+
+      <div class="theory">
+
+        <h3>📖 Теория</h3>
+
+        ${theoryHTML}
+
+      </div>
+
+      <div class="examples" style="margin-top:18px">
+
+        <h3>💡 Пример</h3>
+
+        <div class="example-box">
+          <code>${escapeHTML(lesson.example)}</code>
+        </div>
+
+      </div>
+
+      <div class="note">
+        <strong>⭐ Запомни:</strong><br>
+        ${escapeHTML(lesson.note)}
+      </div>
+
+      <div class="question-box">
+
+        <h3>🧠 Вопрос</h3>
+
+        <div class="question">
+          ${escapeHTML(q[0])}
+        </div>
+
+        <div class="options" id="options"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="actions">
+
+          <button
+            class="primary"
+            id="nextBtn"
+            ${alreadyPassed ? "" : "disabled"}
+          >
+            ${
+              state.current < TOTAL
+              ? "Следующий урок →"
+              : "Завершить"
+            }
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  const options =
+    document.getElementById("options");
+
+  const feedback =
+    document.getElementById("feedback");
+
+  const nextBtn =
+    document.getElementById("nextBtn");
+
+  const optionTexts = [
+    q[1],
+    q[2],
+    q[3],
+    q[4]
+  ];
+
+  optionTexts.forEach((text,index)=>{
+
+    const btn =
+      document.createElement("button");
+
+    btn.className = "option";
+
+    btn.textContent =
+      String.fromCharCode(65+index) +
+      ") " +
+      text;
+
+    /*
+      ВАЖНО:
+      Если урок уже был пройден,
+      варианты всё равно доступны.
+      Правильный вариант заранее НЕ показывается.
+    */
+
+    btn.addEventListener("click",()=>{
+
+      if(btn.classList.contains("disabled")){
+        return;
+      }
+
+      if(index === q[5]){
+
+        btn.classList.add("correct");
+
+        feedback.textContent =
+          "✅ Правильно! Нажми «Следующий урок →».";
+
+        state.answered[state.current] = true;
+
+        if(state.current < TOTAL){
+
+          state.unlocked =
+            Math.max(
+              state.unlocked,
+              state.current + 1
+            );
+
+        }
+
+        save();
+
+        updateHeader();
+        buildLessonList();
+
+        nextBtn.disabled = false;
+
+        const allOptions =
+          options.querySelectorAll(".option");
+
+        allOptions.forEach(option=>{
+          option.classList.add("disabled");
+        });
+
+      }else{
+
+        btn.classList.add("wrong");
+
+        feedback.textContent =
+          "❌ Неправильно. Попробуй ещё раз.";
+
+        setTimeout(()=>{
+          btn.classList.remove("wrong");
+        },600);
+
+      }
+
+    });
+
+    options.appendChild(btn);
+
+  });
+
+  if(alreadyPassed){
+
+    feedback.textContent =
+      "✅ Урок уже пройден. Можешь ответить ещё раз или перейти дальше.";
+
+  }
+
+  nextBtn.addEventListener("click",()=>{
+
+    if(state.answered[state.current] !== true){
+      return;
+    }
+
+    if(state.current < TOTAL){
+
+      state.current++;
+
+      save();
+      render();
+
+      document
+        .getElementById("content")
+        .scrollTo({
+          top:0,
+          behavior:"smooth"
+        });
+
+    }else{
+
+      showFinished();
+
+    }
+
+  });
+
+}
+
+function showFinished(){
+
+  const content =
+    document.getElementById("content");
+
+  content.innerHTML = `
+
+    <div class="card">
+
+      <div class="badge">
+        60 / 60
+      </div>
+
+      <h1 class="lesson-title">
+        🎉 Все 60 уроков пройдены
+      </h1>
+
+      <div class="description">
+        Все уроки Академии-садика Roblox Lua пройдены.
+      </div>
+
+      <div class="theory">
+
+        <h3>📚 Что изучено</h3>
+
+        <p>Lua и Luau.</p>
+        <p>Скрипты и команды.</p>
+        <p>Переменные.</p>
+        <p>Математика.</p>
+        <p>if, then, else и not.</p>
+        <p>Функции.</p>
+        <p>game и сервисы.</p>
+        <p>Players и LocalPlayer.</p>
+        <p>Character и Humanoid.</p>
+        <p>WalkSpeed.</p>
+        <p>Activated и Connect.</p>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          id="againBtn"
+        >
+          Начать заново
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+  document
+    .getElementById("againBtn")
+    .addEventListener("click",()=>{
+
+      state.current = 1;
+      state.unlocked = 1;
+      state.answered = {};
+
+      save();
+      render();
+
+    });
+
+}
+
+document
+  .getElementById("menuBtn")
+  .addEventListener("click",()=>{
+
+    document
+      .getElementById("sidebar")
+      .classList.toggle("open");
+
+  });
+
+document.addEventListener("click",(event)=>{
+
+  const sidebar =
+    document.getElementById("sidebar");
+
+  const menuBtn =
+    document.getElementById("menuBtn");
+
+  if(
+    window.innerWidth <= 650 &&
+    sidebar.classList.contains("open") &&
+    !sidebar.contains(event.target) &&
+    event.target !== menuBtn
+  ){
+
+    sidebar.classList.remove("open");
+
+  }
+
+});
+
+console.log("Уроков:", lessons.length);
+console.log("Вопросов:", questions.length);
+
+render();
+
+</script>
+
+</body>
+</html>
