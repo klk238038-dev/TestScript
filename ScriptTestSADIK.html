@@ -3,1703 +3,3283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Академия-садик Roblox Lua</title>
-
+<title>Академия-садик Roblox Luau</title>
 <style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
+*{box-sizing:border-box}
 html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  font-family:Arial,sans-serif;
-  background:#f4f7fb;
-  color:#182230;
-  overflow:hidden;
+margin:0;
+width:100%;
+height:100%;
+font-family:Arial,sans-serif;
+background:#10141b;
+color:#e8edf5;
+overflow:hidden
 }
-
-button{
-  font:inherit;
-  border:0;
-  cursor:pointer;
-}
-
-#app{
-  width:100%;
-  height:100%;
-  display:flex;
-  flex-direction:column;
-}
-
-.header{
-  background:#fff;
-  border-bottom:1px solid #dfe6ee;
-  padding:14px;
-}
-
-.title{
-  font-size:22px;
-  font-weight:800;
-  margin-bottom:10px;
-}
-
-.progress-wrap{
-  width:100%;
-  height:10px;
-  background:#e7edf4;
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.progress{
-  height:100%;
-  width:0%;
-  background:#4c8bf5;
-  border-radius:999px;
-  transition:.25s;
-}
-
-.subline{
-  margin-top:7px;
-  color:#697586;
-  font-size:13px;
-}
-
-.main{
-  flex:1;
-  display:flex;
-  min-height:0;
-}
-
+button{font:inherit}
+.app{display:flex;width:100%;height:100%}
 .sidebar{
-  width:290px;
-  background:#fff;
-  border-right:1px solid #dfe6ee;
-  overflow:auto;
-  padding:12px;
+width:335px;
+background:#171c24;
+border-right:1px solid #2b3340;
+display:flex;
+flex-direction:column;
+flex-shrink:0
 }
-
-.sidebar h2{
-  margin:4px;
-  margin-bottom:10px;
-  font-size:16px;
+.brand{
+padding:22px 20px;
+border-bottom:1px solid #2b3340
 }
-
-.lesson-list{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
+.brand-title{
+font-size:25px;
+font-weight:800
 }
-
-.lesson-item{
-  width:100%;
-  text-align:left;
-  padding:10px 11px;
-  border-radius:12px;
-  background:#f5f7fa;
-  color:#303b49;
-  border:1px solid #e4e9ef;
+.brand-sub{
+margin-top:7px;
+color:#8e98a8;
+font-size:14px;
+line-height:1.35
 }
-
-.lesson-item.active{
-  background:#eaf2ff;
-  border-color:#92b8ff;
+.lessons{
+padding:10px;
+overflow:auto;
+flex:1
 }
-
-.lesson-item.locked{
-  opacity:.48;
-  cursor:not-allowed;
+.lesson-btn{
+width:100%;
+border:0;
+background:transparent;
+color:#b6c0ce;
+text-align:left;
+padding:12px;
+border-radius:10px;
+margin-bottom:4px;
+cursor:pointer
 }
-
-.lesson-top{
-  display:flex;
-  gap:8px;
-  align-items:center;
+.lesson-btn:hover{background:#202734}
+.lesson-btn.active{
+background:#293444;
+color:#fff
 }
-
-.lesson-number{
-  width:28px;
-  height:28px;
-  flex:0 0 28px;
-  border-radius:8px;
-  background:#dfe8f7;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  font-weight:800;
+.lesson-num{
+display:inline-flex;
+width:28px;
+height:28px;
+border-radius:8px;
+background:#222b38;
+align-items:center;
+justify-content:center;
+margin-right:8px;
+font-weight:700
 }
-
-.lesson-item.active .lesson-number{
-  background:#4c8bf5;
-  color:#fff;
+.lesson-btn.done .lesson-num{
+background:#4d9c69;
+color:#fff
 }
-
-.lesson-name{
-  font-size:13px;
-  line-height:1.25;
-  font-weight:700;
+.lesson-title{font-weight:700}
+.lesson-topic{
+font-size:12px;
+color:#7f8a9a;
+margin-left:39px;
+margin-top:3px
 }
-
-.done-mark{
-  margin-left:auto;
-  font-size:14px;
+.main{
+flex:1;
+min-width:0;
+display:flex;
+flex-direction:column
 }
-
+.topbar{
+height:78px;
+border-bottom:1px solid #2b3340;
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 14px;
+flex-shrink:0
+}
+.title-wrap{
+min-width:240px;
+flex:1
+}
+.title{
+font-size:19px;
+font-weight:800
+}
+.topic{
+font-size:12px;
+color:#7f8a9a;
+margin-top:4px
+}
+.progress{
+width:190px;
+height:8px;
+border-radius:8px;
+background:#29303c;
+overflow:hidden
+}
+.progress-bar{
+height:100%;
+width:0;
+background:#63a4ff
+}
+.tabs{
+display:flex;
+gap:8px;
+overflow:auto;
+padding:10px 12px;
+border-bottom:1px solid #2b3340;
+flex-shrink:0
+}
+.tab{
+border:1px solid #2d3746;
+background:#1b222d;
+color:#aeb9c8;
+padding:10px 15px;
+border-radius:10px;
+cursor:pointer;
+white-space:nowrap
+}
+.tab.active{
+background:#344156;
+color:#fff
+}
 .content{
-  flex:1;
-  min-width:0;
-  overflow:auto;
-  padding:18px;
+flex:1;
+min-height:0;
+overflow:auto;
+padding:14px
 }
-
+.panel{display:none}
+.panel.active{display:block}
 .card{
-  max-width:900px;
-  margin:0 auto 20px;
-  background:#fff;
-  border:1px solid #dfe6ee;
-  border-radius:18px;
-  box-shadow:0 4px 16px rgba(22,34,51,.05);
-  padding:20px;
+background:#171c24;
+border:1px solid #2a3340;
+border-radius:14px;
+padding:16px;
+margin-bottom:14px
 }
-
-.badge{
-  display:inline-block;
-  padding:6px 10px;
-  background:#eef4ff;
-  color:#3267c5;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:800;
+.card h2,.card h3{margin:0 0 10px}
+.muted{
+color:#8994a5;
+line-height:1.5
 }
-
-.lesson-title{
-  margin:12px 0 8px;
-  font-size:28px;
+.task-big{
+font-size:20px;
+line-height:1.4
 }
-
-.description{
-  color:#5f6c7c;
-  line-height:1.55;
-  margin-bottom:18px;
+.requirements{
+margin-top:12px;
+padding:13px;
+border-radius:10px;
+background:#11161d;
+border:1px solid #252e3a;
+line-height:1.55
 }
-
-.theory{
-  background:#f8fafc;
-  border:1px solid #e7edf4;
-  border-radius:14px;
-  padding:16px;
-  line-height:1.6;
+.tip{
+margin-top:12px;
+padding:12px;
+background:#202936;
+border:1px solid #2e3b4b;
+border-radius:10px;
+color:#c9d3e0;
+line-height:1.45
 }
-
-.theory h3,
-.examples h3,
-.question-box h3{
-  margin:0 0 10px;
-  font-size:17px;
+.zone-layout{
+display:grid;
+grid-template-columns:minmax(420px,1fr) 330px;
+gap:12px;
+align-items:start
 }
-
-.theory p{
-  margin:8px 0;
+.scene-card{
+background:#171c24;
+border:1px solid #2a3340;
+border-radius:14px;
+padding:10px
 }
-
-.example-box{
-  background:#161b22;
-  color:#e6edf3;
-  border-radius:12px;
-  padding:14px;
-  overflow:auto;
-  margin-top:10px;
+.scene-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:8px;
+font-weight:700
 }
-
-.example-box code{
-  font-family:Consolas,monospace;
-  font-size:14px;
-  white-space:pre-wrap;
+.scene-badge{
+font-size:12px;
+background:#293241;
+color:#aeb9c8;
+padding:5px 8px;
+border-radius:8px
 }
-
-.note{
-  margin-top:12px;
-  padding:12px;
-  background:#fff9e7;
-  border:1px solid #f3df9e;
-  border-radius:11px;
+canvas{
+display:block;
+width:100%;
+height:auto;
+border-radius:10px;
+border:2px solid #344052;
+background:#87cdf1;
+touch-action:none
 }
-
-.question-box{
-  margin-top:18px;
-  padding:16px;
-  border-radius:14px;
-  background:#f7fbff;
-  border:1px solid #d8e8ff;
+.controls{
+display:grid;
+grid-template-columns:repeat(3,60px);
+justify-content:center;
+gap:7px;
+margin-top:10px
 }
-
-.question{
-  font-size:16px;
-  font-weight:700;
-  line-height:1.45;
-  margin-bottom:13px;
+.ctrl{
+height:48px;
+border:1px solid #344052;
+border-radius:11px;
+background:#252e3b;
+color:white;
+font-size:22px;
+cursor:pointer;
+touch-action:none
 }
-
-.options{
-  display:grid;
-  gap:9px;
+.ctrl:active{background:#3a4759}
+.tree-card{
+background:#171c24;
+border:1px solid #2a3340;
+border-radius:14px;
+overflow:hidden
 }
-
-.option{
-  width:100%;
-  text-align:left;
-  padding:13px;
-  border-radius:12px;
-  background:#fff;
-  border:1px solid #d9e2ec;
-  transition:.15s;
+.tree-head{
+padding:12px 14px;
+border-bottom:1px solid #2a3340;
+font-weight:800
 }
-
-.option:hover{
-  background:#f3f7fd;
+.tree{
+padding:9px;
+max-height:470px;
+overflow:auto
 }
-
-.option.correct{
-  border-color:#68b681;
-  background:#ecfbf1;
+.tree-node{user-select:none}
+.tree-row{
+display:flex;
+align-items:center;
+gap:6px;
+padding:8px 9px;
+border-radius:8px;
+cursor:pointer
 }
-
-.option.wrong{
-  border-color:#dc7777;
-  background:#fff0f0;
+.tree-row:hover{background:#202733}
+.tree-row.selected{background:#334054}
+.arrow{
+width:16px;
+color:#8490a1
 }
-
-.option.disabled{
-  pointer-events:none;
+.icon{
+width:20px;
+text-align:center
 }
-
-.feedback{
-  margin-top:12px;
-  font-weight:700;
-  line-height:1.45;
+.node-name{font-weight:700}
+.node-class{
+font-size:11px;
+color:#788496;
+margin-left:auto
 }
-
+.children{
+margin-left:18px;
+border-left:1px solid #2f3947
+}
+.inspector{
+border-top:1px solid #2a3340;
+padding:11px
+}
+.inspector-title{
+font-weight:800;
+margin-bottom:8px
+}
+.prop{
+display:flex;
+justify-content:space-between;
+padding:7px 5px;
+border-bottom:1px solid #232c38;
+font-size:13px
+}
+.prop:last-child{border-bottom:0}
+.prop-name{color:#8894a6}
+.prop-value{
+color:#dfe6ef;
+text-align:right;
+max-width:58%;
+word-break:break-word
+}
+.editor-wrap{
+display:flex;
+flex-direction:column;
+gap:9px
+}
+.editor-info{
+background:#11171f;
+border:1px solid #2b3440;
+padding:11px;
+border-radius:10px;
+font-size:13px;
+color:#9da9b8
+}
+textarea{
+width:100%;
+min-height:390px;
+resize:vertical;
+background:#0d1218;
+color:#dce6f2;
+border:1px solid #303b4a;
+border-radius:12px;
+padding:14px;
+font:14px/1.5 monospace;
+outline:none
+}
+textarea:focus{border-color:#5c8fd5}
 .actions{
-  display:flex;
-  gap:10px;
-  margin-top:18px;
-  flex-wrap:wrap;
+display:flex;
+gap:8px;
+flex-wrap:wrap
 }
-
-.primary{
-  padding:12px 16px;
-  border-radius:11px;
-  background:#4c8bf5;
-  color:#fff;
-  font-weight:800;
+.action{
+border:0;
+border-radius:9px;
+padding:10px 14px;
+background:#2d394a;
+color:#fff;
+cursor:pointer
 }
-
-.primary:disabled{
-  opacity:.45;
-  cursor:not-allowed;
+.action.primary{background:#467fca}
+.action.success{background:#4a9467}
+.action.danger{background:#9c4f4f}
+.output{
+background:#0b1016;
+border:1px solid #27313e;
+border-radius:10px;
+padding:12px;
+min-height:100px;
+white-space:pre-wrap;
+font:13px/1.5 monospace;
+color:#c8d3df
 }
-
-.mobile-bar{
-  display:none;
+.err{color:#f08888}
+.ok{color:#79d59a}
+.doc-link{
+display:block;
+padding:11px 12px;
+border:1px solid #2b3440;
+border-radius:10px;
+color:#9fc4ff;
+text-decoration:none;
+margin-top:8px
 }
-
-@media(max-width:800px){
-  .sidebar{
-    width:235px;
-  }
+.doc-link:hover{background:#202733}
+.check-box{
+padding:16px;
+border-radius:12px;
+background:#11171f;
+border:1px solid #2a3441
 }
-
-@media(max-width:650px){
-  .main{
-    position:relative;
-  }
-
-  .sidebar{
-    position:absolute;
-    left:0;
-    top:0;
-    bottom:0;
-    width:82%;
-    max-width:320px;
-    z-index:20;
-    box-shadow:8px 0 24px rgba(0,0,0,.12);
-    transform:translateX(-105%);
-    transition:.22s;
-  }
-
-  .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .content{
-    width:100%;
-    padding:12px;
-  }
-
-  .card{
-    padding:16px;
-    border-radius:16px;
-  }
-
-  .lesson-title{
-    font-size:23px;
-  }
-
-  .mobile-bar{
-    display:flex;
-    padding:10px;
-    background:#fff;
-    border-bottom:1px solid #dfe6ee;
-    gap:8px;
-  }
-
-  .menu-btn{
-    padding:10px 13px;
-    border-radius:10px;
-    background:#edf3fb;
-    font-weight:800;
-  }
-
-  .mobile-title{
-    flex:1;
-    display:flex;
-    align-items:center;
-    font-size:14px;
-    font-weight:800;
-  }
+.status{
+font-size:18px;
+font-weight:800
+}
+.small{
+font-size:12px;
+color:#8691a1
+}
+.mobile-note{
+color:#93a0b1;
+font-size:12px;
+margin-top:8px
+}
+@media(max-width:1050px){
+.sidebar{width:260px}
+.zone-layout{grid-template-columns:1fr}
+.tree-card{order:2}
+.title-wrap{min-width:120px}
+.progress{width:120px}
+}
+@media(max-width:720px){
+html,body{overflow:auto}
+.app{
+min-height:100%;
+height:auto
+}
+.sidebar{
+width:100%;
+height:auto;
+max-height:290px
+}
+.brand{padding:14px 15px}
+.lessons{max-height:180px}
+.app{display:block}
+.main{
+height:calc(100vh - 290px);
+min-height:700px
+}
+.topbar{height:68px}
+.progress{display:none}
+.content{padding:10px}
+.zone-layout{grid-template-columns:1fr}
+.controls{
+grid-template-columns:repeat(3,55px)
+}
 }
 </style>
 </head>
 
 <body>
 
-<div id="app">
+<div class="app">
 
-  <div class="header">
-    <div class="title">🧸 Академия-садик Roblox Lua</div>
+<aside class="sidebar">
 
-    <div class="progress-wrap">
-      <div class="progress" id="progress"></div>
-    </div>
-
-    <div class="subline" id="progressText">
-      Пройдено: 0 из 60 • Урок 1 из 60
-    </div>
-  </div>
-
-  <div class="mobile-bar">
-    <button class="menu-btn" id="menuBtn">☰ Уроки</button>
-    <div class="mobile-title" id="mobileTitle">Урок 1</div>
-  </div>
-
-  <div class="main">
-
-    <aside class="sidebar" id="sidebar">
-      <h2>📚 Все уроки</h2>
-      <div class="lesson-list" id="lessonList"></div>
-    </aside>
-
-    <section class="content" id="content"></section>
-
-  </div>
+<div class="brand">
+<div class="brand-title">🧸 Академия-садик</div>
+<div class="brand-sub">
+Roblox Luau • практическая 2D-песочница
 </div>
+</div>
+
+<div class="lessons" id="lessonList"></div>
+
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+
+<div class="title-wrap">
+<div class="title" id="lessonTitle"></div>
+<div class="topic" id="lessonTopic"></div>
+</div>
+
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+</div>
+
+<div class="tabs">
+
+<button class="tab active" data-tab="task">Задание</button>
+<button class="tab" data-tab="zone">Тестовая зона</button>
+<button class="tab" data-tab="docs">Документы</button>
+<button class="tab" data-tab="code">Код</button>
+<button class="tab" data-tab="check">Проверка</button>
+
+</div>
+
+<div class="content">
+
+<section class="panel active" id="panel-task">
+
+<div class="card">
+
+<h2>Что нужно сделать</h2>
+
+<div class="task-big" id="taskText"></div>
+
+<div class="requirements" id="requirements"></div>
+
+<div class="tip" id="taskTip"></div>
+
+</div>
+
+<div class="card">
+
+<h3>Главное</h3>
+
+<div class="muted">
+В этом уроке тебе не дают готовое решение.
+Сначала попробуй самостоятельно понять задачу.
+Когда информации не хватает — используй тестовую зону и документы.
+</div>
+
+</div>
+
+</section>
+
+
+<section class="panel" id="panel-zone">
+
+<div class="zone-layout">
+
+<div class="scene-card">
+
+<div class="scene-head">
+<span>2D тестовая зона</span>
+<span class="scene-badge">играй и наблюдай</span>
+</div>
+
+<canvas id="game" width="900" height="430"></canvas>
+
+<div class="mobile-note">
+Клавиатура: A/D или ←/→, прыжок: W/↑/Пробел
+</div>
+
+<div class="controls">
+<div></div>
+<button class="ctrl" data-key="up">▲</button>
+<div></div>
+
+<button class="ctrl" data-key="left">◀</button>
+<button class="ctrl" data-key="down">●</button>
+<button class="ctrl" data-key="right">▶</button>
+</div>
+
+</div>
+
+
+<div class="tree-card">
+
+<div class="tree-head">
+Объекты
+</div>
+
+<div class="tree" id="tree"></div>
+
+<div class="inspector" id="inspector">
+
+<div class="inspector-title">
+Выбери объект
+</div>
+
+<div class="small">
+Нажми на объект в дереве, чтобы посмотреть его свойства.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section class="panel" id="panel-docs">
+
+<div class="card">
+
+<h2>Документы</h2>
+
+<div class="muted">
+Используй документацию как инструмент поиска информации.
+Не обязательно знать ответ заранее.
+</div>
+
+<a
+class="doc-link"
+target="_blank"
+href="https://create.roblox.com/docs/tutorials/fundamentals/coding-1/coding-fundamentals">
+Roblox Coding Fundamentals
+</a>
+
+<a
+class="doc-link"
+target="_blank"
+href="https://create.roblox.com/docs/scripting">
+Roblox Scripting
+</a>
+
+<a
+class="doc-link"
+target="_blank"
+href="https://create.roblox.com/docs/reference/engine/classes/Players">
+Players
+</a>
+
+<a
+class="doc-link"
+target="_blank"
+href="https://create.roblox.com/docs/reference/engine/classes/Humanoid">
+Humanoid
+</a>
+
+<a
+class="doc-link"
+target="_blank"
+href="https://create.roblox.com/docs/tutorials/fundamentals/coding-1/object-properties">
+Object Properties
+</a>
+
+</div>
+
+</section>
+
+
+<section class="panel" id="panel-code">
+
+<div class="card editor-wrap">
+
+<h2>Код</h2>
+
+<div class="editor-info" id="editorInfo">
+Поле пустое специально. Напиши своё решение.
+</div>
+
+<textarea
+id="editor"
+spellcheck="false"
+placeholder="Напиши код здесь..."
+></textarea>
+
+<div class="actions">
+
+<button class="action primary" id="runBtn">
+▶ Запустить
+</button>
+
+<button class="action danger" id="resetBtn">
+Сбросить
+</button>
+
+</div>
+
+<div class="output" id="output">
+Готово к запуску.
+</div>
+
+</div>
+
+</section>
+
+
+<section class="panel" id="panel-check">
+
+<div class="card">
+
+<h2>Проверка</h2>
+
+<div class="check-box">
+
+<div class="status" id="checkStatus">
+Урок ещё не пройден
+</div>
+
+<div class="muted" id="checkText" style="margin-top:8px">
+Выполни условие урока.
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+</div>
+
 
 <script>
 
-const lessons = [
+const LESSONS=[
 
 {
-title:"Что такое Lua",
-desc:"Познакомимся с языком программирования Lua.",
-theory:[
-"Lua — язык программирования.",
-"В Roblox используется Luau, основанный на Lua.",
-"С помощью языка мы пишем инструкции для программы."
-],
-example:'print("Привет!")',
-note:"Lua — язык программирования."
+title:"Познакомься с миром",
+topic:"Объекты",
+task:"Исследуй тестовую зону. Найди игрока, его персонажа и объект Humanoid.",
+requirements:"Найди цепочку Players → LocalPlayer → Character → Humanoid. Нажми на Humanoid и изучи его свойства.",
+tip:"Кода здесь нет вообще. Твоя задача — самостоятельно разобраться, как устроено дерево объектов.",
+type:"explore"
 },
 
 {
-title:"Что такое Luau",
-desc:"Поймём, что такое Luau в Roblox.",
-theory:[
-"Luau — язык программирования Roblox.",
-"Он основан на Lua.",
-"Именно Luau используется для Roblox-скриптов."
-],
-example:'print("Я учу Luau")',
-note:"Roblox → Luau."
+title:"Покажи число",
+topic:"Числа",
+task:"Выведи в консоль любое число.",
+requirements:"После запуска в выводе должно появиться число.",
+tip:"Найди в документации или вспомни, какая команда используется для вывода информации.",
+type:"printNumber"
 },
 
 {
-title:"Что такое скрипт",
-desc:"Разберём понятие скрипта.",
-theory:[
-"Скрипт содержит инструкции.",
-"Инструкции выполняются программой.",
-"Скрипт позволяет игре выполнять действия."
-],
-example:'print("Первая команда")\nprint("Вторая команда")',
-note:"Скрипт — набор инструкций."
+title:"Покажи текст",
+topic:"Текст",
+task:"Выведи приветствие.",
+requirements:"В выводе должен появиться текст, содержащий слово «Привет».",
+tip:"Разберись самостоятельно, как программа хранит и выводит текст.",
+type:"printText"
 },
 
 {
-title:"Что такое команда",
-desc:"Поймём, что такое команда.",
-theory:[
-"Команда — инструкция программе.",
-"Каждая команда делает определённое действие.",
-"Несколько команд образуют скрипт."
-],
-example:'print("Привет")',
-note:"Команда сообщает программе, что делать."
+title:"Создай переменную",
+topic:"Переменные",
+task:"Создай переменную speed и положи в неё число 10.",
+requirements:"Переменная speed должна содержать число 10.",
+tip:"Посмотри документацию про переменные и попробуй создать одну самостоятельно.",
+type:"variable"
 },
 
 {
-title:"Что такое print",
-desc:"Познакомимся с print.",
-theory:[
-"print выводит значение.",
-"Он используется для проверки скрипта.",
-"Через print можно выводить текст и числа."
-],
-example:'print("Привет")',
-note:"print выводит информацию."
+title:"Измени значение",
+topic:"Переменные",
+task:"Создай переменную и измени её значение с 5 на 20.",
+requirements:"В результате переменная должна содержать 20.",
+tip:"Подумай, чем отличается создание переменной от изменения уже существующего значения.",
+type:"changeVariable"
 },
 
 {
-title:"Что такое текст",
-desc:"Учимся работать со строками.",
-theory:[
-"Текст называется строкой.",
-"Строки записываются в кавычках.",
-"В строке могут быть слова и символы."
-],
-example:'print("Roblox")',
-note:"Текст обычно пишется в кавычках."
+title:"Найди игрока",
+topic:"Players",
+task:"Получи LocalPlayer через сервис Players.",
+requirements:"В результате программа должна получить объект LocalPlayer.",
+tip:"Исследуй дерево объектов и документацию Players. Не нужно угадывать путь.",
+type:"localPlayer"
 },
 
 {
-title:"Что такое число",
-desc:"Познакомимся с числами.",
-theory:[
-"Числа используются для числовых значений.",
-"Их можно складывать и сравнивать.",
-"Числа пишутся без кавычек."
-],
-example:"print(16)",
-note:"16 — число."
+title:"Найди персонажа",
+topic:"Character",
+task:"Получи Character своего игрока.",
+requirements:"Переменная должна указывать на объект Character.",
+tip:"Ты уже знаешь, где находится LocalPlayer. Теперь исследуй, что находится внутри него.",
+type:"character"
 },
 
 {
-title:"Что такое true",
-desc:"Познакомимся с true.",
-theory:[
-"true означает истину.",
-"Это логическое значение.",
-"Его можно использовать как включённое состояние."
-],
-example:"print(true)",
-note:"true = истина."
+title:"Найди Humanoid",
+topic:"FindFirstChild",
+task:"Найди Humanoid внутри Character.",
+requirements:"Нужно получить настоящий объект Humanoid.",
+tip:"Посмотри на дерево Character и найди способ получить дочерний объект.",
+type:"humanoid"
 },
 
 {
-title:"Что такое false",
-desc:"Познакомимся с false.",
-theory:[
-"false означает ложь.",
-"Это логическое значение.",
-"Его можно использовать как выключенное состояние."
-],
-example:"print(false)",
-note:"false = ложь."
+title:"Посмотри свойство",
+topic:"Свойства",
+task:"Узнай текущую скорость Humanoid.",
+requirements:"В выводе должно появиться значение WalkSpeed.",
+tip:"Сначала получи объект Humanoid. Затем исследуй его свойства.",
+type:"walkRead"
 },
 
 {
-title:"Что такое переменная",
-desc:"Поймём, что такое переменная.",
-theory:[
-"Переменная — имя, под которым хранится значение.",
-"Она может хранить числа, текст и логические значения.",
-"Через имя можно получить сохранённое значение."
-],
-example:"local Speed = 16",
-note:"Speed — имя переменной."
+title:"Измени скорость",
+topic:"Свойства",
+task:"Сделай скорость персонажа равной 25.",
+requirements:"После запуска WalkSpeed должна стать 25.",
+tip:"Используй дерево и документацию, чтобы самостоятельно добраться до нужного свойства.",
+type:"walkSet"
 },
 
 {
-title:"Создание переменной",
-desc:"Научимся создавать переменную.",
-theory:[
-"Для локальной переменной используется local.",
-"После local пишется имя.",
-"Переменной можно сразу дать значение."
-],
-example:"local Speed",
-note:"local создаёт локальную переменную."
+title:"Скорость через переменную",
+topic:"Переменные + свойства",
+task:"Создай переменную со значением 30 и используй её для WalkSpeed.",
+requirements:"WalkSpeed должна стать 30.",
+tip:"Теперь значение свойства должно прийти не напрямую, а через переменную.",
+type:"walkVariable"
 },
 
 {
-title:"local",
-desc:"Разберём слово local.",
-theory:[
-"local создаёт локальную переменную.",
-"Это один из самых первых элементов Roblox-скрипта.",
-"После local указывается имя."
-],
-example:"local Coins = 10",
-note:"local объявляет переменную."
+title:"Настрой прыжок",
+topic:"Humanoid",
+task:"Измени силу прыжка на 100.",
+requirements:"JumpPower должна стать 100.",
+tip:"Используй тот же принцип: объект → свойство → новое значение.",
+type:"jumpSet"
 },
 
 {
-title:"Знак =",
-desc:"Поймём присваивание.",
-theory:[
-"Знак = используется для присваивания.",
-"Слева находится переменная.",
-"Справа находится значение."
-],
-example:"local Speed = 100",
-note:"Слева Speed, справа 100."
+title:"Два свойства",
+topic:"Свойства",
+task:"Измени скорость на 22, а силу прыжка на 90.",
+requirements:"WalkSpeed = 22 и JumpPower = 90.",
+tip:"Один объект может иметь много свойств. Настрой оба.",
+type:"twoProps"
 },
 
 {
-title:"Изменение переменной",
-desc:"Учимся изменять значение.",
-theory:[
-"Переменную можно изменить.",
-"Новое значение заменяет старое.",
-"Так программа может менять данные."
-],
-example:"local Speed = 16\nSpeed = 100",
-note:"После второй строки Speed хранит 100."
+title:"Найди объект сам",
+topic:"Объекты",
+task:"Найди SpeedPad и выключи его.",
+requirements:"SpeedPad.Enabled должна стать false.",
+tip:"Здесь специально не указан готовый путь к объекту. Используй дерево и документацию.",
+type:"speedPad"
 },
 
 {
-title:"Переменная с текстом",
-desc:"Храним текст.",
-theory:[
-"В переменную можно записать строку.",
-"Строка записывается в кавычках.",
-"Потом можно использовать имя переменной."
-],
-example:'local Name = "Player"',
-note:"Name хранит текст."
+title:"Проверка условием",
+topic:"if",
+task:"Проверь, равна ли скорость персонажа 16.",
+requirements:"Используй условие if и выведи сообщение, когда скорость равна 16.",
+tip:"Изучи, как программа сравнивает два значения.",
+type:"if"
 },
 
 {
-title:"Переменная true/false",
-desc:"Храним состояние.",
-theory:[
-"В переменной можно хранить true.",
-"Также можно хранить false.",
-"Так создаются состояния систем."
-],
-example:"local SpeedEnabled = true",
-note:"SpeedEnabled хранит состояние."
+title:"Открой дверь",
+topic:"Объекты + свойства",
+task:"Найди Door и установи Opened в true.",
+requirements:"Door.Opened должна стать true.",
+tip:"Найди объект самостоятельно и измени его свойство.",
+type:"door"
 },
 
 {
-title:"Несколько переменных",
-desc:"Используем несколько переменных.",
-theory:[
-"Можно создать много переменных.",
-"У каждой будет своё имя.",
-"Каждая может хранить своё значение."
-],
-example:"local Speed = 16\nlocal Coins = 10",
-note:"Переменных может быть много."
+title:"Включи SpeedPad",
+topic:"Свойства",
+task:"Найди SpeedPad и включи его.",
+requirements:"SpeedPad.Enabled должна стать true.",
+tip:"Посмотри значение свойства в инспекторе перед тем, как менять его.",
+type:"speedPadOn"
 },
 
 {
-title:"Переменная в print",
-desc:"Выводим переменную.",
-theory:[
-"Имя переменной можно передать в print.",
-"Тогда выводится её значение.",
-"Это помогает проверять код."
-],
-example:"local Speed = 16\nprint(Speed)",
-note:"print показывает значение Speed."
+title:"Эксперимент",
+topic:"Самостоятельность",
+task:"Сделай персонажа очень быстрым.",
+requirements:"WalkSpeed должна стать 35.",
+tip:"Готового решения здесь нет. Используй всё, что уже изучил.",
+type:"experiment"
 },
 
 {
-title:"Левая и правая часть",
-desc:"Разбираем присваивание.",
-theory:[
-"Слева находится то, куда записывают значение.",
-"Справа находится то, что записывают.",
-"Нужно смотреть на строку целиком."
-],
-example:"local Speed = 100",
-note:"Слева — Speed, справа — 100."
+title:"Проверь понимание",
+topic:"Объекты + свойства",
+task:"Получи Humanoid и установи WalkSpeed равной 40.",
+requirements:"WalkSpeed должна стать 40.",
+tip:"Реши задачу самостоятельно. Способ написания можешь выбрать сам.",
+type:"understand"
 },
 
 {
-title:"Сложение",
-desc:"Познакомимся с оператором +.",
-theory:[
-"+ складывает числа.",
-"Результат можно сохранить в переменную.",
-"Это математический оператор."
-],
-example:"local Coins = 10\nCoins = Coins + 5",
-note:"Получится 15."
-},
-
-{
-title:"Вычитание",
-desc:"Познакомимся с оператором -.",
-theory:[
-"- вычитает число.",
-"Можно уменьшить значение переменной.",
-"Оператор используется в математике."
-],
-example:"local Coins = 10\nCoins = Coins - 3",
-note:"Получится 7."
-},
-
-{
-title:"Умножение",
-desc:"Познакомимся с оператором *.",
-theory:[
-"* выполняет умножение.",
-"Можно умножать значения.",
-"Результат можно сохранить."
-],
-example:"local Power = 5\nPower = Power * 2",
-note:"Получится 10."
-},
-
-{
-title:"Деление",
-desc:"Познакомимся с оператором /.",
-theory:[
-"/ выполняет деление.",
-"Это математический оператор.",
-"Результат можно сохранить."
-],
-example:"local Coins = 10\nCoins = Coins / 2",
-note:"Получится 5."
-},
-
-{
-title:"Сравнение",
-desc:"Учимся сравнивать значения.",
-theory:[
-"Программа может сравнивать числа.",
-"Сравнение даёт true или false.",
-"Сравнения используются в условиях."
-],
-example:"print(10 > 5)",
-note:"Результат — true."
-},
-
-{
-title:"if",
-desc:"Познакомимся с if.",
-theory:[
-"if проверяет условие.",
-"Если условие истинно, код внутри выполняется.",
-"if используется для выбора действий."
-],
-example:'if true then\n  print("Да")\nend',
-note:"if = если."
-},
-
-{
-title:"then",
-desc:"Разберём then.",
-theory:[
-"then ставится после условия.",
-"Он начинает блок действий if.",
-"Блок заканчивается end."
-],
-example:'if true then\n  print("Работаем")\nend',
-note:"then = тогда."
-},
-
-{
-title:"end",
-desc:"Поймём end.",
-theory:[
-"end закрывает блок.",
-"Он завершает if.",
-"end также используется с функциями."
-],
-example:'if true then\n  print("Привет")\nend',
-note:"end = конец блока."
-},
-
-{
-title:"if с переменной",
-desc:"Используем переменную в if.",
-theory:[
-"В условии можно проверять переменную.",
-"Если значение true, блок выполняется.",
-"Это основа логики системы."
-],
-example:'local Enabled = true\nif Enabled then\n  print("Включено")\nend',
-note:"if проверяет Enabled."
-},
-
-{
-title:"else",
-desc:"Добавляем второй вариант.",
-theory:[
-"else выполняется, если условие if ложно.",
-"Получается два варианта.",
-"else относится к if."
-],
-example:'if false then\n  print("Да")\nelse\n  print("Нет")\nend',
-note:"else = иначе."
-},
-
-{
-title:"not",
-desc:"Познакомимся с not.",
-theory:[
-"not меняет логическое значение.",
-"not true становится false.",
-"not false становится true."
-],
-example:"print(not true)",
-note:"not = не."
-},
-
-{
-title:"function",
-desc:"Начинаем изучать функции.",
-theory:[
-"Функция — блок кода с именем.",
-"Функцию можно запускать.",
-"Функции объединяют действия."
-],
-example:'local function SayHello()\n  print("Привет")\nend',
-note:"Это создание функции."
-},
-
-{
-title:"Вызов функции",
-desc:"Запускаем функцию.",
-theory:[
-"Функцию вызывают по имени.",
-"После имени ставятся скобки.",
-"Функцию можно вызвать несколько раз."
-],
-example:'local function SayHello()\n  print("Привет")\nend\nSayHello()',
-note:"Создание и вызов функции — разные действия."
-},
-
-{
-title:"Параметр",
-desc:"Передаём данные в функцию.",
-theory:[
-"Параметр пишется в скобках функции.",
-"Он получает переданное значение.",
-"Параметры делают функцию гибкой."
-],
-example:"local function Speed(Value)\n  print(Value)\nend",
-note:"Value — параметр."
-},
-
-{
-title:"Аргумент",
-desc:"Разберём аргумент.",
-theory:[
-"Аргумент — конкретное значение при вызове функции.",
-"Параметр получает аргумент.",
-"Можно передавать разные значения."
-],
-example:"Speed(100)",
-note:"100 — аргумент."
-},
-
-{
-title:"if внутри функции",
-desc:"Соединяем if и function.",
-theory:[
-"Внутри функции можно использовать if.",
-"Функция может выбирать разные действия.",
-"Все блоки нужно закрывать end."
-],
-example:'local function Test(Enabled)\n  if Enabled then\n    print("ON")\n  else\n    print("OFF")\n  end\nend',
-note:"Один end закрывает if, другой функцию."
-},
-
-{
-title:"Функция и переменная",
-desc:"Используем состояние внутри функции.",
-theory:[
-"Функция может использовать переменную.",
-"Так можно проверять состояние системы.",
-"Это пригодится для переключателей."
-],
-example:'local SpeedEnabled = true\nlocal function Speed()\n  if SpeedEnabled then\n    print("100")\n  end\nend',
-note:"Функция читает SpeedEnabled."
-},
-
-{
-title:"Toggle",
-desc:"Познакомимся с переключением.",
-theory:[
-"Toggle меняет состояние.",
-"false превращается в true.",
-"true превращается в false."
-],
-example:"local Enabled = false\nEnabled = not Enabled",
-note:"not удобно для toggle."
-},
-
-{
-title:"Два состояния",
-desc:"Разберём ON и OFF.",
-theory:[
-"Система может иметь два состояния.",
-"true можно использовать для включения.",
-"false можно использовать для выключения."
-],
-example:'if Enabled then\n  print("Включено")\nelse\n  print("Выключено")\nend',
-note:"Два состояния удобно хранить в boolean."
-},
-
-{
-title:"Toggle через not",
-desc:"Закрепим способ переключения.",
-theory:[
-"not может менять состояние автоматически.",
-"false становится true.",
-"true становится false."
-],
-example:"Enabled = not Enabled",
-note:"Это простейшая форма toggle."
-},
-
-{
-title:"Зачем нужен Toggle",
-desc:"Поймём назначение переключателя.",
-theory:[
-"Toggle позволяет включать и выключать систему.",
-"Одна кнопка может выполнять оба действия.",
-"Состояние хранится в переменной."
-],
-example:"Enabled → not Enabled",
-note:"Toggle нужен для ON/OFF."
-},
-
-{
-title:"game",
-desc:"Переходим к Roblox-объектам.",
-theory:[
-"game представляет текущую игру.",
-"Через game можно получать сервисы.",
-"Это специальное значение Roblox."
-],
-example:"print(game)",
-note:"game используется в Roblox-скриптах."
-},
-
-{
-title:"Точка .",
-desc:"Познакомимся с точкой.",
-theory:[
-"Точка используется для обращения к члену объекта.",
-"Через неё обращаются к свойствам и объектам.",
-"Например, Players.LocalPlayer."
-],
-example:"Players.LocalPlayer",
-note:". позволяет обратиться к члену объекта."
-},
-
-{
-title:"Двоеточие :",
-desc:"Познакомимся с двоеточием.",
-theory:[
-"Двоеточие используется при вызове метода.",
-"В Roblox это встречается очень часто.",
-"Например, GetService."
-],
-example:'game:GetService("Players")',
-note:": используется для вызова метода."
-},
-
-{
-title:"GetService",
-desc:"Получаем сервис Roblox.",
-theory:[
-"GetService получает нужный сервис.",
-"Например, Players.",
-"Полученный сервис можно сохранить."
-],
-example:'local Players = game:GetService("Players")',
-note:"GetService получает сервис."
-},
-
-{
-title:"Players",
-desc:"Познакомимся с Players.",
-theory:[
-"Players — сервис игроков.",
-"Он связан с игроками игры.",
-"Из него можно получить LocalPlayer."
-],
-example:'local Players = game:GetService("Players")',
-note:"Players — сервис Roblox."
-},
-
-{
-title:"LocalPlayer",
-desc:"Получаем своего игрока.",
-theory:[
-"LocalPlayer представляет локального игрока.",
-"В LocalScript это игрок, для которого выполняется код.",
-"Его можно сохранить в Player."
-],
-example:"local Player = Players.LocalPlayer",
-note:"Player хранит LocalPlayer."
-},
-
-{
-title:"Character",
-desc:"Получаем персонажа.",
-theory:[
-"Character — персонаж игрока.",
-"В нём находятся части персонажа.",
-"Через Character можно получить Humanoid."
-],
-example:"local Character = Player.Character",
-note:"Player → Character."
-},
-
-{
-title:"FindFirstChild",
-desc:"Ищем дочерний объект.",
-theory:[
-"FindFirstChild ищет объект по имени.",
-"Он используется через двоеточие.",
-"Найденный объект можно сохранить."
-],
-example:'local Humanoid = Character:FindFirstChild("Humanoid")',
-note:"Character ищет Humanoid."
-},
-
-{
-title:"Humanoid",
-desc:"Познакомимся с Humanoid.",
-theory:[
-"Humanoid — важный объект персонажа.",
-"Он связан с движением персонажа.",
-"У него есть полезные свойства."
-],
-example:'local Humanoid = Character:FindFirstChild("Humanoid")',
-note:"Humanoid нужен для систем движения."
-},
-
-{
-title:"WalkSpeed",
-desc:"Познакомимся со скоростью.",
-theory:[
-"WalkSpeed — свойство Humanoid.",
-"Оно отвечает за скорость ходьбы.",
-"Ему можно присвоить число."
-],
-example:"Humanoid.WalkSpeed = 100",
-note:"WalkSpeed изменяет скорость."
-},
-
-{
-title:"Player → Character",
-desc:"Строим первую часть цепочки.",
-theory:[
-"Сначала получаем Players.",
-"Потом LocalPlayer.",
-"После этого Character."
-],
-example:"Players → Player → Character",
-note:"Так идём от сервиса к персонажу."
-},
-
-{
-title:"Character → Humanoid",
-desc:"Продолжаем цепочку.",
-theory:[
-"После Character находим Humanoid.",
-"Используем FindFirstChild.",
-"Теперь можно обращаться к Humanoid."
-],
-example:"Character → Humanoid",
-note:"Humanoid находится внутри Character."
-},
-
-{
-title:"Изменение WalkSpeed",
-desc:"Меняем свойство Humanoid.",
-theory:[
-"Слева находится объект и его свойство.",
-"Справа находится новое значение.",
-"Используется знак =."
-],
-example:"Humanoid.WalkSpeed = 100",
-note:"Так задаётся новая скорость."
-},
-
-{
-title:"Простой Speed",
-desc:"Собираем базовую систему скорости.",
-theory:[
-"Получаем Players.",
-"Получаем Player.",
-"Получаем Character.",
-"Получаем Humanoid.",
-"Меняем WalkSpeed."
-],
-example:"Players → Player → Character → Humanoid → WalkSpeed",
-note:"Это основа системы Speed."
-},
-
-{
-title:"SpeedEnabled",
-desc:"Добавляем состояние.",
-theory:[
-"SpeedEnabled хранит true или false.",
-"true — скорость включена.",
-"false — скорость выключена."
-],
-example:"local SpeedEnabled = false",
-note:"Это переменная состояния."
-},
-
-{
-title:"Speed + if",
-desc:"Связываем состояние со скоростью.",
-theory:[
-"if проверяет SpeedEnabled.",
-"При true ставится высокая скорость.",
-"При false ставится обычная."
-],
-example:'if SpeedEnabled then\n  Humanoid.WalkSpeed = 100\nelse\n  Humanoid.WalkSpeed = 16\nend',
-note:"if выбирает нужную скорость."
-},
-
-{
-title:"ToggleSpeed",
-desc:"Создаём переключатель скорости.",
-theory:[
-"ToggleSpeed меняет состояние.",
-"Для этого можно использовать not.",
-"После изменения состояния используется логика Speed."
-],
-example:"SpeedEnabled = not SpeedEnabled",
-note:"ToggleSpeed переключает ON/OFF."
-},
-
-{
-title:"Кнопка",
-desc:"Понимаем идею кнопки скорости.",
-theory:[
-"Игрок нажимает кнопку.",
-"Нажатие должно запускать переключение.",
-"Кнопка будет связана с функцией."
-],
-example:"Кнопка → переключение Speed",
-note:"Кнопка запускает действие."
-},
-
-{
-title:"Activated",
-desc:"Познакомимся с Activated.",
-theory:[
-"Activated — событие GUI-кнопки.",
-"Оно сообщает, что кнопку активировали.",
-"Его можно соединить с функцией."
-],
-example:"Button.Activated",
-note:"Activated — событие активации."
-},
-
-{
-title:"Connect и финальная система",
-desc:"Завершаем 60 уроков и соединяем изученное.",
-theory:[
-"Connect подключает функцию к событию.",
-"Activated сообщает об активации кнопки.",
-"ToggleSpeed меняет состояние скорости.",
-"Так получается цепочка: кнопка → событие → функция → действие."
-],
-example:"Button.Activated:Connect(ToggleSpeed)",
-note:"60-й урок — финальная связь кнопки с системой."
+title:"Мини-проект",
+topic:"Повторение",
+task:"Настрой своего персонажа: скорость 30 и силу прыжка 100.",
+requirements:"WalkSpeed = 30 и JumpPower = 100. В конце выведи сообщение о завершении.",
+tip:"Собери решение из всех знаний, которые уже получил.",
+type:"mini"
 }
 
 ];
 
-const questions = [
+let currentLesson=0;
 
-["Что такое Lua?","Язык программирования","Кнопка","Сервис Roblox","Объект персонажа",0],
-["Какой язык используется в Roblox?","Python","Luau","Java","C++",1],
-["Что такое скрипт?","Картинка","Набор инструкций","Скин","Игрок",1],
-["Что такое команда?","Инструкция программе","Игрок","Сервис","Кнопка",0],
-["Для чего нужен print?","Для вывода значения","Для создания игрока","Для скорости","Для GUI",0],
-["Что такое строка?","Число","Текст","Сервис","Событие",1],
-["Что такое 16 без кавычек?","Текст","Число","Функция","Кнопка",1],
-["Что означает true?","Ложь","Истина","Текст","Число",1],
-["Что означает false?","Истина","Ложь","Игрок","Сервис",1],
-["Что такое переменная?","Имя, которое хранит значение","Только кнопка","Только игрок","Только функция",0],
+let completed=
+JSON.parse(localStorage.getItem("sadikProgress")||"[]");
 
-["Для чего нужен local?","Для создания локальной переменной","Для создания карты","Для нажатия кнопки","Для поиска Humanoid",0],
-["Что хранит переменная?","Значение","Только картинку","Только кнопку","Только игрока",0],
-["Что делает =?","Удаляет значение","Присваивает значение","Создаёт событие","Вызывает игру",1],
-["Можно ли изменить переменную?","Нет","Да","Только один раз","Только на телефоне",1],
-["Как записывается текст?","В кавычках","Без кавычек","Через двоеточие","Через точку",0],
-["Что можно хранить в переменной?","Только числа","Только текст","Разные значения","Только true",2],
-["Можно ли создать несколько переменных?","Да","Нет","Только две","Только пять",0],
-["Что делает print(Speed)?","Выводит значение Speed","Меняет скорость","Удаляет Speed","Создаёт кнопку",0],
-["Где находится значение в Speed = 100?","Слева","Справа","В имени","В точке",1],
-["Что произойдёт после Speed = 100, если раньше Speed было 16?","Speed станет 100","Speed удалится","Станет текстом","Ничего",0],
+let selectedPath=null;
+let inspectedHumanoid=false;
 
-["Какой оператор складывает?","+","-","*","/",0],
-["Какой оператор вычитает?","+","-","*","/",1],
-["Какой оператор умножает?","+","-","*","/",2],
-["Какой оператор делит?","+","-","*","/",3],
-["Что даёт сравнение?","Число","true или false","Текст","Кнопку",1],
-["Для чего нужен if?","Для проверки условия","Для создания игрока","Для GUI","Для удаления",0],
-["Что ставят после условия if?","then","print","local","Players",0],
-["Что закрывает if?","local","end","game","Connect",1],
-["Для чего нужен else?","Для второго варианта","Для создания функции","Для вывода текста","Для игрока",0],
-["Что делает not false?","false","true","16","nil",1],
 
-["Что такое function?","Блок кода с именем","Игрок","Сервис","Кнопка",0],
-["Как вызвать функцию?","Имя со скобками","Через print","Через local","Через Players",0],
-["Что такое параметр?","Имя принимаемого значения","Кнопка","Сервис","Игрок",0],
-["Что такое аргумент?","Переданное значение","Сервис","Событие","Свойство",0],
-["Можно ли использовать if внутри функции?","Нет","Да","Только на ПК","Только один раз",1],
-["Может ли функция использовать переменную?","Да","Нет","Только текст","Только число",0],
-["Что такое toggle?","Переключение состояния","Создание игрока","Удаление объекта","Смена языка",0],
-["Какие два состояния часто используются?","true/false","1/2","A/B","X/Y",0],
-["Что делает not true?","true","false","100","nil",1],
-["Зачем нужен Toggle?","Для переключения состояния","Для создания карты","Для удаления GUI","Для смены персонажа",0],
+/* =========================
+   ВИРТУАЛЬНЫЙ МИР
+========================= */
 
-["Что такое game?","Текущая игра","Игрок","Кнопка","Число",0],
-["Для чего нужна точка .?","Для обращения к члену объекта","Для создания цикла","Для закрытия функции","Для вывода текста",0],
-["Для чего используется :?","Для вызова метода","Для создания числа","Для комментария","Для GUI",0],
-["Что делает GetService?","Получает сервис","Удаляет сервис","Меняет скорость","Создаёт игрока",0],
-["Что такое Players?","Сервис игроков","Кнопка","Число","Персонаж",0],
-["Что такое LocalPlayer?","Локальный игрок","Любой игрок","Кнопка","Humanoid",0],
-["Что такое Character?","Персонаж игрока","Сервис","Число","Скрипт",0],
-["Что делает FindFirstChild?","Ищет дочерний объект","Создаёт карту","Запускает кнопку","Меняет скорость",0],
-["Что такое Humanoid?","Объект персонажа","Сервис игры","Кнопка","Переменная",0],
-["Что такое WalkSpeed?","Свойство скорости Humanoid","Сервис","Кнопка","Функция",0],
+const world={
 
-["Что идёт после Players в цепочке?","LocalPlayer","WalkSpeed","Button","Connect",0],
-["Что идёт после Player?","Character","Players","WalkSpeed","Connect",0],
-["Что идёт после Character?","Humanoid","Players","Button","Connect",0],
-["Что делает Humanoid.WalkSpeed = 100?","Устанавливает скорость","Создаёт Humanoid","Удаляет Character","Включает GUI",0],
-["Что такое простая система Speed?","Цепочка получения Humanoid и изменения WalkSpeed","Только кнопка","Только print","Только Players",0],
-["Для чего SpeedEnabled?","Для хранения состояния скорости","Для хранения имени игрока","Для создания карты","Для GUI",0],
-["Что делает if SpeedEnabled then?","Проверяет состояние","Создаёт игрока","Вызывает Connect","Получает Players",0],
-["Что делает ToggleSpeed?","Переключает состояние скорости","Создаёт Character","Удаляет Humanoid","Создаёт сервис",0],
-["Что такое Activated?","Событие активации GUI-кнопки","Число","Переменная","Сервис",0],
-["Что делает Connect?","Подключает функцию к событию","Создаёт кнопку","Меняет WalkSpeed","Получает Player",0]
+player:{
+x:170,
+y:330,
+vx:0,
+vy:0,
+onGround:true,
+WalkSpeed:16,
+JumpPower:50
+},
 
-];
+objects:{
 
-const TOTAL = 60;
+Door:{
+Name:"Door",
+ClassName:"Part",
+Opened:false
+},
 
-let state = {
-  unlocked:1,
-  current:1,
-  answered:{}
+SpeedPad:{
+Name:"SpeedPad",
+ClassName:"Part",
+Enabled:true
+},
+
+JumpPad:{
+Name:"JumpPad",
+ClassName:"Part",
+Enabled:true
+},
+
+Ground:{
+Name:"Ground",
+ClassName:"Part",
+Material:"Grass"
+}
+
+},
+
+tree:{
+
+Name:"game",
+ClassName:"DataModel",
+
+children:[
+
+{
+Name:"Players",
+ClassName:"Players",
+
+children:[
+
+{
+Name:"LocalPlayer",
+ClassName:"Player",
+
+children:[
+
+{
+Name:"Character",
+ClassName:"Model",
+
+children:[
+
+{
+Name:"Humanoid",
+ClassName:"Humanoid",
+children:[]
+},
+
+{
+Name:"Head",
+ClassName:"Part",
+children:[]
+},
+
+{
+Name:"Body",
+ClassName:"Part",
+children:[]
+}
+
+]
+
+}
+
+]
+
+}
+
+]
+
+},
+
+{
+Name:"Workspace",
+ClassName:"Workspace",
+
+children:[
+
+{
+Name:"Ground",
+ClassName:"Part",
+children:[]
+},
+
+{
+Name:"Door",
+ClassName:"Part",
+children:[]
+},
+
+{
+Name:"SpeedPad",
+ClassName:"Part",
+children:[]
+},
+
+{
+Name:"JumpPad",
+ClassName:"Part",
+children:[]
+}
+
+]
+
+}
+
+]
+
+}
+
 };
 
-try{
-  const saved = JSON.parse(
-    localStorage.getItem("roblox_lua_school_garden_60_v4")
-  );
 
-  if(saved){
+/* =========================
+   ПРОГРЕСС
+========================= */
 
-    state.unlocked =
-      Math.min(TOTAL,Math.max(1,Number(saved.unlocked)||1));
+function saveProgress(){
 
-    state.current =
-      Math.min(TOTAL,Math.max(1,Number(saved.current)||1));
-
-    state.answered = saved.answered || {};
-
-  }
-
-}catch(e){}
-
-function save(){
-  localStorage.setItem(
-    "roblox_lua_school_garden_60_v4",
-    JSON.stringify(state)
-  );
-}
-
-function updateHeader(){
-
-  let done = 0;
-
-  for(let i=1;i<=TOTAL;i++){
-    if(state.answered[i] === true){
-      done++;
-    }
-  }
-
-  const percent = Math.round((done/TOTAL)*100);
-
-  document.getElementById("progress").style.width =
-    percent + "%";
-
-  document.getElementById("progressText").textContent =
-    "Пройдено: " +
-    done +
-    " из " +
-    TOTAL +
-    " • Урок " +
-    state.current +
-    " из " +
-    TOTAL;
-
-  document.getElementById("mobileTitle").textContent =
-    "Урок " + state.current;
-}
-
-function buildLessonList(){
-
-  const list =
-    document.getElementById("lessonList");
-
-  list.innerHTML = "";
-
-  lessons.forEach((lesson,index)=>{
-
-    const number = index + 1;
-
-    const item =
-      document.createElement("button");
-
-    item.className = "lesson-item";
-
-    if(number === state.current){
-      item.classList.add("active");
-    }
-
-    if(number > state.unlocked){
-      item.classList.add("locked");
-    }
-
-    const top =
-      document.createElement("div");
-
-    top.className = "lesson-top";
-
-    const num =
-      document.createElement("div");
-
-    num.className = "lesson-number";
-    num.textContent = number;
-
-    const name =
-      document.createElement("div");
-
-    name.className = "lesson-name";
-    name.textContent = lesson.title;
-
-    const mark =
-      document.createElement("div");
-
-    mark.className = "done-mark";
-
-    if(state.answered[number]){
-      mark.textContent = "✓";
-    }else if(number > state.unlocked){
-      mark.textContent = "🔒";
-    }
-
-    top.appendChild(num);
-    top.appendChild(name);
-    top.appendChild(mark);
-
-    item.appendChild(top);
-
-    if(number <= state.unlocked){
-
-      item.addEventListener("click",()=>{
-
-        state.current = number;
-
-        save();
-        render();
-
-        if(window.innerWidth <= 650){
-          document
-            .getElementById("sidebar")
-            .classList.remove("open");
-        }
-
-      });
-
-    }
-
-    list.appendChild(item);
-
-  });
-}
-
-function escapeHTML(text){
-
-  return String(text)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-function render(){
-
-  updateHeader();
-  buildLessonList();
-
-  const lesson =
-    lessons[state.current-1];
-
-  const q =
-    questions[state.current-1];
-
-  if(!lesson || !q){
-    return;
-  }
-
-  const alreadyPassed =
-    state.answered[state.current] === true;
-
-  const content =
-    document.getElementById("content");
-
-  let theoryHTML = "";
-
-  lesson.theory.forEach(text=>{
-    theoryHTML +=
-      "<p>" +
-      escapeHTML(text) +
-      "</p>";
-  });
-
-  content.innerHTML = `
-
-    <div class="card">
-
-      <div class="badge">
-        УРОК ${state.current} / ${TOTAL}
-      </div>
-
-      <h1 class="lesson-title">
-        ${escapeHTML(lesson.title)}
-      </h1>
-
-      <div class="description">
-        ${escapeHTML(lesson.desc)}
-      </div>
-
-      <div class="theory">
-
-        <h3>📖 Теория</h3>
-
-        ${theoryHTML}
-
-      </div>
-
-      <div class="examples" style="margin-top:18px">
-
-        <h3>💡 Пример</h3>
-
-        <div class="example-box">
-          <code>${escapeHTML(lesson.example)}</code>
-        </div>
-
-      </div>
-
-      <div class="note">
-        <strong>⭐ Запомни:</strong><br>
-        ${escapeHTML(lesson.note)}
-      </div>
-
-      <div class="question-box">
-
-        <h3>🧠 Вопрос</h3>
-
-        <div class="question">
-          ${escapeHTML(q[0])}
-        </div>
-
-        <div class="options" id="options"></div>
-
-        <div class="feedback" id="feedback"></div>
-
-        <div class="actions">
-
-          <button
-            class="primary"
-            id="nextBtn"
-            ${alreadyPassed ? "" : "disabled"}
-          >
-            ${
-              state.current < TOTAL
-              ? "Следующий урок →"
-              : "Завершить"
-            }
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-  `;
-
-  const options =
-    document.getElementById("options");
-
-  const feedback =
-    document.getElementById("feedback");
-
-  const nextBtn =
-    document.getElementById("nextBtn");
-
-  const optionTexts = [
-    q[1],
-    q[2],
-    q[3],
-    q[4]
-  ];
-
-  optionTexts.forEach((text,index)=>{
-
-    const btn =
-      document.createElement("button");
-
-    btn.className = "option";
-
-    btn.textContent =
-      String.fromCharCode(65+index) +
-      ") " +
-      text;
-
-    /*
-      ВАЖНО:
-      Если урок уже был пройден,
-      варианты всё равно доступны.
-      Правильный вариант заранее НЕ показывается.
-    */
-
-    btn.addEventListener("click",()=>{
-
-      if(btn.classList.contains("disabled")){
-        return;
-      }
-
-      if(index === q[5]){
-
-        btn.classList.add("correct");
-
-        feedback.textContent =
-          "✅ Правильно! Нажми «Следующий урок →».";
-
-        state.answered[state.current] = true;
-
-        if(state.current < TOTAL){
-
-          state.unlocked =
-            Math.max(
-              state.unlocked,
-              state.current + 1
-            );
-
-        }
-
-        save();
-
-        updateHeader();
-        buildLessonList();
-
-        nextBtn.disabled = false;
-
-        const allOptions =
-          options.querySelectorAll(".option");
-
-        allOptions.forEach(option=>{
-          option.classList.add("disabled");
-        });
-
-      }else{
-
-        btn.classList.add("wrong");
-
-        feedback.textContent =
-          "❌ Неправильно. Попробуй ещё раз.";
-
-        setTimeout(()=>{
-          btn.classList.remove("wrong");
-        },600);
-
-      }
-
-    });
-
-    options.appendChild(btn);
-
-  });
-
-  if(alreadyPassed){
-
-    feedback.textContent =
-      "✅ Урок уже пройден. Можешь ответить ещё раз или перейти дальше.";
-
-  }
-
-  nextBtn.addEventListener("click",()=>{
-
-    if(state.answered[state.current] !== true){
-      return;
-    }
-
-    if(state.current < TOTAL){
-
-      state.current++;
-
-      save();
-      render();
-
-      document
-        .getElementById("content")
-        .scrollTo({
-          top:0,
-          behavior:"smooth"
-        });
-
-    }else{
-
-      showFinished();
-
-    }
-
-  });
+localStorage.setItem(
+"sadikProgress",
+JSON.stringify(completed)
+);
 
 }
 
-function showFinished(){
 
-  const content =
-    document.getElementById("content");
+function setCompleted(index){
 
-  content.innerHTML = `
+if(!completed.includes(index)){
 
-    <div class="card">
+completed.push(index);
 
-      <div class="badge">
-        60 / 60
-      </div>
-
-      <h1 class="lesson-title">
-        🎉 Все 60 уроков пройдены
-      </h1>
-
-      <div class="description">
-        Все уроки Академии-садика Roblox Lua пройдены.
-      </div>
-
-      <div class="theory">
-
-        <h3>📚 Что изучено</h3>
-
-        <p>Lua и Luau.</p>
-        <p>Скрипты и команды.</p>
-        <p>Переменные.</p>
-        <p>Математика.</p>
-        <p>if, then, else и not.</p>
-        <p>Функции.</p>
-        <p>game и сервисы.</p>
-        <p>Players и LocalPlayer.</p>
-        <p>Character и Humanoid.</p>
-        <p>WalkSpeed.</p>
-        <p>Activated и Connect.</p>
-
-      </div>
-
-      <div class="actions">
-
-        <button
-          class="primary"
-          id="againBtn"
-        >
-          Начать заново
-        </button>
-
-      </div>
-
-    </div>
-
-  `;
-
-  document
-    .getElementById("againBtn")
-    .addEventListener("click",()=>{
-
-      state.current = 1;
-      state.unlocked = 1;
-      state.answered = {};
-
-      save();
-      render();
-
-    });
+saveProgress();
 
 }
+
+updateProgress();
+
+}
+
+
+function updateProgress(){
+
+document.getElementById("progressBar").style.width=
+((completed.length/LESSONS.length)*100)+"%";
 
 document
-  .getElementById("menuBtn")
-  .addEventListener("click",()=>{
+.querySelectorAll(".lesson-btn")
+.forEach((b,i)=>{
 
-    document
-      .getElementById("sidebar")
-      .classList.toggle("open");
-
-  });
-
-document.addEventListener("click",(event)=>{
-
-  const sidebar =
-    document.getElementById("sidebar");
-
-  const menuBtn =
-    document.getElementById("menuBtn");
-
-  if(
-    window.innerWidth <= 650 &&
-    sidebar.classList.contains("open") &&
-    !sidebar.contains(event.target) &&
-    event.target !== menuBtn
-  ){
-
-    sidebar.classList.remove("open");
-
-  }
+b.classList.toggle(
+"done",
+completed.includes(i)
+);
 
 });
 
-console.log("Уроков:", lessons.length);
-console.log("Вопросов:", questions.length);
+}
 
-render();
+
+/* =========================
+   СПИСОК УРОКОВ
+========================= */
+
+function renderLessons(){
+
+const list=
+document.getElementById("lessonList");
+
+list.innerHTML="";
+
+LESSONS.forEach((lesson,i)=>{
+
+const b=document.createElement("button");
+
+b.className=
+"lesson-btn"+
+(i===currentLesson?" active":"")+
+(completed.includes(i)?" done":"");
+
+b.innerHTML=
+"<span class='lesson-num'>"+
+(i+1)+
+"</span>"+
+"<span class='lesson-title'>"+
+lesson.title+
+"</span>"+
+"<div class='lesson-topic'>"+
+lesson.topic+
+"</div>";
+
+b.onclick=()=>loadLesson(i);
+
+list.appendChild(b);
+
+});
+
+updateProgress();
+
+}
+
+
+/* =========================
+   ЗАГРУЗКА УРОКА
+========================= */
+
+function loadLesson(index){
+
+currentLesson=index;
+
+inspectedHumanoid=false;
+
+selectedPath=null;
+
+renderLessons();
+
+const lesson=LESSONS[index];
+
+document.getElementById("lessonTitle").textContent=
+"Урок "+(index+1)+": "+lesson.title;
+
+document.getElementById("lessonTopic").textContent=
+lesson.topic;
+
+document.getElementById("taskText").textContent=
+lesson.task;
+
+document.getElementById("requirements").textContent=
+lesson.requirements;
+
+document.getElementById("taskTip").textContent=
+lesson.tip;
+
+
+/*
+ВАЖНО:
+ЗДЕСЬ НЕТ ГОТОВОГО КОДА.
+
+Каждый урок после первого
+получает полностью пустой редактор.
+*/
+
+document.getElementById("editor").value="";
+
+document.getElementById("output").textContent=
+"Готово к запуску.";
+
+document.getElementById("output").className=
+"output";
+
+document.getElementById("editorInfo").textContent=
+index===0
+?"В этом уроке код не нужен. Исследуй объекты в тестовой зоне."
+:"Поле пустое специально. Напиши своё решение.";
+
+if(completed.includes(index)){
+
+document.getElementById("checkStatus").textContent=
+"Урок пройден";
+
+document.getElementById("checkStatus").className=
+"status ok";
+
+document.getElementById("checkText").textContent=
+"Условие урока уже выполнено.";
+
+}else{
+
+document.getElementById("checkStatus").textContent=
+"Урок ещё не пройден";
+
+document.getElementById("checkStatus").className=
+"status";
+
+document.getElementById("checkText").textContent=
+"Выполни условие урока.";
+
+}
+
+resetWorld();
+
+renderTree();
+
+}
+
+
+/* =========================
+   СБРОС МИРА
+========================= */
+
+function resetWorld(){
+
+world.player.x=170;
+world.player.y=330;
+world.player.vx=0;
+world.player.vy=0;
+world.player.onGround=true;
+
+world.player.WalkSpeed=16;
+world.player.JumpPower=50;
+
+world.objects.Door.Opened=false;
+world.objects.SpeedPad.Enabled=true;
+world.objects.JumpPad.Enabled=true;
+
+}
+
+
+/* =========================
+   ДЕРЕВО ОБЪЕКТОВ
+========================= */
+
+function renderTree(){
+
+const wrap=
+document.getElementById("tree");
+
+wrap.innerHTML="";
+
+renderNode(
+world.tree,
+[],
+wrap,
+0
+);
+
+}
+
+
+function renderNode(node,path,parent,level){
+
+const holder=
+document.createElement("div");
+
+holder.className="tree-node";
+
+const row=
+document.createElement("div");
+
+row.className=
+"tree-row"+
+(
+JSON.stringify(selectedPath)===
+JSON.stringify(path)
+?" selected":""
+);
+
+row.style.paddingLeft=
+(6+level*8)+"px";
+
+const hasChildren=
+node.children&&
+node.children.length>0;
+
+row.innerHTML=
+"<span class='arrow'>"+
+(hasChildren?"▾":"")+
+"</span>"+
+"<span class='icon'>"+
+iconFor(node.ClassName)+
+"</span>"+
+"<span class='node-name'>"+
+node.Name+
+"</span>"+
+"<span class='node-class'>"+
+node.ClassName+
+"</span>";
+
+row.onclick=()=>{
+
+selectedPath=path;
+
+if(
+path.join(".")===
+"Players.LocalPlayer.Character.Humanoid"
+){
+
+inspectedHumanoid=true;
+
+if(currentLesson===0){
+
+setCompleted(0);
+
+document.getElementById("checkStatus").textContent=
+"Урок пройден";
+
+document.getElementById("checkStatus").className=
+"status ok";
+
+document.getElementById("checkText").textContent=
+"Ты нашёл Humanoid и изучил его свойства.";
+
+}
+
+}
+
+renderTree();
+
+showInspector(node,path);
+
+};
+
+holder.appendChild(row);
+
+if(hasChildren){
+
+const children=
+document.createElement("div");
+
+children.className="children";
+
+node.children.forEach(child=>{
+
+renderNode(
+child,
+path.concat(child.Name),
+children,
+level+1
+);
+
+});
+
+holder.appendChild(children);
+
+}
+
+parent.appendChild(holder);
+
+}
+
+
+/* =========================
+   ИКОНКИ
+========================= */
+
+function iconFor(cls){
+
+if(cls==="DataModel")return"◈";
+if(cls==="Players")return"👥";
+if(cls==="Player")return"🙂";
+if(cls==="Model")return"🧍";
+if(cls==="Humanoid")return"⚙";
+if(cls==="Workspace")return"🌎";
+if(cls==="Part")return"■";
+
+return"•";
+
+}
+
+
+/* =========================
+   ИНСПЕКТОР
+========================= */
+
+function showInspector(node,path){
+
+const box=
+document.getElementById("inspector");
+
+const props=[];
+
+props.push([
+"Name",
+node.Name
+]);
+
+props.push([
+"ClassName",
+node.ClassName
+]);
+
+if(
+path.join(".")===
+"Players.LocalPlayer"
+){
+
+props.push([
+"UserId",
+"100001"
+]);
+
+}
+
+if(
+path.join(".")===
+"Players.LocalPlayer.Character.Humanoid"
+){
+
+props.push([
+"WalkSpeed",
+world.player.WalkSpeed
+]);
+
+props.push([
+"JumpPower",
+world.player.JumpPower
+]);
+
+props.push([
+"Health",
+100
+]);
+
+}
+
+if(
+path.join(".")===
+"Workspace.Door"
+){
+
+props.push([
+"Opened",
+world.objects.Door.Opened
+]);
+
+}
+
+if(
+path.join(".")===
+"Workspace.SpeedPad"
+){
+
+props.push([
+"Enabled",
+world.objects.SpeedPad.Enabled
+]);
+
+}
+
+if(
+path.join(".")===
+"Workspace.JumpPad"
+){
+
+props.push([
+"Enabled",
+world.objects.JumpPad.Enabled
+]);
+
+}
+
+box.innerHTML=
+"<div class='inspector-title'>"+
+node.Name+
+"</div>"+
+props.map(p=>
+"<div class='prop'>"+
+"<span class='prop-name'>"+
+p[0]+
+"</span>"+
+"<span class='prop-value'>"+
+p[1]+
+"</span>"+
+"</div>"
+).join("");
+
+}
+
+
+/* =========================
+   УПРАВЛЕНИЕ
+========================= */
+
+const keys={
+left:false,
+right:false,
+up:false
+};
+
+document.addEventListener("keydown",e=>{
+
+if(
+e.key==="ArrowLeft"||
+e.key.toLowerCase()==="a"
+)
+keys.left=true;
+
+if(
+e.key==="ArrowRight"||
+e.key.toLowerCase()==="d"
+)
+keys.right=true;
+
+if(
+e.key==="ArrowUp"||
+e.key.toLowerCase()==="w"||
+e.key===" "
+)
+keys.up=true;
+
+});
+
+document.addEventListener("keyup",e=>{
+
+if(
+e.key==="ArrowLeft"||
+e.key.toLowerCase()==="a"
+)
+keys.left=false;
+
+if(
+e.key==="ArrowRight"||
+e.key.toLowerCase()==="d"
+)
+keys.right=false;
+
+if(
+e.key==="ArrowUp"||
+e.key.toLowerCase()==="w"||
+e.key===" "
+)
+keys.up=false;
+
+});
+
+
+document
+.querySelectorAll(".ctrl")
+.forEach(btn=>{
+
+const k=btn.dataset.key;
+
+const down=e=>{
+e.preventDefault();
+keys[k]=true;
+};
+
+const up=e=>{
+e.preventDefault();
+keys[k]=false;
+};
+
+btn.addEventListener(
+"pointerdown",
+down
+);
+
+btn.addEventListener(
+"pointerup",
+up
+);
+
+btn.addEventListener(
+"pointercancel",
+up
+);
+
+btn.addEventListener(
+"pointerleave",
+up
+);
+
+});
+
+
+/* =========================
+   2D СЦЕНА
+========================= */
+
+const canvas=
+document.getElementById("game");
+
+const ctx=
+canvas.getContext("2d");
+
+
+function drawCloud(x,y,s){
+
+ctx.fillStyle="#fff";
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y,
+22*s,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+x+25*s,
+y-8*s,
+28*s,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+x+52*s,
+y,
+21*s,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+function drawScene(){
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+/* небо */
+
+ctx.fillStyle="#8cd3f3";
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+/* солнце */
+
+ctx.fillStyle="#f8d866";
+
+ctx.beginPath();
+
+ctx.arc(
+790,
+65,
+28,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* облака */
+
+drawCloud(105,66,1);
+drawCloud(340,86,.9);
+drawCloud(570,60,1);
+
+
+/* горы */
+
+ctx.fillStyle="#7caf78";
+
+ctx.beginPath();
+
+ctx.moveTo(0,240);
+ctx.lineTo(150,125);
+ctx.lineTo(285,240);
+ctx.closePath();
+
+ctx.fill();
+
+ctx.beginPath();
+
+ctx.moveTo(170,240);
+ctx.lineTo(400,105);
+ctx.lineTo(610,240);
+ctx.closePath();
+
+ctx.fill();
+
+
+/* крыша */
+
+ctx.fillStyle="#a86752";
+
+ctx.beginPath();
+
+ctx.moveTo(655,190);
+ctx.lineTo(755,100);
+ctx.lineTo(855,190);
+ctx.closePath();
+
+ctx.fill();
+
+
+/* дом */
+
+ctx.fillStyle="#dca96d";
+
+ctx.fillRect(
+675,
+190,
+160,
+145
+);
+
+
+/* дверь */
+
+ctx.fillStyle=
+world.objects.Door.Opened
+?"#69c889"
+:"#754c35";
+
+ctx.fillRect(
+735,
+250,
+42,
+85
+);
+
+
+/* земля */
+
+ctx.fillStyle="#6fa853";
+
+ctx.fillRect(
+0,
+335,
+canvas.width,
+95
+);
+
+
+/* SpeedPad */
+
+if(world.objects.SpeedPad.Enabled){
+
+ctx.fillStyle="#f2d44e";
+
+ctx.fillRect(
+475,
+323,
+82,
+14
+);
+
+}
+
+
+/* JumpPad */
+
+if(world.objects.JumpPad.Enabled){
+
+ctx.fillStyle="#e28fd8";
+
+ctx.fillRect(
+595,
+323,
+82,
+14
+);
+
+}
+
+
+/* игрок */
+
+const p=world.player;
+
+ctx.fillStyle="#4488dd";
+
+ctx.fillRect(
+p.x,
+p.y,
+26,
+52
+);
+
+
+/* голова */
+
+ctx.fillStyle="#ffd2ac";
+
+ctx.beginPath();
+
+ctx.arc(
+p.x+13,
+p.y,
+13,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* глаза */
+
+ctx.fillStyle="#222";
+
+ctx.beginPath();
+
+ctx.arc(
+p.x+8,
+p.y-2,
+2,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+p.x+18,
+p.y-2,
+2,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* информация */
+
+ctx.fillStyle="#29343d";
+
+ctx.font="13px Arial";
+
+ctx.fillText(
+"2D TEST ZONE",
+15,
+24
+);
+
+ctx.fillText(
+"← → движение   ↑ прыжок",
+15,
+44
+);
+
+
+ctx.fillStyle="#304238";
+
+ctx.font="12px Arial";
+
+ctx.fillText(
+"WalkSpeed: "+world.player.WalkSpeed,
+15,
+365
+);
+
+ctx.fillText(
+"JumpPower: "+world.player.JumpPower,
+15,
+382
+);
+
+ctx.fillText(
+"Door: "+
+(
+world.objects.Door.Opened
+?"OPENED"
+:"CLOSED"
+),
+15,
+400
+);
+
+}
+
+
+/* =========================
+   ИГРОВОЙ ЦИКЛ
+========================= */
+
+let last=
+performance.now();
+
+function loop(now){
+
+const dt=
+Math.min(
+.03,
+(now-last)/1000
+);
+
+last=now;
+
+const p=world.player;
+
+const speed=
+world.player.WalkSpeed;
+
+if(keys.left){
+
+p.vx=-speed*5;
+
+}else if(keys.right){
+
+p.vx=speed*5;
+
+}else{
+
+p.vx*=.8;
+
+}
+
+
+if(
+keys.up&&
+p.onGround
+){
+
+p.vy=
+-world.player.JumpPower*7;
+
+p.onGround=false;
+
+}
+
+
+p.vy+=1100*dt;
+
+p.x+=p.vx*dt;
+
+p.y+=p.vy*dt;
+
+
+if(p.y>=330){
+
+p.y=330;
+
+p.vy=0;
+
+p.onGround=true;
+
+}
+
+
+p.x=
+Math.max(
+5,
+Math.min(
+870,
+p.x
+)
+);
+
+
+drawScene();
+
+requestAnimationFrame(loop);
+
+}
+
+requestAnimationFrame(loop);
+
+
+/* =========================
+   ВИРТУАЛЬНЫЕ ОБЪЕКТЫ
+========================= */
+
+function getObject(path){
+
+if(path==="game")
+return world.tree;
+
+if(path==="game.Players")
+return{
+__type:"Players",
+Name:"Players"
+};
+
+if(path==="game.Players.LocalPlayer")
+return{
+__type:"Player",
+Name:"LocalPlayer"
+};
+
+if(path==="game.Players.LocalPlayer.Character")
+return{
+__type:"Character",
+Name:"Character"
+};
+
+if(
+path===
+"game.Players.LocalPlayer.Character.Humanoid"
+)
+return{
+__type:"Humanoid",
+Name:"Humanoid"
+};
+
+if(path==="game.Workspace")
+return{
+__type:"Workspace",
+Name:"Workspace"
+};
+
+if(path==="game.Workspace.Door")
+return{
+__type:"Door",
+Name:"Door"
+};
+
+if(path==="game.Workspace.SpeedPad")
+return{
+__type:"SpeedPad",
+Name:"SpeedPad"
+};
+
+if(path==="game.Workspace.JumpPad")
+return{
+__type:"JumpPad",
+Name:"JumpPad"
+};
+
+return null;
+
+}
+
+
+/* =========================
+   ЗАЩИТНЫЙ ПАРСЕР
+========================= */
+
+function stripComment(s){
+
+const i=s.indexOf("--");
+
+return i>=0
+?s.slice(0,i)
+:s;
+
+}
+
+
+function parseValue(
+expr,
+vars,
+output
+){
+
+expr=expr.trim();
+
+if(expr==="true")
+return true;
+
+if(expr==="false")
+return false;
+
+if(expr==="nil")
+return null;
+
+if(
+/^".*"$/.test(expr)
+)
+return expr.slice(1,-1);
+
+if(
+/^'.*'$/.test(expr)
+)
+return expr.slice(1,-1);
+
+if(
+/^\d+(\.\d+)?$/.test(expr)
+)
+return Number(expr);
+
+if(
+Object.prototype.hasOwnProperty.call(
+vars,
+expr
+)
+)
+return vars[expr];
+
+if(expr==="game")
+return{
+__type:"DataModel",
+Name:"game"
+};
+
+
+const arithmetic=
+expr.match(
+/^(.+)\s*([+\-*/])\s*(.+)$/
+);
+
+if(arithmetic){
+
+const a=
+Number(
+resolveExpression(
+arithmetic[1],
+vars,
+output
+)
+);
+
+const b=
+Number(
+resolveExpression(
+arithmetic[3],
+vars,
+output
+)
+);
+
+if(
+Number.isNaN(a)||
+Number.isNaN(b)
+)
+throw new Error(
+"Нельзя выполнить это вычисление."
+);
+
+if(arithmetic[2]==="+")
+return a+b;
+
+if(arithmetic[2]==="-")
+return a-b;
+
+if(arithmetic[2]==="*")
+return a*b;
+
+if(arithmetic[2]==="/")
+return b===0?0:a/b;
+
+}
+
+return resolveExpression(
+expr,
+vars,
+output
+);
+
+}
+
+
+function resolveExpression(
+expr,
+vars,
+output
+){
+
+expr=expr.trim();
+
+if(expr==="game")
+return{
+__type:"DataModel",
+Name:"game"
+};
+
+
+/* GetService */
+
+const service=
+expr.match(
+/^(.+):GetService\(["']([^"']+)["']\)$/
+);
+
+if(service){
+
+const serviceName=
+service[2];
+
+if(serviceName==="Players")
+return{
+__type:"Players",
+Name:"Players"
+};
+
+if(serviceName==="Workspace")
+return{
+__type:"Workspace",
+Name:"Workspace"
+};
+
+throw new Error(
+"Сервис не найден: "+serviceName
+);
+
+}
+
+
+/* FindFirstChild */
+
+const child=
+expr.match(
+/^(.+):FindFirstChild\(["']([^"']+)["']\)$/
+);
+
+if(child){
+
+const base=
+resolveExpression(
+child[1],
+vars,
+output
+);
+
+if(!base)
+throw new Error(
+"Не удалось получить объект."
+);
+
+const name=
+child[2];
+
+if(
+base.__type==="Character"&&
+name==="Humanoid"
+)
+return{
+__type:"Humanoid",
+Name:"Humanoid"
+};
+
+if(
+base.__type==="Workspace"&&
+world.objects[name]
+)
+return{
+__type:name,
+Name:name
+};
+
+throw new Error(
+"Объект "+name+
+" не найден внутри "+
+base.Name
+);
+
+}
+
+
+/* переменная + точка */
+
+if(
+Object.prototype.hasOwnProperty.call(
+vars,
+expr
+)
+)
+return vars[expr];
+
+
+const parts=
+expr.split(".");
+
+if(parts.length>1){
+
+const baseExpr=
+parts.slice(0,-1).join(".");
+
+const prop=
+parts[parts.length-1];
+
+const base=
+resolveExpression(
+baseExpr,
+vars,
+output
+);
+
+if(!base)
+throw new Error(
+"Объект перед ."+prop+
+" не найден."
+);
+
+
+/* Players */
+
+if(
+base.__type==="Players"&&
+prop==="LocalPlayer"
+)
+return{
+__type:"Player",
+Name:"LocalPlayer"
+};
+
+
+/* Player */
+
+if(
+base.__type==="Player"&&
+prop==="Character"
+)
+return{
+__type:"Character",
+Name:"Character"
+};
+
+
+/* Humanoid */
+
+if(
+base.__type==="Humanoid"
+){
+
+if(prop==="WalkSpeed")
+return world.player.WalkSpeed;
+
+if(prop==="JumpPower")
+return world.player.JumpPower;
+
+if(prop==="Health")
+return 100;
+
+}
+
+
+/* Door */
+
+if(
+base.__type==="Door"&&
+prop==="Opened"
+)
+return world.objects.Door.Opened;
+
+
+/* SpeedPad */
+
+if(
+base.__type==="SpeedPad"&&
+prop==="Enabled"
+)
+return world.objects.SpeedPad.Enabled;
+
+
+/* JumpPad */
+
+if(
+base.__type==="JumpPad"&&
+prop==="Enabled"
+)
+return world.objects.JumpPad.Enabled;
+
+
+/* Name */
+
+if(prop==="Name")
+return base.Name;
+
+}
+
+
+if(
+/^".*"$/.test(expr)
+)
+return expr.slice(1,-1);
+
+if(
+/^'.*'$/.test(expr)
+)
+return expr.slice(1,-1);
+
+if(
+/^\d+(\.\d+)?$/.test(expr)
+)
+return Number(expr);
+
+if(expr==="true")
+return true;
+
+if(expr==="false")
+return false;
+
+return null;
+
+}
+
+
+/* =========================
+   ПРИСВАИВАНИЕ
+========================= */
+
+function assignTarget(
+target,
+value,
+vars,
+output
+){
+
+target=target.trim();
+
+
+if(
+Object.prototype.hasOwnProperty.call(
+vars,
+target
+)
+||
+/^[A-Za-z_][A-Za-z0-9_]*$/.test(target)
+){
+
+vars[target]=value;
+
+return;
+
+}
+
+
+const parts=
+target.split(".");
+
+const prop=
+parts.pop();
+
+const baseExpr=
+parts.join(".");
+
+const base=
+resolveExpression(
+baseExpr,
+vars,
+output
+);
+
+if(!base)
+throw new Error(
+"Не найден объект."
+);
+
+
+if(base.__type==="Humanoid"){
+
+if(prop==="WalkSpeed"){
+
+if(typeof value!=="number")
+throw new Error(
+"WalkSpeed должен быть числом."
+);
+
+world.player.WalkSpeed=value;
+
+return;
+
+}
+
+if(prop==="JumpPower"){
+
+if(typeof value!=="number")
+throw new Error(
+"JumpPower должен быть числом."
+);
+
+world.player.JumpPower=value;
+
+return;
+
+}
+
+}
+
+
+if(
+base.__type==="Door"&&
+prop==="Opened"
+){
+
+world.objects.Door.Opened=
+!!value;
+
+return;
+
+}
+
+
+if(
+base.__type==="SpeedPad"&&
+prop==="Enabled"
+){
+
+world.objects.SpeedPad.Enabled=
+!!value;
+
+return;
+
+}
+
+
+if(
+base.__type==="JumpPad"&&
+prop==="Enabled"
+){
+
+world.objects.JumpPad.Enabled=
+!!value;
+
+return;
+
+}
+
+
+throw new Error(
+"Это свойство нельзя изменить."
+);
+
+}
+
+
+/* =========================
+   ВЫПОЛНЕНИЕ
+========================= */
+
+function runCode(){
+
+const source=
+document.getElementById("editor").value;
+
+const outputBox=
+document.getElementById("output");
+
+if(currentLesson===0){
+
+outputBox.textContent=
+"В первом уроке код не нужен. Перейди в «Тестовая зона» и исследуй дерево объектов.";
+
+outputBox.className="output";
+
+return;
+
+}
+
+
+if(!source.trim()){
+
+outputBox.textContent=
+"Ошибка: поле кода пустое. Напиши своё решение.";
+
+outputBox.className=
+"output err";
+
+return;
+
+}
+
+
+const lines=
+source.split("\n");
+
+const vars={};
+
+const output=[];
+
+try{
+
+executeBlock(
+lines,
+0,
+lines.length,
+vars,
+output
+);
+
+outputBox.textContent=
+output.length
+?output.join("\n")
+:"Код выполнен.";
+
+outputBox.className=
+"output";
+
+validateLesson(
+vars,
+output
+);
+
+renderTree();
+
+showSelectedInspector();
+
+}catch(err){
+
+outputBox.textContent=
+"Ошибка: "+
+err.message;
+
+outputBox.className=
+"output err";
+
+document.getElementById(
+"checkStatus"
+).textContent="Есть ошибка";
+
+document.getElementById(
+"checkStatus"
+).className="status err";
+
+document.getElementById(
+"checkText"
+).textContent=
+"Исправь код и попробуй снова.";
+
+}
+
+}
+
+
+/* =========================
+   ИНТЕРПРЕТАТОР
+========================= */
+
+function executeBlock(
+lines,
+start,
+end,
+vars,
+output
+){
+
+let i=start;
+
+while(i<end){
+
+let line=
+stripComment(lines[i]).trim();
+
+if(!line){
+
+i++;
+continue;
+
+}
+
+
+if(line==="end"){
+
+i++;
+continue;
+
+}
+
+
+/* IF */
+
+if(/^if\s+/.test(line)){
+
+const match=
+line.match(
+/^if\s+(.+)\s+then$/
+);
+
+if(!match)
+throw new Error(
+"Проверь условие if."
+);
+
+let depth=1;
+let j=i+1;
+
+while(j<end){
+
+const l=
+stripComment(lines[j]).trim();
+
+if(/^if\s+/.test(l))
+depth++;
+
+if(l==="end")
+depth--;
+
+if(depth===0)
+break;
+
+j++;
+
+}
+
+if(depth!==0)
+throw new Error(
+"У if нет end."
+);
+
+
+const cond=
+match[1].match(
+/^(.+?)\s*(==|~=|>=|<=|>|<)\s*(.+)$/
+);
+
+if(!cond)
+throw new Error(
+"Нужно сравнить два значения."
+);
+
+
+const a=
+resolveExpression(
+cond[1],
+vars,
+output
+);
+
+const b=
+resolveExpression(
+cond[3],
+vars,
+output
+);
+
+let yes=false;
+
+if(cond[2]==="==")
+yes=a===b;
+
+if(cond[2]==="~=")
+yes=a!==b;
+
+if(cond[2]===">")
+yes=a>b;
+
+if(cond[2]==="<")
+yes=a<b;
+
+if(cond[2]===">=")
+yes=a>=b;
+
+if(cond[2]==="<=")
+yes=a<=b;
+
+
+if(yes){
+
+executeBlock(
+lines,
+i+1,
+j,
+vars,
+output
+);
+
+}
+
+i=j+1;
+continue;
+
+}
+
+
+/* LOCAL */
+
+const local=
+line.match(
+/^local\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/
+);
+
+if(local){
+
+vars[local[1]]=
+resolveExpression(
+local[2],
+vars,
+output
+);
+
+i++;
+continue;
+
+}
+
+
+/* PRINT */
+
+const print=
+line.match(
+/^print\((.*)\)$/
+);
+
+if(print){
+
+const value=
+resolveExpression(
+print[1],
+vars,
+output
+);
+
+output.push(
+formatValue(value)
+);
+
+i++;
+continue;
+
+}
+
+
+/* ASSIGN */
+
+const assignment=
+line.match(
+/^(.+?)\s*=\s*(.+)$/
+);
+
+if(assignment){
+
+const target=
+assignment[1].trim();
+
+const value=
+resolveExpression(
+assignment[2],
+vars,
+output
+);
+
+assignTarget(
+target,
+value,
+vars,
+output
+);
+
+i++;
+continue;
+
+}
+
+
+throw new Error(
+"Не понимаю строку: "+
+line
+);
+
+}
+
+}
+
+
+/* =========================
+   FORMAT
+========================= */
+
+function formatValue(value){
+
+if(value===null)
+return"nil";
+
+if(value===true)
+return"true";
+
+if(value===false)
+return"false";
+
+if(
+typeof value==="object"
+)
+return value.Name||"Object";
+
+return String(value);
+
+}
+
+
+/* =========================
+   ПРОВЕРКА
+========================= */
+
+function validateLesson(
+vars,
+output
+){
+
+const type=
+LESSONS[currentLesson].type;
+
+let ok=false;
+
+
+/* 2 */
+
+if(type==="printNumber"){
+
+ok=output.some(v=>{
+
+const n=Number(v);
+
+return(
+v.trim()!==""&&
+!Number.isNaN(n)
+);
+
+});
+
+}
+
+
+/* 3 */
+
+if(type==="printText"){
+
+ok=output.some(
+v=>
+v.toLowerCase()
+.includes("привет")
+);
+
+}
+
+
+/* 4 */
+
+if(type==="variable"){
+
+ok=
+vars.speed===10;
+
+}
+
+
+/* 5 */
+
+if(type==="changeVariable"){
+
+ok=
+Object.values(vars)
+.includes(20);
+
+}
+
+
+/* 6 */
+
+if(type==="localPlayer"){
+
+ok=
+Object.values(vars)
+.some(
+v=>
+v&&
+v.__type==="Player"
+);
+
+}
+
+
+/* 7 */
+
+if(type==="character"){
+
+ok=
+Object.values(vars)
+.some(
+v=>
+v&&
+v.__type==="Character"
+);
+
+}
+
+
+/* 8 */
+
+if(type==="humanoid"){
+
+ok=
+Object.values(vars)
+.some(
+v=>
+v&&
+v.__type==="Humanoid"
+);
+
+}
+
+
+/* 9 */
+
+if(type==="walkRead"){
+
+ok=
+output.some(
+v=>v==="16"
+);
+
+}
+
+
+/* 10 */
+
+if(type==="walkSet"){
+
+ok=
+world.player.WalkSpeed===25;
+
+}
+
+
+/* 11 */
+
+if(type==="walkVariable"){
+
+ok=
+world.player.WalkSpeed===30;
+
+}
+
+
+/* 12 */
+
+if(type==="jumpSet"){
+
+ok=
+world.player.JumpPower===100;
+
+}
+
+
+/* 13 */
+
+if(type==="twoProps"){
+
+ok=
+world.player.WalkSpeed===22&&
+world.player.JumpPower===90;
+
+}
+
+
+/* 14 */
+
+if(type==="speedPad"){
+
+ok=
+world.objects.SpeedPad.Enabled===false;
+
+}
+
+
+/* 15 */
+
+if(type==="if"){
+
+ok=
+output.some(
+v=>
+v.includes("Скорость равна 16")
+);
+
+}
+
+
+/* 16 */
+
+if(type==="door"){
+
+ok=
+world.objects.Door.Opened===true;
+
+}
+
+
+/* 17 */
+
+if(type==="speedPadOn"){
+
+ok=
+world.objects.SpeedPad.Enabled===true;
+
+}
+
+
+/* 18 */
+
+if(type==="experiment"){
+
+ok=
+world.player.WalkSpeed===35;
+
+}
+
+
+/* 19 */
+
+if(type==="understand"){
+
+ok=
+world.player.WalkSpeed===40;
+
+}
+
+
+/* 20 */
+
+if(type==="mini"){
+
+ok=
+world.player.WalkSpeed===30&&
+world.player.JumpPower===100&&
+output.length>0;
+
+}
+
+
+if(ok){
+
+setCompleted(currentLesson);
+
+document.getElementById(
+"checkStatus"
+).textContent=
+"Урок пройден";
+
+document.getElementById(
+"checkStatus"
+).className=
+"status ok";
+
+document.getElementById(
+"checkText"
+).textContent=
+"Условие выполнено.";
+
+}else{
+
+document.getElementById(
+"checkStatus"
+).textContent=
+"Пока не выполнено";
+
+document.getElementById(
+"checkStatus"
+).className=
+"status";
+
+document.getElementById(
+"checkText"
+).textContent=
+"Результат пока не соответствует заданию. Попробуй другой вариант.";
+
+}
+
+}
+
+
+/* =========================
+   ИНСПЕКТОР ПОСЛЕ ЗАПУСКА
+========================= */
+
+function showSelectedInspector(){
+
+if(!selectedPath)
+return;
+
+const node=
+nodeAtPath(
+world.tree,
+selectedPath
+);
+
+if(node)
+showInspector(
+node,
+selectedPath
+);
+
+}
+
+
+/* =========================
+   ПОИСК УЗЛА
+========================= */
+
+function nodeAtPath(
+root,
+path
+){
+
+let node=root;
+
+for(const name of path){
+
+if(!node.children)
+return null;
+
+node=
+node.children.find(
+x=>x.Name===name
+);
+
+if(!node)
+return null;
+
+}
+
+return node;
+
+}
+
+
+/* =========================
+   КНОПКА ЗАПУСКА
+========================= */
+
+document.getElementById(
+"runBtn"
+).onclick=runCode;
+
+
+/* =========================
+   СБРОС
+========================= */
+
+document.getElementById(
+"resetBtn"
+).onclick=()=>{
+
+resetWorld();
+
+document.getElementById(
+"editor"
+).value="";
+
+document.getElementById(
+"output"
+).textContent=
+"Состояние сброшено.";
+
+document.getElementById(
+"output"
+).className="output";
+
+if(currentLesson!==0){
+
+document.getElementById(
+"checkStatus"
+).textContent=
+"Урок ещё не пройден";
+
+document.getElementById(
+"checkStatus"
+).className=
+"status";
+
+document.getElementById(
+"checkText"
+).textContent=
+"Выполни условие урока.";
+
+}
+
+renderTree();
+
+showSelectedInspector();
+
+};
+
+
+/* =========================
+   ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+========================= */
+
+document
+.querySelectorAll(".tab")
+.forEach(tab=>{
+
+tab.onclick=()=>{
+
+document
+.querySelectorAll(".tab")
+.forEach(t=>
+t.classList.remove("active")
+);
+
+document
+.querySelectorAll(".panel")
+.forEach(p=>
+p.classList.remove("active")
+);
+
+tab.classList.add("active");
+
+document
+.getElementById(
+"panel-"+tab.dataset.tab
+)
+.classList.add("active");
+
+};
+
+});
+
+
+/* =========================
+   ЗАПУСК
+========================= */
+
+renderLessons();
+
+loadLesson(0);
 
 </script>
 
 </body>
-</html>
+  </html>
