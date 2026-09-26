@@ -1,0 +1,4364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🤖 Академия Roblox Luau</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    font-family:Arial,sans-serif;
+    background:#0b1020;
+    color:#fff;
+}
+
+body{
+    overscroll-behavior:none;
+}
+
+button,
+textarea,
+input{
+    font:inherit;
+}
+
+button{
+    border:0;
+    border-radius:14px;
+    padding:13px 15px;
+    background:#26345c;
+    color:#fff;
+}
+
+button:active{
+    transform:scale(.98);
+}
+
+.app{
+    width:100%;
+    max-width:1000px;
+    min-height:100vh;
+    margin:auto;
+    padding:12px;
+}
+
+.header{
+    background:#151d35;
+    border-radius:20px;
+    padding:17px;
+    margin-bottom:12px;
+}
+
+.header h1{
+    margin:0 0 8px;
+    font-size:25px;
+}
+
+.header p{
+    margin:0;
+    color:#abb7d7;
+    line-height:1.45;
+}
+
+.screen{
+    display:none;
+}
+
+.screen.active{
+    display:block;
+}
+
+.card{
+    background:#151d35;
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:12px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:9px;
+}
+
+@media(min-width:700px){
+    .grid{
+        grid-template-columns:repeat(4,1fr);
+    }
+}
+
+.menu{
+    min-height:95px;
+    background:#1c294c;
+}
+
+.menu b{
+    display:block;
+    font-size:28px;
+    margin-bottom:7px;
+}
+
+.top{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+}
+
+.back{
+    background:#39476f;
+}
+
+.search{
+    width:100%;
+    border:1px solid #3b4b73;
+    border-radius:13px;
+    background:#080c16;
+    color:#fff;
+    padding:12px;
+    outline:0;
+    margin-bottom:10px;
+}
+
+.lesson{
+    background:#1b2747;
+    border-radius:15px;
+    padding:14px;
+    margin:8px 0;
+}
+
+.lesson.open{
+    cursor:pointer;
+}
+
+.lesson.locked{
+    opacity:.45;
+}
+
+.lesson.done{
+    border:2px solid #42d47d;
+}
+
+.lesson h3{
+    font-size:17px;
+    margin:0 0 7px;
+}
+
+.muted{
+    color:#99a6c9;
+}
+
+.info{
+    color:#83b8ff;
+}
+
+.good{
+    color:#56df8b;
+}
+
+.bad{
+    color:#ff7787;
+}
+
+.warn{
+    color:#ffd56a;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 8px;
+    border-radius:9px;
+    background:#2b3b69;
+    font-size:12px;
+    margin-top:7px;
+}
+
+.progress{
+    width:100%;
+    height:11px;
+    border-radius:20px;
+    overflow:hidden;
+    background:#252f49;
+}
+
+.progress > div{
+    width:0;
+    height:100%;
+    background:#4ad581;
+    transition:.25s;
+}
+
+.code{
+    background:#070b14;
+    border-radius:13px;
+    padding:14px;
+    white-space:pre-wrap;
+    overflow:auto;
+    font-size:14px;
+    line-height:1.55;
+}
+
+.explain{
+    margin-top:12px;
+}
+
+.explainItem{
+    background:#1d2947;
+    padding:10px;
+    border-radius:10px;
+    margin:6px 0;
+    line-height:1.4;
+}
+
+.task{
+    background:#202d4c;
+    border-radius:14px;
+    padding:14px;
+    margin-top:14px;
+}
+
+textarea{
+    width:100%;
+    min-height:145px;
+    border-radius:12px;
+    border:1px solid #3c4c76;
+    background:#080c16;
+    color:#fff;
+    padding:12px;
+    outline:0;
+    resize:vertical;
+    margin-top:9px;
+}
+
+.action{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+}
+
+.action button{
+    flex:1;
+}
+
+.next{
+    background:#316e4e;
+}
+
+.question{
+    background:#1b2747;
+    border-radius:15px;
+    padding:13px;
+    margin:10px 0;
+}
+
+.question h3{
+    font-size:16px;
+    line-height:1.4;
+}
+
+.option{
+    width:100%;
+    text-align:left;
+    margin-top:7px;
+}
+
+.option.selected{
+    background:#3e65aa;
+}
+
+.stat{
+    background:#1b2747;
+    border-radius:15px;
+    text-align:center;
+    padding:15px;
+}
+
+.stat b{
+    display:block;
+    font-size:26px;
+    margin-bottom:4px;
+}
+
+.chapter{
+    background:#1c2948;
+    border-radius:13px;
+    padding:11px;
+    margin:7px 0;
+}
+
+.chapter b{
+    display:block;
+    margin-bottom:4px;
+}
+
+.hidden{
+    display:none!important;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    color:#596685;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+    <h1>🤖 Академия Roblox Luau</h1>
+    <p>
+        120 уроков для полного новичка.
+        Сначала изучаем <b>local</b>, переменные и знак <b>=</b>,
+        затем постепенно переходим к механикам персонажа и сенсорному GUI.
+    </p>
+</div>
+
+<section id="home" class="screen active">
+
+    <div class="card">
+        <h2>📚 Твоё обучение</h2>
+
+        <div class="progress">
+            <div id="homeProgressBar"></div>
+        </div>
+
+        <p id="homeProgressText">0 / 120 уроков</p>
+    </div>
+
+    <div class="grid">
+
+        <button class="menu" onclick="go('lessons')">
+            <b>📖</b>
+            Уроки
+        </button>
+
+        <button class="menu" onclick="go('tests')">
+            <b>📝</b>
+            Контрольные
+        </button>
+
+        <button class="menu" onclick="go('stats')">
+            <b>📊</b>
+            Прогресс
+        </button>
+
+        <button class="menu" onclick="go('final')">
+            <b>🏆</b>
+            Финал
+        </button>
+
+    </div>
+
+    <div class="card">
+        <h3>🗺️ План курса</h3>
+        <div id="chapters"></div>
+    </div>
+
+</section>
+
+<section id="lessons" class="screen">
+
+    <div class="top">
+        <button class="back" onclick="go('home')">← Назад</button>
+        <h2>📖 Уроки</h2>
+    </div>
+
+    <input
+        id="lessonSearch"
+        class="search"
+        placeholder="Поиск урока..."
+        oninput="renderLessons()"
+    >
+
+    <div id="lessonsList"></div>
+
+</section>
+
+<section id="lesson" class="screen">
+
+    <div class="top">
+        <button class="back" onclick="go('lessons')">← Уроки</button>
+        <span id="lessonNumber" class="badge"></span>
+    </div>
+
+    <div class="card">
+
+        <h2 id="lessonTitle"></h2>
+
+        <p id="lessonTopic" class="info"></p>
+
+        <div id="lessonTheory"></div>
+
+        <h3>💻 Пример</h3>
+
+        <pre id="lessonCode" class="code"></pre>
+
+        <div class="explain">
+            <h3>🔎 Разбор по частям</h3>
+            <div id="lessonExplain"></div>
+        </div>
+
+        <div class="task">
+
+            <h3>🎯 Задание</h3>
+
+            <p id="lessonTask"></p>
+
+            <textarea
+                id="lessonAnswer"
+                placeholder="Напиши свой ответ или код..."
+            ></textarea>
+
+            <div id="lessonResult"></div>
+
+            <div class="action">
+
+                <button onclick="checkLesson()">
+                    Проверить
+                </button>
+
+                <button
+                    id="nextLessonButton"
+                    class="next hidden"
+                    onclick="nextLesson()"
+                >
+                    Далее →
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section id="tests" class="screen">
+
+    <div class="top">
+        <button class="back" onclick="go('home')">← Назад</button>
+        <h2>📝 Контрольные</h2>
+    </div>
+
+    <div class="card">
+        <p>
+            Контрольная открывается после каждых 10 уроков.
+            Нужно отвечать на вопросы, писать код и исправлять ошибки.
+        </p>
+        <p class="info">
+            Для прохождения нужно набрать минимум 70%.
+        </p>
+    </div>
+
+    <div id="testsList"></div>
+
+</section>
+
+<section id="test" class="screen">
+
+    <div class="top">
+        <button class="back" onclick="go('tests')">← Контрольные</button>
+        <span id="testNumber" class="badge"></span>
+    </div>
+
+    <div class="card">
+
+        <h2 id="testTitle"></h2>
+
+        <p id="testDescription"></p>
+
+        <div id="testQuestions"></div>
+
+        <button onclick="submitTest()">
+            📝 Сдать контрольную
+        </button>
+
+        <div id="testResult"></div>
+
+    </div>
+
+</section>
+
+<section id="stats" class="screen">
+
+    <div class="top">
+        <button class="back" onclick="go('home')">← Назад</button>
+        <h2>📊 Прогресс</h2>
+    </div>
+
+    <div class="grid">
+
+        <div class="stat">
+            <b id="statLessons">0</b>
+            уроков
+        </div>
+
+        <div class="stat">
+            <b id="statTests">0</b>
+            контрольных
+        </div>
+
+        <div class="stat">
+            <b id="statPercent">0%</b>
+            курса
+        </div>
+
+        <div class="stat">
+            <b id="statFinal">🔒</b>
+            финал
+        </div>
+
+    </div>
+
+    <div class="card">
+        <h3>Общий прогресс</h3>
+
+        <div class="progress">
+            <div id="mainProgressBar"></div>
+        </div>
+
+        <p id="mainProgressText"></p>
+    </div>
+
+    <div class="card">
+        <button onclick="resetAll()">
+            ♻️ Сбросить прогресс
+        </button>
+    </div>
+
+</section>
+
+<section id="final" class="screen">
+
+    <div class="top">
+        <button class="back" onclick="go('home')">← Назад</button>
+        <h2>🏆 Финальный этап</h2>
+    </div>
+
+    <div id="finalContent"></div>
+
+</section>
+
+<footer>
+    Академия Roblox Luau
+</footer>
+
+</div>
+
+<script>
+
+const STORAGE_KEY = "roblox_luau_academy_120_v3";
+
+let state = JSON.parse(
+    localStorage.getItem(STORAGE_KEY)
+) || {
+    lessons:[],
+    tests:{},
+    scores:{},
+    final:false
+};
+
+function save(){
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(state)
+    );
+}
+
+function hasLesson(n){
+    return state.lessons.includes(n);
+}
+
+function lessonUnlocked(n){
+    if(n === 1){
+        return true;
+    }
+
+    return hasLesson(n - 1);
+}
+
+function testUnlocked(n){
+    if(n === 12){
+        return hasLesson(120);
+    }
+
+    return hasLesson(n * 10);
+}
+
+function hasTest(n){
+    return state.tests[n] === true;
+}
+
+function go(screen){
+    document
+        .querySelectorAll(".screen")
+        .forEach(x=>x.classList.remove("active"));
+
+    document
+        .getElementById(screen)
+        .classList.add("active");
+
+    updateAll();
+
+    if(screen === "home"){
+        renderChapters();
+    }
+
+    if(screen === "lessons"){
+        renderLessons();
+    }
+
+    if(screen === "tests"){
+        renderTests();
+    }
+
+    if(screen === "stats"){
+        renderStats();
+    }
+
+    if(screen === "final"){
+        renderFinal();
+    }
+}
+
+/*
+=============================================
+УРОКИ
+=============================================
+*/
+
+const lessons = [];
+
+function add(
+    n,
+    title,
+    topic,
+    theory,
+    code,
+    explain,
+    task,
+    keywords
+){
+    lessons.push({
+        n,
+        title,
+        topic,
+        theory,
+        code,
+        explain,
+        task,
+        keywords
+    });
+}
+
+/*
+1-10
+САМАЯ БАЗА
+*/
+
+add(
+1,
+"local — создание переменной",
+"Переменные",
+"Начинаем буквально с нуля. local создаёт локальную переменную.",
+`local Speed`,
+[
+    ["local","создаёт локальную переменную."],
+    ["Speed","имя переменной."]
+],
+"Напиши: local Speed",
+["local","speed"]
+);
+
+add(
+2,
+"Что такое переменная",
+"Переменные",
+"Переменная — это имя, под которым программа хранит значение.",
+`local Speed = 100`,
+[
+    ["local","создаём переменную."],
+    ["Speed","имя переменной."],
+    ["100","значение."]
+],
+"Создай переменную Speed со значением 100.",
+["local","speed","100"]
+);
+
+add(
+3,
+"Знак =",
+"Присваивание",
+"Знак = используется, чтобы присвоить значение переменной.",
+`local Speed = 100`,
+[
+    ["local","создаём переменную."],
+    ["Speed","название переменной."],
+    ["=","присваиваем значение."],
+    ["100","значение."]
+],
+"Напиши пример с Speed и значением 100.",
+["speed","=","100"]
+);
+
+add(
+4,
+"Число в переменной",
+"Number",
+"Число можно хранить в переменной.",
+`local Speed = 100
+print(Speed)`,
+[
+    ["Speed","хранит число."],
+    ["print(Speed)","показывает значение."]
+],
+"Создай Speed = 100 и выведи Speed.",
+["speed","100","print"]
+);
+
+add(
+5,
+"Изменение переменной",
+"Перезапись",
+"Значение переменной можно изменить.",
+`local Speed = 16
+Speed = 100`,
+[
+    ["local Speed = 16","первое значение."],
+    ["Speed = 100","новое значение."]
+],
+"Сначала Speed = 16, потом Speed = 100.",
+["speed","16","100"]
+);
+
+add(
+6,
+"game",
+"Roblox",
+"game — главный объект текущей Roblox-игры.",
+`print(game)`,
+[
+    ["game","главный объект игры."],
+    ["print(game)","выводит объект."]
+],
+"Напиши print(game).",
+["print","game"]
+);
+
+add(
+7,
+": — вызов метода",
+"Методы",
+"Двоеточие используется для вызова метода объекта.",
+`game:GetService("Players")`,
+[
+    ["game","объект игры."],
+    [":","вызов метода."],
+    ["GetService","метод."]
+],
+"Напиши game:GetService(...).",
+["game","getservice"]
+);
+
+add(
+8,
+"Players",
+"Сервис Players",
+"Players — сервис Roblox, связанный с игроками.",
+`local Players = game:GetService("Players")`,
+[
+    ["Players","имя переменной."],
+    ["GetService","получаем сервис."]
+],
+"Получи сервис Players.",
+["players","getservice"]
+);
+
+add(
+9,
+"LocalPlayer",
+"Текущий игрок",
+"LocalPlayer — текущий игрок на стороне клиента.",
+`local Player = Players.LocalPlayer`,
+[
+    ["Player","переменная игрока."],
+    ["Players.LocalPlayer","получаем текущего игрока."]
+],
+"Создай Player через Players.LocalPlayer.",
+["player","localplayer"]
+);
+
+add(
+10,
+"Character",
+"Персонаж",
+"Character — модель персонажа игрока.",
+`local Character = Player.Character`,
+[
+    ["Player","наш игрок."],
+    ["Character","модель его персонажа."]
+],
+"Получи Character.",
+["character","player"]
+);
+
+/*
+11-20
+HUMANOID + SPEED
+*/
+
+add(
+11,
+"FindFirstChild",
+"Поиск объекта",
+"FindFirstChild ищет объект внутри другого объекта.",
+`local Humanoid = Character:FindFirstChild("Humanoid")`,
+[
+    ["Character","где ищем."],
+    ["FindFirstChild","команда поиска."],
+    ["Humanoid","имя искомого объекта."]
+],
+"Найди Humanoid.",
+["findfirstchild","humanoid"]
+);
+
+add(
+12,
+"Humanoid",
+"Персонаж",
+"Humanoid отвечает за важные характеристики и движение персонажа.",
+`local Humanoid = Character:FindFirstChild("Humanoid")
+print(Humanoid)`,
+[
+    ["Humanoid","найденный объект."],
+    ["print","проверяем результат."]
+],
+"Создай переменную Humanoid.",
+["humanoid","findfirstchild"]
+);
+
+add(
+13,
+"Точка .",
+"Свойства объекта",
+"Точка нужна для обращения к свойству объекта.",
+`Humanoid.WalkSpeed`,
+[
+    ["Humanoid","объект."],
+    [".","обращение к свойству."],
+    ["WalkSpeed","свойство."]
+],
+"Напиши Humanoid.WalkSpeed.",
+["humanoid","walkspeed"]
+);
+
+add(
+14,
+"WalkSpeed",
+"Скорость",
+"WalkSpeed задаёт скорость движения Humanoid.",
+`Humanoid.WalkSpeed = 100`,
+[
+    ["Humanoid","объект."],
+    ["WalkSpeed","скорость."],
+    ["100","новое значение."]
+],
+"Установи WalkSpeed = 100.",
+["walkspeed","100"]
+);
+
+add(
+15,
+"Собираем Player",
+"Цепочка объектов",
+"Соединяем Players, Player и Character.",
+`local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character`,
+[
+    ["Players","сервис."],
+    ["Player","текущий игрок."],
+    ["Character","персонаж."]
+],
+"Собери все три строки.",
+["players","localplayer","character"]
+);
+
+add(
+16,
+"Добавляем Humanoid",
+"Цепочка объектов",
+"Теперь после Character получаем Humanoid.",
+`local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character
+local Humanoid = Character:FindFirstChild("Humanoid")`,
+[
+    ["Character","персонаж."],
+    ["FindFirstChild","ищем Humanoid."]
+],
+"Собери Character и Humanoid.",
+["character","findfirstchild","humanoid"]
+);
+
+add(
+17,
+"Меняем WalkSpeed",
+"Скорость",
+"После получения Humanoid можно изменить его WalkSpeed.",
+`Humanoid.WalkSpeed = 100`,
+[
+    ["WalkSpeed","свойство скорости."],
+    ["=","присваивание."],
+    ["100","скорость."]
+],
+"Напиши Humanoid.WalkSpeed = 100.",
+["walkspeed","100"]
+);
+
+add(
+18,
+"Полный скрипт скорости",
+"Сборка",
+"Собираем все изученные строки.",
+`local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character
+local Humanoid = Character:FindFirstChild("Humanoid")
+
+Humanoid.WalkSpeed = 100`,
+[
+    ["Players","получаем сервис."],
+    ["Player","получаем игрока."],
+    ["Character","получаем персонажа."],
+    ["Humanoid","получаем Humanoid."],
+    ["WalkSpeed = 100","меняем скорость."]
+],
+"Напиши полный пример.",
+["players","localplayer","character","humanoid","walkspeed","100"]
+);
+
+add(
+19,
+"SpeedEnabled",
+"Boolean",
+"Переменная может хранить true или false.",
+`local SpeedEnabled = true`,
+[
+    ["SpeedEnabled","название состояния."],
+    ["true","включено."]
+],
+"Создай SpeedEnabled = true.",
+["speedenabled","true"]
+);
+
+add(
+20,
+"if SpeedEnabled",
+"Условие",
+"if позволяет выполнить код только при выполнении условия.",
+`if SpeedEnabled then
+    Humanoid.WalkSpeed = 100
+end`,
+[
+    ["if","начало условия."],
+    ["SpeedEnabled","что проверяем."],
+    ["then","начало блока."],
+    ["end","конец блока."]
+],
+"Напиши if SpeedEnabled then ... end.",
+["if","speedenabled","then","end"]
+);
+
+/*
+21-30
+*/
+
+add(
+21,
+"else",
+"Условие",
+"else запускается, если условие if ложно.",
+`if SpeedEnabled then
+    Humanoid.WalkSpeed = 100
+else
+    Humanoid.WalkSpeed = 16
+end`,
+[
+    ["if","включено."],
+    ["else","выключено."],
+    ["16","обычная скорость."]
+],
+"Добавь else и скорость 16.",
+["if","else","walkspeed","16"]
+);
+
+add(
+22,
+"not",
+"Boolean",
+"not переворачивает true и false.",
+`SpeedEnabled = not SpeedEnabled`,
+[
+    ["SpeedEnabled","состояние."],
+    ["not","переключает состояние."]
+],
+"Переключи SpeedEnabled через not.",
+["not","speedenabled"]
+);
+
+add(
+23,
+"function",
+"Функции",
+"function создаёт функцию — отдельный блок кода.",
+`local function Speed()
+    Humanoid.WalkSpeed = 100
+end`,
+[
+    ["local function","создаём локальную функцию."],
+    ["Speed","имя функции."],
+    ["()","аргументы отсутствуют."],
+    ["end","конец функции."]
+],
+"Создай local function Speed().",
+["local","function","speed","end"]
+);
+
+add(
+24,
+"Вызов функции",
+"Функции",
+"После создания функцию можно запустить.",
+`local function Speed()
+    Humanoid.WalkSpeed = 100
+end
+
+Speed()`,
+[
+    ["Speed()","запускает функцию."]
+],
+"Вызови функцию Speed().",
+["speed()"]
+);
+
+add(
+25,
+"Speed с if",
+"Функции + условия",
+"Помещаем условие внутрь функции.",
+`local function Speed()
+    if SpeedEnabled then
+        Humanoid.WalkSpeed = 100
+    else
+        Humanoid.WalkSpeed = 16
+    end
+end`,
+[
+    ["function Speed","логика скорости."],
+    ["if","проверка."],
+    ["else","выключение."]
+],
+"Создай Speed с if и else.",
+["function","speed","if","else","walkspeed"]
+);
+
+add(
+26,
+"ToggleSpeed",
+"Переключатель",
+"ToggleSpeed переключает состояние скорости.",
+`local function ToggleSpeed()
+    SpeedEnabled = not SpeedEnabled
+end`,
+[
+    ["ToggleSpeed","имя функции."],
+    ["not","переключение."],
+    ["SpeedEnabled","состояние."]
+],
+"Создай ToggleSpeed.",
+["function","togglespeed","not","speedenabled"]
+);
+
+add(
+27,
+"ToggleSpeed + Speed",
+"Связка функций",
+"После переключения состояния можно обновить скорость.",
+`local function ToggleSpeed()
+    SpeedEnabled = not SpeedEnabled
+    Speed()
+end`,
+[
+    ["not","переключает."],
+    ["Speed()","обновляет скорость."]
+],
+"Соедини ToggleSpeed и Speed().",
+["togglespeed","not","speed()"]
+);
+
+add(
+28,
+"Activated",
+"GUI",
+"Activated сообщает, что кнопка была активирована.",
+`Button.Activated:Connect(ToggleSpeed)`,
+[
+    ["Button","кнопка."],
+    ["Activated","событие активации."],
+    ["Connect","подключение функции."],
+    ["ToggleSpeed","функция."]
+],
+"Подключи ToggleSpeed к Activated.",
+["activated","connect","togglespeed"]
+);
+
+add(
+29,
+"Connect",
+"События",
+"Connect соединяет событие с функцией.",
+`Button.Activated:Connect(ToggleSpeed)`,
+[
+    ["Activated","событие."],
+    ["Connect","подключаем действие."],
+    ["ToggleSpeed","функция."]
+],
+"Напиши строку с Connect.",
+["activated","connect","togglespeed"]
+);
+
+add(
+30,
+"Полная Speed-система",
+"Повторение",
+"Первая законченная система курса.",
+`local SpeedEnabled = false
+
+local function Speed()
+    if SpeedEnabled then
+        Humanoid.WalkSpeed = 100
+    else
+        Humanoid.WalkSpeed = 16
+    end
+end
+
+local function ToggleSpeed()
+    SpeedEnabled = not SpeedEnabled
+    Speed()
+end
+
+Button.Activated:Connect(ToggleSpeed)`,
+[
+    ["SpeedEnabled","хранит состояние."],
+    ["Speed","управляет скоростью."],
+    ["ToggleSpeed","переключает состояние."],
+    ["Activated","запускает ToggleSpeed."]
+],
+"Собери основу полной Speed-системы.",
+["speedenabled","function","walkspeed","togglespeed","activated"]
+);
+
+/*
+31-40 JUMP
+*/
+
+add(
+31,
+"JumpEnabled",
+"Jump",
+"Создаём состояние системы прыжка.",
+`local JumpEnabled = false`,
+[
+    ["local","переменная."],
+    ["JumpEnabled","состояние."],
+    ["false","выключено."]
+],
+"Создай JumpEnabled = false.",
+["jumpenabled","false"]
+);
+
+add(
+32,
+"JumpPower",
+"Прыжок",
+"JumpPower задаёт силу прыжка.",
+`Humanoid.JumpPower = 100`,
+[
+    ["Humanoid","объект."],
+    ["JumpPower","сила прыжка."],
+    ["100","значение."]
+],
+"Поставь JumpPower = 100.",
+["jumppower","100"]
+);
+
+add(
+33,
+"if JumpEnabled",
+"Прыжок",
+"Проверяем состояние прыжка.",
+`if JumpEnabled then
+    Humanoid.JumpPower = 100
+end`,
+[
+    ["if","условие."],
+    ["JumpEnabled","состояние."],
+    ["JumpPower","прыжок."]
+],
+"Напиши if JumpEnabled.",
+["if","jumpenabled","jumppower"]
+);
+
+add(
+34,
+"else JumpPower",
+"Прыжок",
+"Возвращаем обычный JumpPower.",
+`if JumpEnabled then
+    Humanoid.JumpPower = 100
+else
+    Humanoid.JumpPower = 50
+end`,
+[
+    ["else","вариант выключения."],
+    ["50","обычное значение."]
+],
+"Добавь else.",
+["else","jumppower","50"]
+);
+
+add(
+35,
+"function Jump",
+"Функция",
+"Выносим логику прыжка в функцию.",
+`local function Jump()
+    if JumpEnabled then
+        Humanoid.JumpPower = 100
+    else
+        Humanoid.JumpPower = 50
+    end
+end`,
+[
+    ["function Jump","функция."],
+    ["JumpEnabled","состояние."],
+    ["JumpPower","сила прыжка."]
+],
+"Создай function Jump.",
+["function","jump","jumpenabled","jumppower"]
+);
+
+add(
+36,
+"ToggleJump",
+"Переключение",
+"Меняем JumpEnabled.",
+`local function ToggleJump()
+    JumpEnabled = not JumpEnabled
+end`,
+[
+    ["ToggleJump","имя."],
+    ["not","переключение."]
+],
+"Создай ToggleJump.",
+["togglejump","not","jumpenabled"]
+);
+
+add(
+37,
+"ToggleJump + Jump",
+"Связка",
+"После переключения запускаем Jump.",
+`local function ToggleJump()
+    JumpEnabled = not JumpEnabled
+    Jump()
+end`,
+[
+    ["not","меняет состояние."],
+    ["Jump()","обновляет прыжок."]
+],
+"Соедини ToggleJump и Jump().",
+["togglejump","jump()"]
+);
+
+add(
+38,
+"JumpButton",
+"GUI",
+"Подключаем кнопку прыжка.",
+`JumpButton.Activated:Connect(ToggleJump)`,
+[
+    ["JumpButton","кнопка."],
+    ["Activated","событие."],
+    ["Connect","подключение."]
+],
+"Подключи JumpButton.",
+["jumpbutton","activated","connect","togglejump"]
+);
+
+add(
+39,
+"SpeedEnabled + JumpEnabled",
+"Несколько систем",
+"У каждой механики может быть своя переменная состояния.",
+`local SpeedEnabled = false
+local JumpEnabled = false`,
+[
+    ["SpeedEnabled","состояние скорости."],
+    ["JumpEnabled","состояние прыжка."]
+],
+"Создай две переменные.",
+["speedenabled","jumpenabled"]
+);
+
+add(
+40,
+"Speed и Jump",
+"Связка",
+"Теперь у нас есть две отдельные системы.",
+`Speed()
+Jump()`,
+[
+    ["Speed()","запускает систему скорости."],
+    ["Jump()","запускает систему прыжка."]
+],
+"Напиши вызовы двух функций.",
+["speed()","jump()"]
+);
+
+/*
+41-50 FLIGHT
+*/
+
+add(
+41,
+"FlightEnabled",
+"Полёт",
+"Состояние полёта.",
+`local FlightEnabled = false`,
+[
+    ["FlightEnabled","состояние полёта."],
+    ["false","выключен."]
+],
+"Создай FlightEnabled.",
+["flightenabled","false"]
+);
+
+add(
+42,
+"UserInputService",
+"Ввод",
+"UserInputService позволяет работать с пользовательским вводом.",
+`local UIS = game:GetService("UserInputService")`,
+[
+    ["UIS","имя переменной."],
+    ["UserInputService","сервис ввода."]
+],
+"Получи UserInputService.",
+["userservice","getservice"]
+);
+
+add(
+43,
+"InputBegan",
+"Ввод",
+"InputBegan срабатывает при начале ввода.",
+`UIS.InputBegan:Connect(function(input)
+    print(input.UserInputType)
+end)`,
+[
+    ["InputBegan","начало ввода."],
+    ["Connect","подключение."],
+    ["input","информация о вводе."]
+],
+"Создай InputBegan:Connect.",
+["inputbegan","connect"]
+);
+
+add(
+44,
+"InputEnded",
+"Ввод",
+"InputEnded срабатывает при завершении ввода.",
+`UIS.InputEnded:Connect(function(input)
+    print(input.UserInputType)
+end)`,
+[
+    ["InputEnded","конец ввода."],
+    ["input","информация о вводе."]
+],
+"Создай InputEnded.",
+["inputended","connect"]
+);
+
+add(
+45,
+"if FlightEnabled",
+"Полёт",
+"Проверяем, включён ли полёт.",
+`if FlightEnabled then
+    print("Flight ON")
+end`,
+[
+    ["if","условие."],
+    ["FlightEnabled","состояние."]
+],
+"Создай if FlightEnabled.",
+["if","flightenabled","then","end"]
+);
+
+add(
+46,
+"function Flight",
+"Функция",
+"Создаём функцию полёта.",
+`local function Flight()
+    if FlightEnabled then
+        print("Flying")
+    end
+end`,
+[
+    ["function Flight","функция."],
+    ["if FlightEnabled","условие."]
+],
+"Создай function Flight.",
+["function","flight","flightenabled"]
+);
+
+add(
+47,
+"ToggleFlight",
+"Переключение",
+"Создаём переключатель.",
+`local function ToggleFlight()
+    FlightEnabled = not FlightEnabled
+end`,
+[
+    ["ToggleFlight","функция переключения."],
+    ["not","переключение."]
+],
+"Создай ToggleFlight.",
+["toggleflight","not","flightenabled"]
+);
+
+add(
+48,
+"while",
+"Цикл",
+"while повторяет блок, пока условие истинно.",
+`while FlightEnabled do
+    Flight()
+    task.wait()
+end`,
+[
+    ["while","начинает повторение."],
+    ["FlightEnabled","условие."],
+    ["task.wait","делает паузу."],
+    ["end","конец."]
+],
+"Напиши while FlightEnabled.",
+["while","flightenabled","end"]
+);
+
+add(
+49,
+"FlightButton",
+"GUI",
+"Кнопка запуска переключателя полёта.",
+`FlightButton.Activated:Connect(ToggleFlight)`,
+[
+    ["FlightButton","кнопка."],
+    ["Activated","событие."],
+    ["ToggleFlight","функция."]
+],
+"Подключи FlightButton.",
+["flightbutton","activated","toggleflight"]
+);
+
+add(
+50,
+"Система Flight",
+"Связка",
+"Собираем основные элементы полёта.",
+`FlightEnabled
+ToggleFlight()
+Flight()`,
+[
+    ["FlightEnabled","состояние."],
+    ["ToggleFlight","переключатель."],
+    ["Flight","логика."]
+],
+"Напиши три основные части.",
+["flightenabled","toggleflight","flight"]
+);
+
+/*
+51-60 TELEPORT
+*/
+
+add(
+51,
+"HumanoidRootPart",
+"Телепорт",
+"HumanoidRootPart — важная часть модели персонажа.",
+`local Root = Character:FindFirstChild("HumanoidRootPart")`,
+[
+    ["Root","переменная."],
+    ["FindFirstChild","поиск."],
+    ["HumanoidRootPart","имя части."]
+],
+"Получи HumanoidRootPart.",
+["humanoidrootpart","findfirstchild"]
+);
+
+add(
+52,
+"CFrame",
+"Положение",
+"CFrame хранит положение и ориентацию объекта.",
+`print(Root.CFrame)`,
+[
+    ["Root","объект."],
+    [".CFrame","его CFrame."]
+],
+"Выведи Root.CFrame.",
+["root","cframe"]
+);
+
+add(
+53,
+"CFrame.new",
+"Положение",
+"CFrame.new создаёт новое значение CFrame.",
+`local TeleportPosition = CFrame.new(0,10,0)`,
+[
+    ["CFrame.new","создаёт CFrame."],
+    ["0,10,0","координаты."]
+],
+"Создай CFrame.new.",
+["cframe.new"]
+);
+
+add(
+54,
+"TeleportPosition",
+"Переменная",
+"Храним позицию в отдельной переменной.",
+`local TeleportPosition = CFrame.new(0,10,0)`,
+[
+    ["TeleportPosition","имя переменной."],
+    ["CFrame.new","значение позиции."]
+],
+"Создай TeleportPosition.",
+["teleportposition","cframe"]
+);
+
+add(
+55,
+"Root.CFrame = TeleportPosition",
+"Телепорт",
+"Назначаем корневой части новую позицию.",
+`Root.CFrame = TeleportPosition`,
+[
+    ["Root.CFrame","позиция персонажа."],
+    ["=","присваивание."],
+    ["TeleportPosition","новая позиция."]
+],
+"Напиши строку телепорта.",
+["root.cframe","teleportposition"]
+);
+
+add(
+56,
+"TeleportEnabled",
+"Состояние",
+"Создаём состояние телепорта.",
+`local TeleportEnabled = false`,
+[
+    ["TeleportEnabled","состояние."],
+    ["false","выключено."]
+],
+"Создай TeleportEnabled.",
+["teleportenabled"]
+);
+
+add(
+57,
+"function Teleport",
+"Функция",
+"Выносим телепорт в функцию.",
+`local function Teleport()
+    Root.CFrame = TeleportPosition
+end`,
+[
+    ["function","создание функции."],
+    ["Root.CFrame","позиция."],
+    ["TeleportPosition","целевая точка."]
+],
+"Создай function Teleport.",
+["function","teleport","root.cframe","teleportposition"]
+);
+
+add(
+58,
+"ToggleTeleport",
+"Переключение",
+"Создаём переключение состояния.",
+`local function ToggleTeleport()
+    TeleportEnabled = not TeleportEnabled
+end`,
+[
+    ["ToggleTeleport","переключатель."],
+    ["not","меняет true/false."]
+],
+"Создай ToggleTeleport.",
+["toggleteleport","not"]
+);
+
+add(
+59,
+"TeleportButton",
+"GUI",
+"Подключаем телепорт к кнопке.",
+`TeleportButton.Activated:Connect(Teleport)`,
+[
+    ["TeleportButton","кнопка."],
+    ["Activated","событие."],
+    ["Teleport","функция."]
+],
+"Подключи кнопку телепорта.",
+["teleportbutton","activated","teleport"]
+);
+
+add(
+60,
+"Полная основа Teleport",
+"Повторение",
+"Объединяем Root, CFrame и функцию.",
+`local Root = Character:FindFirstChild("HumanoidRootPart")
+local TeleportPosition = CFrame.new(0,10,0)
+
+local function Teleport()
+    Root.CFrame = TeleportPosition
+end`,
+[
+    ["Root","HumanoidRootPart."],
+    ["TeleportPosition","цель."],
+    ["Teleport","функция."]
+],
+"Собери основу телепорта.",
+["root","humanoidrootpart","teleportposition","function","cframe"]
+);
+
+/*
+61-70 INVISIBLE
+*/
+
+add(
+61,
+"Transparency",
+"Невидимость",
+"Transparency отвечает за прозрачность объекта.",
+`Character.Head.Transparency = 1`,
+[
+    ["Character.Head","часть персонажа."],
+    ["Transparency","прозрачность."],
+    ["1","полностью прозрачный."]
+],
+"Напиши Transparency = 1.",
+["transparency","1"]
+);
+
+add(
+62,
+"InvisibleEnabled",
+"Состояние",
+"Создаём состояние невидимости.",
+`local InvisibleEnabled = false`,
+[
+    ["InvisibleEnabled","состояние."],
+    ["false","выключено."]
+],
+"Создай InvisibleEnabled.",
+["invisibleenabled"]
+);
+
+add(
+63,
+"if InvisibleEnabled",
+"Условие",
+"Проверяем состояние невидимости.",
+`if InvisibleEnabled then
+    Character.Head.Transparency = 1
+end`,
+[
+    ["if","условие."],
+    ["InvisibleEnabled","состояние."],
+    ["Transparency","прозрачность."]
+],
+"Создай if InvisibleEnabled.",
+["if","invisibleenabled","transparency"]
+);
+
+add(
+64,
+"else Transparency",
+"Условие",
+"Возвращаем прозрачность обратно.",
+`if InvisibleEnabled then
+    Character.Head.Transparency = 1
+else
+    Character.Head.Transparency = 0
+end`,
+[
+    ["else","выключение."],
+    ["0","обычная видимость."]
+],
+"Добавь else и Transparency = 0.",
+["else","transparency","0"]
+);
+
+add(
+65,
+"function Invisible",
+"Функция",
+"Создаём функцию невидимости.",
+`local function Invisible()
+    Character.Head.Transparency = 1
+end`,
+[
+    ["function Invisible","функция."],
+    ["Transparency","изменяем прозрачность."]
+],
+"Создай function Invisible.",
+["function","invisible","transparency"]
+);
+
+add(
+66,
+"ToggleInvisible",
+"Переключатель",
+"Переключаем InvisibleEnabled.",
+`local function ToggleInvisible()
+    InvisibleEnabled = not InvisibleEnabled
+end`,
+[
+    ["ToggleInvisible","имя."],
+    ["not","переключение."]
+],
+"Создай ToggleInvisible.",
+["toggleinvisible","not"]
+);
+
+add(
+67,
+"GetChildren",
+"Объекты",
+"GetChildren получает дочерние объекты.",
+`for _,obj in ipairs(Character:GetChildren()) do
+    print(obj.Name)
+end`,
+[
+    ["GetChildren","получает дочерние объекты."],
+    ["obj","один найденный объект."]
+],
+"Используй GetChildren.",
+["getchildren"]
+);
+
+add(
+68,
+"IsA",
+"Проверка типа",
+"IsA помогает проверить тип объекта.",
+`if obj:IsA("BasePart") then
+    obj.Transparency = 1
+end`,
+[
+    ["IsA","проверяет тип."],
+    ["BasePart","тип детали."],
+    ["Transparency","прозрачность."]
+],
+"Напиши проверку IsA.",
+["isa","basepart","transparency"]
+);
+
+add(
+69,
+"InvisibleButton",
+"GUI",
+"Подключаем ToggleInvisible.",
+`InvisibleButton.Activated:Connect(ToggleInvisible)`,
+[
+    ["InvisibleButton","кнопка."],
+    ["Activated","событие."],
+    ["ToggleInvisible","функция."]
+],
+"Подключи InvisibleButton.",
+["invisiblebutton","activated","toggleinvisible"]
+);
+
+add(
+70,
+"Система Invisible",
+"Связка",
+"Соединяем Enabled, функцию и Transparency.",
+`InvisibleEnabled
+ToggleInvisible()
+Invisible()`,
+[
+    ["InvisibleEnabled","состояние."],
+    ["ToggleInvisible","переключение."],
+    ["Invisible","логика."]
+],
+"Напиши основные части системы.",
+["invisibleenabled","toggleinvisible","invisible"]
+);
+
+/*
+71-80 NOCLIP
+*/
+
+add(
+71,
+"CanCollide",
+"Noclip",
+"CanCollide определяет, сталкивается ли часть с другими объектами.",
+`part.CanCollide = false`,
+[
+    ["CanCollide","свойство столкновения."],
+    ["false","столкновение выключено."]
+],
+"Напиши CanCollide = false.",
+["cancollide","false"]
+);
+
+add(
+72,
+"NoclipEnabled",
+"Состояние",
+"Создаём состояние Noclip.",
+`local NoclipEnabled = false`,
+[
+    ["NoclipEnabled","состояние."],
+    ["false","выключено."]
+],
+"Создай NoclipEnabled.",
+["noclipenabled"]
+);
+
+add(
+73,
+"if NoclipEnabled",
+"Условие",
+"Проверяем, включён ли Noclip.",
+`if NoclipEnabled then
+    print("Noclip ON")
+end`,
+[
+    ["if","условие."],
+    ["NoclipEnabled","состояние."]
+],
+"Напиши if NoclipEnabled.",
+["if","noclipenabled","then"]
+);
+
+add(
+74,
+"GetDescendants",
+"Объекты",
+"GetDescendants получает все вложенные объекты.",
+`for _,obj in ipairs(Character:GetDescendants()) do
+    print(obj.Name)
+end`,
+[
+    ["GetDescendants","получает вложенные объекты."],
+    ["obj","найденный объект."]
+],
+"Используй GetDescendants.",
+["getdescendants"]
+);
+
+add(
+75,
+"CanCollide = false",
+"Noclip",
+"Отключаем столкновение у части.",
+`obj.CanCollide = false`,
+[
+    ["obj","объект."],
+    ["CanCollide","столкновение."],
+    ["false","выключено."]
+],
+"Напиши obj.CanCollide = false.",
+["cancollide","false"]
+);
+
+add(
+76,
+"function Noclip",
+"Функция",
+"Создаём функцию Noclip.",
+`local function Noclip()
+    if NoclipEnabled then
+        print("Noclip")
+    end
+end`,
+[
+    ["function Noclip","функция."],
+    ["if NoclipEnabled","проверка."]
+],
+"Создай function Noclip.",
+["function","noclip","noclipenabled"]
+);
+
+add(
+77,
+"ToggleNoclip",
+"Переключение",
+"Создаём переключатель Noclip.",
+`local function ToggleNoclip()
+    NoclipEnabled = not NoclipEnabled
+end`,
+[
+    ["ToggleNoclip","функция."],
+    ["not","переключает состояние."]
+],
+"Создай ToggleNoclip.",
+["togglenoclip","not","noclipenabled"]
+);
+
+add(
+78,
+"NoclipButton",
+"GUI",
+"Подключаем кнопку.",
+`NoclipButton.Activated:Connect(ToggleNoclip)`,
+[
+    ["NoclipButton","кнопка."],
+    ["Activated","событие."],
+    ["ToggleNoclip","функция."]
+],
+"Подключи NoclipButton.",
+["noclipbutton","activated","togglenoclip"]
+);
+
+add(
+79,
+"while NoclipEnabled",
+"Цикл",
+"while позволяет повторять работу Noclip.",
+`while NoclipEnabled do
+    Noclip()
+    task.wait()
+end`,
+[
+    ["while","цикл."],
+    ["NoclipEnabled","условие."],
+    ["task.wait","пауза."]
+],
+"Создай while NoclipEnabled.",
+["while","noclipenabled","noclip","task.wait"]
+);
+
+add(
+80,
+"Полная основа Noclip",
+"Связка",
+"Собираем Noclip.",
+`NoclipEnabled
+ToggleNoclip()
+Noclip()
+obj.CanCollide = false`,
+[
+    ["NoclipEnabled","состояние."],
+    ["ToggleNoclip","переключение."],
+    ["Noclip","логика."],
+    ["CanCollide","столкновение."]
+],
+"Собери основные части Noclip.",
+["noclipenabled","togglenoclip","noclip","cancollide"]
+);
+
+/*
+81-90 GUI
+*/
+
+add(
+81,
+"ScreenGui",
+"GUI",
+"ScreenGui — контейнер для интерфейса.",
+`local ScreenGui = Instance.new("ScreenGui")`,
+[
+    ["Instance.new","создаёт объект."],
+    ["ScreenGui","тип GUI."]
+],
+"Создай ScreenGui.",
+["screengui","instance.new"]
+);
+
+add(
+82,
+"PlayerGui",
+"GUI",
+"PlayerGui содержит GUI игрока.",
+`ScreenGui.Parent = Player:WaitForChild("PlayerGui")`,
+[
+    ["Parent","указывает родителя."],
+    ["PlayerGui","место для GUI игрока."]
+],
+"Задай ScreenGui.Parent.",
+["parent","playergui"]
+);
+
+add(
+83,
+"Frame",
+"GUI",
+"Frame — прямоугольная панель.",
+`local Frame = Instance.new("Frame")`,
+[
+    ["Frame","тип панели."],
+    ["Instance.new","создание."]
+],
+"Создай Frame.",
+["frame","instance.new"]
+);
+
+add(
+84,
+"Frame.Parent",
+"GUI",
+"Помещаем Frame внутрь ScreenGui.",
+`Frame.Parent = ScreenGui`,
+[
+    ["Frame","панель."],
+    ["Parent","родитель."],
+    ["ScreenGui","контейнер."]
+],
+"Задай Frame.Parent.",
+["frame","parent","screengui"]
+);
+
+add(
+85,
+"TextButton",
+"GUI",
+"TextButton — кнопка с текстом.",
+`local Button = Instance.new("TextButton")`,
+[
+    ["TextButton","тип кнопки."],
+    ["Button","переменная."]
+],
+"Создай TextButton.",
+["textbutton","instance.new"]
+);
+
+add(
+86,
+"Button.Text",
+"GUI",
+"Text задаёт текст кнопки.",
+`Button.Text = "SPEED"`,
+[
+    ["Button","кнопка."],
+    ["Text","текст."],
+    ["SPEED","надпись."]
+],
+"Задай Button.Text.",
+["button.text","speed"]
+);
+
+add(
+87,
+"Button.Size",
+"GUI",
+"Size задаёт размер кнопки.",
+`Button.Size = UDim2.fromScale(0.8,0.2)`,
+[
+    ["Size","размер."],
+    ["UDim2.fromScale","размер в долях."]
+],
+"Задай Button.Size.",
+["size","udim2"]
+);
+
+add(
+88,
+"Button.Position",
+"GUI",
+"Position задаёт расположение.",
+`Button.Position = UDim2.fromScale(0.1,0.1)`,
+[
+    ["Position","позиция."],
+    ["UDim2.fromScale","значения позиции."]
+],
+"Задай Button.Position.",
+["position","udim2"]
+);
+
+add(
+89,
+"Activated + Connect",
+"Событие кнопки",
+"Подключаем функцию к кнопке.",
+`Button.Activated:Connect(ToggleSpeed)`,
+[
+    ["Activated","активация."],
+    ["Connect","подключение."],
+    ["ToggleSpeed","функция."]
+],
+"Подключи ToggleSpeed.",
+["activated","connect","togglespeed"]
+);
+
+add(
+90,
+"GUI скорости",
+"Мини-панель",
+"Первая кнопка для управления механикой.",
+`Button.Activated:Connect(function()
+    ToggleSpeed()
+end)`,
+[
+    ["Activated","событие."],
+    ["function","функция."],
+    ["ToggleSpeed","переключение."]
+],
+"Создай кнопку скорости.",
+["activated","function","togglespeed"]
+);
+
+/*
+91-100 TOUCH
+*/
+
+add(
+91,
+"TouchEnabled",
+"Сенсорный ввод",
+"TouchEnabled показывает, доступен ли сенсорный ввод.",
+`local UIS = game:GetService("UserInputService")
+print(UIS.TouchEnabled)`,
+[
+    ["UserInputService","сервис ввода."],
+    ["TouchEnabled","сенсорный ввод."]
+],
+"Выведи TouchEnabled.",
+["touchenabled","userservice"]
+);
+
+add(
+92,
+"Activated для телефона",
+"Сенсорный GUI",
+"Activated подходит для активации GUI-кнопок, в том числе через касание.",
+`Button.Activated:Connect(ToggleSpeed)`,
+[
+    ["Activated","активация кнопки."],
+    ["Connect","подключение."]
+],
+"Напиши Activated:Connect.",
+["activated","connect"]
+);
+
+add(
+93,
+"SpeedButton",
+"Сенсорный GUI",
+"Кнопка Speed.",
+`SpeedButton.Activated:Connect(ToggleSpeed)`,
+[
+    ["SpeedButton","кнопка."],
+    ["ToggleSpeed","функция."]
+],
+"Создай SpeedButton.",
+["speedbutton","activated","togglespeed"]
+);
+
+add(
+94,
+"JumpButton",
+"Сенсорный GUI",
+"Кнопка Jump.",
+`JumpButton.Activated:Connect(ToggleJump)`,
+[
+    ["JumpButton","кнопка."],
+    ["ToggleJump","функция."]
+],
+"Создай JumpButton.",
+["jumpbutton","activated","togglejump"]
+);
+
+add(
+95,
+"FlightButton",
+"Сенсорный GUI",
+"Кнопка Flight.",
+`FlightButton.Activated:Connect(ToggleFlight)`,
+[
+    ["FlightButton","кнопка."],
+    ["ToggleFlight","функция."]
+],
+"Создай FlightButton.",
+["flightbutton","activated","toggleflight"]
+);
+
+add(
+96,
+"TeleportButton",
+"Сенсорный GUI",
+"Кнопка Teleport.",
+`TeleportButton.Activated:Connect(Teleport)`,
+[
+    ["TeleportButton","кнопка."],
+    ["Teleport","функция."]
+],
+"Создай TeleportButton.",
+["teleportbutton","activated","teleport"]
+);
+
+add(
+97,
+"InvisibleButton",
+"Сенсорный GUI",
+"Кнопка Invisible.",
+`InvisibleButton.Activated:Connect(ToggleInvisible)`,
+[
+    ["InvisibleButton","кнопка."],
+    ["ToggleInvisible","функция."]
+],
+"Создай InvisibleButton.",
+["invisiblebutton","activated","toggleinvisible"]
+);
+
+add(
+98,
+"NoclipButton",
+"Сенсорный GUI",
+"Кнопка Noclip.",
+`NoclipButton.Activated:Connect(ToggleNoclip)`,
+[
+    ["NoclipButton","кнопка."],
+    ["ToggleNoclip","функция."]
+],
+"Создай NoclipButton.",
+["noclipbutton","activated","togglenoclip"]
+);
+
+add(
+99,
+"Несколько кнопок",
+"Сенсорная панель",
+"Одна панель может управлять несколькими механиками.",
+`SpeedButton.Activated:Connect(ToggleSpeed)
+JumpButton.Activated:Connect(ToggleJump)
+FlightButton.Activated:Connect(ToggleFlight)`,
+[
+    ["SpeedButton","скорость."],
+    ["JumpButton","прыжок."],
+    ["FlightButton","полёт."]
+],
+"Подключи три кнопки.",
+["speedbutton","jumpbutton","flightbutton"]
+);
+
+add(
+100,
+"Большая сенсорная панель",
+"GUI",
+"Собираем знания первой сотни уроков.",
+`Speed
+Jump
+Flight
+Teleport
+Invisible
+Noclip`,
+[
+    ["Speed","скорость."],
+    ["Jump","прыжок."],
+    ["Flight","полёт."],
+    ["Teleport","телепорт."],
+    ["Invisible","невидимость."],
+    ["Noclip","Noclip."]
+],
+"Назови все шесть систем.",
+["speed","jump","flight","teleport","invisible","noclip"]
+);
+
+/*
+101-110 REMOTE
+*/
+
+add(
+101,
+"ReplicatedStorage",
+"Client / Server",
+"ReplicatedStorage используется для объектов, доступных клиенту и серверу.",
+`local ReplicatedStorage = game:GetService("ReplicatedStorage")`,
+[
+    ["ReplicatedStorage","сервис."],
+    ["GetService","получение сервиса."]
+],
+"Получи ReplicatedStorage.",
+["replicatedstorage","getservice"]
+);
+
+add(
+102,
+"RemoteEvent",
+"Client / Server",
+"RemoteEvent используется для связи между клиентом и сервером.",
+`local Event = ReplicatedStorage:WaitForChild("RemoteEvent")`,
+[
+    ["WaitForChild","ждём объект."],
+    ["RemoteEvent","событие."]
+],
+"Получи RemoteEvent.",
+["remoteevent","waitforchild"]
+);
+
+add(
+103,
+"FireServer",
+"Client → Server",
+"Клиент может отправить событие на сервер через FireServer.",
+`Event:FireServer("Speed",true)`,
+[
+    ["Event","RemoteEvent."],
+    ["FireServer","отправка на сервер."]
+],
+"Напиши FireServer.",
+["fireserver","event"]
+);
+
+add(
+104,
+"OnServerEvent",
+"Server",
+"Сервер может принимать RemoteEvent.",
+`Event.OnServerEvent:Connect(function(Player,Name,Enabled)
+    print(Name,Enabled)
+end)`,
+[
+    ["OnServerEvent","получение на сервере."],
+    ["Connect","подключение."]
+],
+"Создай OnServerEvent.",
+["onserverevent","connect"]
+);
+
+add(
+105,
+"FireClient",
+"Server → Client",
+"Сервер может отправить событие конкретному клиенту.",
+`Event:FireClient(Player,"OK")`,
+[
+    ["FireClient","отправка клиенту."],
+    ["Player","кому отправляем."]
+],
+"Напиши FireClient.",
+["fireclient","player"]
+);
+
+add(
+106,
+"OnClientEvent",
+"Client",
+"Клиент может получить событие от сервера.",
+`Event.OnClientEvent:Connect(function(message)
+    print(message)
+end)`,
+[
+    ["OnClientEvent","приём на клиенте."],
+    ["Connect","подключение."]
+],
+"Создай OnClientEvent.",
+["onclientevent","connect"]
+);
+
+add(
+107,
+"GUI → FireServer",
+"Связка",
+"Кнопка может отправлять команду серверу.",
+`Button.Activated:Connect(function()
+    Event:FireServer("Speed",true)
+end)`,
+[
+    ["Activated","кнопка."],
+    ["FireServer","отправка серверу."]
+],
+"Свяжи кнопку с FireServer.",
+["activated","fireserver"]
+);
+
+add(
+108,
+"if на сервере",
+"Проверка",
+"На сервере можно проверить полученные данные.",
+`if Name == "Speed" then
+    print("Speed")
+end`,
+[
+    ["if","условие."],
+    ["==","сравнение."],
+    ["Name","полученное имя."]
+],
+"Создай if Name == Speed.",
+["if","name","speed"]
+);
+
+add(
+109,
+"States",
+"Состояния",
+"Можно хранить несколько состояний в таблице.",
+`local States = {}`,
+[
+    ["local","переменная."],
+    ["States","таблица состояний."],
+    ["{}","пустая таблица."]
+],
+"Создай States.",
+["local","states","{}"]
+);
+
+add(
+110,
+"GUI → RemoteEvent → Server",
+"Архитектура",
+"Теперь понимаем базовую цепочку сетевого взаимодействия.",
+`Button.Activated:Connect(function()
+    Event:FireServer("Speed",true)
+end)`,
+[
+    ["Button.Activated","пользователь активировал кнопку."],
+    ["FireServer","клиент отправляет событие."],
+    ["Server","сервер обрабатывает."]
+],
+"Объясни цепочку GUI → RemoteEvent → Server.",
+["gui","remoteevent","server"]
+);
+
+/*
+111-120 FINAL
+*/
+
+add(
+111,
+"SystemEnabled",
+"Главное состояние",
+"Создаём общее состояние большой системы.",
+`local SystemEnabled = false`,
+[
+    ["SystemEnabled","общее состояние."],
+    ["false","выключено."]
+],
+"Создай SystemEnabled.",
+["systemenabled","false"]
+);
+
+add(
+112,
+"if SystemEnabled",
+"Главное условие",
+"Проверяем состояние всей системы.",
+`if SystemEnabled then
+    print("System ON")
+end`,
+[
+    ["if","условие."],
+    ["SystemEnabled","состояние."]
+],
+"Создай if SystemEnabled.",
+["if","systemenabled","then"]
+);
+
+add(
+113,
+"EnableAll",
+"Функция",
+"Функция включает общую систему.",
+`local function EnableAll()
+    SystemEnabled = true
+end`,
+[
+    ["EnableAll","функция."],
+    ["true","включение."]
+],
+"Создай EnableAll.",
+["function","enableall","true"]
+);
+
+add(
+114,
+"DisableAll",
+"Функция",
+"Функция выключает общую систему.",
+`local function DisableAll()
+    SystemEnabled = false
+end`,
+[
+    ["DisableAll","функция."],
+    ["false","выключение."]
+],
+"Создай DisableAll.",
+["function","disableall","false"]
+);
+
+add(
+115,
+"ToggleAll",
+"Переключение",
+"Переключатель общей системы.",
+`local function ToggleAll()
+    SystemEnabled = not SystemEnabled
+end`,
+[
+    ["ToggleAll","функция."],
+    ["not","переключение."]
+],
+"Создай ToggleAll.",
+["function","toggleall","not"]
+);
+
+add(
+116,
+"Несколько функций",
+"Связка",
+"Одно условие может запускать несколько функций.",
+`if SystemEnabled then
+    Speed()
+    Jump()
+    Flight()
+end`,
+[
+    ["if","проверка."],
+    ["Speed()","скорость."],
+    ["Jump()","прыжок."],
+    ["Flight()","полёт."]
+],
+"Напиши вызов трёх функций.",
+["if","speed()","jump()","flight()"]
+);
+
+add(
+117,
+"MainButton",
+"GUI",
+"Главная кнопка может переключать общую систему.",
+`MainButton.Activated:Connect(ToggleAll)`,
+[
+    ["MainButton","главная кнопка."],
+    ["Activated","событие."],
+    ["ToggleAll","функция."]
+],
+"Подключи MainButton.",
+["mainbutton","activated","toggleall"]
+);
+
+add(
+118,
+"Повторение синтаксиса",
+"Повторение",
+"Повторяем главные элементы языка и Roblox API.",
+`local
+=
+.
+:
+if
+else
+function
+end`,
+[
+    ["local","переменная."],
+    ["=","присваивание."],
+    [".","свойство."],
+    [":","метод."],
+    ["if","условие."],
+    ["function","функция."]
+],
+"Назови и объясни основные элементы.",
+["local","if","function","end"]
+);
+
+add(
+119,
+"Сборка панели",
+"Архитектура",
+"Объединяем все изученные механики в одну сенсорную панель.",
+`Speed
+Jump
+Flight
+Teleport
+Invisible
+Noclip`,
+[
+    ["Speed","скорость."],
+    ["Jump","прыжок."],
+    ["Flight","полёт."],
+    ["Teleport","телепорт."],
+    ["Invisible","невидимость."],
+    ["Noclip","Noclip."]
+],
+"Назови все механики финальной панели.",
+["speed","jump","flight","teleport","invisible","noclip"]
+);
+
+add(
+120,
+"Финальная система",
+"Итог",
+"Последний урок соединяет путь от local до GUI.",
+`Players
+Player
+Character
+Humanoid
+Enabled
+if
+function
+GUI
+Activated`,
+[
+    ["Players","получение сервиса."],
+    ["Player","текущий игрок."],
+    ["Character","персонаж."],
+    ["Humanoid","управление персонажем."],
+    ["Enabled","состояние."],
+    ["if","условие."],
+    ["function","логика."],
+    ["GUI","интерфейс."],
+    ["Activated","нажатие."]
+],
+"Объясни всю цепочку от Players до GUI.",
+["players","player","character","humanoid","enabled","if","function","gui","activated"]
+);
+
+/*
+Проверка
+*/
+
+if(lessons.length !== 120){
+    console.error(
+        "Должно быть 120 уроков, сейчас:",
+        lessons.length
+    );
+}
+
+/*
+=============================================
+КОНТРОЛЬНЫЕ
+=============================================
+*/
+
+const tests = [
+
+{
+    n:1,
+    title:"Контрольная №1",
+    description:"Уроки 1–10",
+    questions:[
+        {
+            type:"choice",
+            q:"Что делает local?",
+            options:[
+                "Создаёт переменную",
+                "Создаёт игрока",
+                "Телепортирует",
+                "Создаёт сервер"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай Speed = 100.",
+            keywords:["local","speed","100"]
+        },
+        {
+            type:"text",
+            q:'Напиши game:GetService("Players").',
+            keywords:["game","getservice","players"]
+        },
+        {
+            type:"choice",
+            q:"Что такое LocalPlayer?",
+            options:[
+                "Текущий игрок",
+                "Humanoid",
+                "GUI",
+                "Сервис"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай Player через Players.LocalPlayer.",
+            keywords:["player","localplayer"]
+        },
+        {
+            type:"text",
+            q:"Получи Character.",
+            keywords:["character"]
+        },
+        {
+            type:"choice",
+            q:"Что делает знак =?",
+            options:[
+                "Присваивает значение",
+                "Создаёт цикл",
+                "Удаляет объект",
+                "Запускает GUI"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Выведи Speed через print.",
+            keywords:["print","speed"]
+        },
+        {
+            type:"text",
+            q:"Создай Humanoid.",
+            keywords:["humanoid","findfirstchild"]
+        },
+        {
+            type:"text",
+            q:"Объясни переменную.",
+            keywords:["перем"]
+        }
+    ]
+},
+
+{
+    n:2,
+    title:"Контрольная №2",
+    description:"Уроки 11–20",
+    questions:[
+        {
+            type:"text",
+            q:"Найди Humanoid.",
+            keywords:["findfirstchild","humanoid"]
+        },
+        {
+            type:"choice",
+            q:"Что меняет WalkSpeed?",
+            options:[
+                "Скорость движения",
+                "GUI",
+                "CFrame",
+                "Имя игрока"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Установи WalkSpeed = 100.",
+            keywords:["walkspeed","100"]
+        },
+        {
+            type:"text",
+            q:"Установи JumpPower = 100.",
+            keywords:["jumppower","100"]
+        },
+        {
+            type:"text",
+            q:"Создай SpeedEnabled = true.",
+            keywords:["speedenabled","true"]
+        },
+        {
+            type:"choice",
+            q:"Что делает if?",
+            options:[
+                "Проверяет условие",
+                "Создаёт игрока",
+                "Создаёт GUI",
+                "Удаляет объект"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Напиши if SpeedEnabled then.",
+            keywords:["if","speedenabled","then"]
+        },
+        {
+            type:"text",
+            q:"Объясни false.",
+            keywords:["выключ","лож","false"]
+        },
+        {
+            type:"text",
+            q:"Напиши WalkSpeed внутри if.",
+            keywords:["if","walkspeed"]
+        },
+        {
+            type:"text",
+            q:"Собери Character → Humanoid → WalkSpeed.",
+            keywords:["character","humanoid","walkspeed"]
+        }
+    ]
+},
+
+{
+    n:3,
+    title:"Контрольная №3",
+    description:"Уроки 21–30",
+    questions:[
+        {
+            type:"choice",
+            q:"Когда выполняется else?",
+            options:[
+                "Когда if ложен",
+                "Всегда",
+                "До if",
+                "После игры"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Добавь else.",
+            keywords:["else"]
+        },
+        {
+            type:"text",
+            q:"Переключи SpeedEnabled через not.",
+            keywords:["not","speedenabled"]
+        },
+        {
+            type:"text",
+            q:"Создай local function Speed().",
+            keywords:["local","function","speed"]
+        },
+        {
+            type:"choice",
+            q:"Как вызвать Speed?",
+            options:[
+                "Speed()",
+                "Speed!",
+                "call Speed",
+                "run Speed"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай ToggleSpeed.",
+            keywords:["function","togglespeed"]
+        },
+        {
+            type:"text",
+            q:"Подключи ToggleSpeed через Activated.",
+            keywords:["activated","connect","togglespeed"]
+        },
+        {
+            type:"text",
+            q:"Напиши if + else + WalkSpeed.",
+            keywords:["if","else","walkspeed"]
+        },
+        {
+            type:"text",
+            q:"Объясни function.",
+            keywords:["функц"]
+        },
+        {
+            type:"text",
+            q:"Собери основу Speed-системы.",
+            keywords:["speedenabled","function","walkspeed","togglespeed"]
+        }
+    ]
+},
+
+{
+    n:4,
+    title:"Контрольная №4",
+    description:"Уроки 31–40",
+    questions:[
+        {
+            type:"text",
+            q:"Создай JumpEnabled = false.",
+            keywords:["jumpenabled","false"]
+        },
+        {
+            type:"text",
+            q:"Установи JumpPower = 100.",
+            keywords:["jumppower","100"]
+        },
+        {
+            type:"choice",
+            q:"Для чего JumpEnabled?",
+            options:[
+                "Хранит состояние прыжка",
+                "Хранит игрока",
+                "Создаёт GUI",
+                "Телепортирует"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай if JumpEnabled.",
+            keywords:["if","jumpenabled"]
+        },
+        {
+            type:"text",
+            q:"Создай function Jump.",
+            keywords:["function","jump"]
+        },
+        {
+            type:"text",
+            q:"Создай ToggleJump.",
+            keywords:["togglejump","not"]
+        },
+        {
+            type:"text",
+            q:"Подключи JumpButton.",
+            keywords:["jumpbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай SpeedEnabled и JumpEnabled.",
+            keywords:["speedenabled","jumpenabled"]
+        },
+        {
+            type:"text",
+            q:"Вызови Jump().",
+            keywords:["jump()"]
+        },
+        {
+            type:"text",
+            q:"Объясни Enabled-переменную.",
+            keywords:["состояни","true","false"]
+        }
+    ]
+},
+
+{
+    n:5,
+    title:"Контрольная №5",
+    description:"Уроки 41–50",
+    questions:[
+        {
+            type:"text",
+            q:"Создай FlightEnabled.",
+            keywords:["flightenabled"]
+        },
+        {
+            type:"text",
+            q:"Получи UserInputService.",
+            keywords:["getservice","userinputservice"]
+        },
+        {
+            type:"choice",
+            q:"Что делает InputBegan?",
+            options:[
+                "Показывает начало ввода",
+                "Создаёт GUI",
+                "Меняет WalkSpeed",
+                "Телепортирует"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай InputBegan:Connect.",
+            keywords:["inputbegan","connect"]
+        },
+        {
+            type:"text",
+            q:"Создай InputEnded:Connect.",
+            keywords:["inputended","connect"]
+        },
+        {
+            type:"text",
+            q:"Создай if FlightEnabled.",
+            keywords:["if","flightenabled"]
+        },
+        {
+            type:"text",
+            q:"Создай function Flight.",
+            keywords:["function","flight"]
+        },
+        {
+            type:"text",
+            q:"Создай ToggleFlight.",
+            keywords:["toggleflight","not"]
+        },
+        {
+            type:"text",
+            q:"Напиши while FlightEnabled.",
+            keywords:["while","flightenabled"]
+        },
+        {
+            type:"text",
+            q:"Подключи FlightButton.",
+            keywords:["flightbutton","activated"]
+        }
+    ]
+},
+
+{
+    n:6,
+    title:"Контрольная №6",
+    description:"Уроки 51–60",
+    questions:[
+        {
+            type:"text",
+            q:"Найди HumanoidRootPart.",
+            keywords:["humanoidrootpart"]
+        },
+        {
+            type:"choice",
+            q:"Для чего нужен CFrame?",
+            options:[
+                "Для положения и ориентации",
+                "Для текста",
+                "Для имени",
+                "Для здоровья"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай CFrame.new(0,10,0).",
+            keywords:["cframe.new"]
+        },
+        {
+            type:"text",
+            q:"Создай TeleportPosition.",
+            keywords:["teleportposition"]
+        },
+        {
+            type:"text",
+            q:"Напиши Root.CFrame = TeleportPosition.",
+            keywords:["root.cframe","teleportposition"]
+        },
+        {
+            type:"text",
+            q:"Создай TeleportEnabled.",
+            keywords:["teleportenabled"]
+        },
+        {
+            type:"text",
+            q:"Создай function Teleport.",
+            keywords:["function","teleport"]
+        },
+        {
+            type:"text",
+            q:"Создай ToggleTeleport.",
+            keywords:["toggleteleport","not"]
+        },
+        {
+            type:"text",
+            q:"Создай TeleportButton.",
+            keywords:["teleportbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Объясни CFrame.",
+            keywords:["полож","ориент"]
+        }
+    ]
+},
+
+{
+    n:7,
+    title:"Контрольная №7",
+    description:"Уроки 61–70",
+    questions:[
+        {
+            type:"choice",
+            q:"Что делает Transparency = 1?",
+            options:[
+                "Делает объект полностью прозрачным",
+                "Меняет скорость",
+                "Телепортирует",
+                "Создаёт GUI"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай InvisibleEnabled.",
+            keywords:["invisibleenabled"]
+        },
+        {
+            type:"text",
+            q:"Напиши if InvisibleEnabled.",
+            keywords:["if","invisibleenabled"]
+        },
+        {
+            type:"text",
+            q:"Добавь else и Transparency = 0.",
+            keywords:["else","transparency","0"]
+        },
+        {
+            type:"text",
+            q:"Создай function Invisible.",
+            keywords:["function","invisible"]
+        },
+        {
+            type:"text",
+            q:"Создай ToggleInvisible.",
+            keywords:["toggleinvisible","not"]
+        },
+        {
+            type:"text",
+            q:"Используй GetChildren.",
+            keywords:["getchildren"]
+        },
+        {
+            type:"text",
+            q:"Используй IsA.",
+            keywords:["isa"]
+        },
+        {
+            type:"text",
+            q:"Подключи InvisibleButton.",
+            keywords:["invisiblebutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Объясни Transparency.",
+            keywords:["прозрач"]
+        }
+    ]
+},
+
+{
+    n:8,
+    title:"Контрольная №8",
+    description:"Уроки 71–80",
+    questions:[
+        {
+            type:"choice",
+            q:"Что делает CanCollide = false?",
+            options:[
+                "Отключает столкновение",
+                "Создаёт GUI",
+                "Включает скорость",
+                "Телепортирует"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай NoclipEnabled.",
+            keywords:["noclipenabled"]
+        },
+        {
+            type:"text",
+            q:"Напиши if NoclipEnabled.",
+            keywords:["if","noclipenabled"]
+        },
+        {
+            type:"text",
+            q:"Используй GetDescendants.",
+            keywords:["getdescendants"]
+        },
+        {
+            type:"text",
+            q:"Напиши obj.CanCollide = false.",
+            keywords:["obj","cancollide","false"]
+        },
+        {
+            type:"text",
+            q:"Создай function Noclip.",
+            keywords:["function","noclip"]
+        },
+        {
+            type:"text",
+            q:"Создай ToggleNoclip.",
+            keywords:["togglenoclip","not"]
+        },
+        {
+            type:"text",
+            q:"Подключи NoclipButton.",
+            keywords:["noclipbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай while NoclipEnabled.",
+            keywords:["while","noclipenabled"]
+        },
+        {
+            type:"text",
+            q:"Объясни CanCollide.",
+            keywords:["столкнов"]
+        }
+    ]
+},
+
+{
+    n:9,
+    title:"Контрольная №9",
+    description:"Уроки 81–90",
+    questions:[
+        {
+            type:"text",
+            q:"Создай ScreenGui.",
+            keywords:["screengui","instance.new"]
+        },
+        {
+            type:"text",
+            q:"Создай Frame.",
+            keywords:["frame","instance.new"]
+        },
+        {
+            type:"text",
+            q:"Создай TextButton.",
+            keywords:["textbutton","instance.new"]
+        },
+        {
+            type:"text",
+            q:"Задай Button.Text = SPEED.",
+            keywords:["button.text","speed"]
+        },
+        {
+            type:"text",
+            q:"Задай Button.Size.",
+            keywords:["button.size","udim2"]
+        },
+        {
+            type:"text",
+            q:"Задай Button.Position.",
+            keywords:["button.position","udim2"]
+        },
+        {
+            type:"choice",
+            q:"Какое событие используется для активации кнопки?",
+            options:[
+                "Activated",
+                "WalkSpeed",
+                "CFrame",
+                "Parent"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Подключи ToggleSpeed.",
+            keywords:["activated","connect","togglespeed"]
+        },
+        {
+            type:"text",
+            q:"Объясни Connect.",
+            keywords:["подключ","событи"]
+        },
+        {
+            type:"text",
+            q:"Объясни ScreenGui.",
+            keywords:["контейнер","gui"]
+        }
+    ]
+},
+
+{
+    n:10,
+    title:"Контрольная №10",
+    description:"Уроки 91–100",
+    questions:[
+        {
+            type:"text",
+            q:"Проверь TouchEnabled.",
+            keywords:["touchenabled"]
+        },
+        {
+            type:"choice",
+            q:"Почему Activated удобно использовать для кнопки?",
+            options:[
+                "Для активации GUI-кнопки",
+                "Для изменения CFrame",
+                "Для получения Humanoid",
+                "Для создания Player"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Создай SpeedButton.",
+            keywords:["speedbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай JumpButton.",
+            keywords:["jumpbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай FlightButton.",
+            keywords:["flightbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай TeleportButton.",
+            keywords:["teleportbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай InvisibleButton.",
+            keywords:["invisiblebutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Создай NoclipButton.",
+            keywords:["noclipbutton","activated"]
+        },
+        {
+            type:"text",
+            q:"Назови шесть механик.",
+            keywords:["speed","jump","flight","teleport","invisible","noclip"]
+        },
+        {
+            type:"text",
+            q:"Объясни Touch GUI.",
+            keywords:["сенсор","gui"]
+        }
+    ]
+},
+
+{
+    n:11,
+    title:"Контрольная №11",
+    description:"Уроки 101–110",
+    questions:[
+        {
+            type:"text",
+            q:"Получи ReplicatedStorage.",
+            keywords:["replicatedstorage","getservice"]
+        },
+        {
+            type:"text",
+            q:"Получи RemoteEvent через WaitForChild.",
+            keywords:["remoteevent","waitforchild"]
+        },
+        {
+            type:"choice",
+            q:"Что делает FireServer?",
+            options:[
+                "Отправляет событие с клиента на сервер",
+                "Создаёт GUI",
+                "Меняет WalkSpeed",
+                "Создаёт Humanoid"
+            ],
+            answer:0
+        },
+        {
+            type:"text",
+            q:"Напиши FireServer.",
+            keywords:["fireserver"]
+        },
+        {
+            type:"text",
+            q:"Создай OnServerEvent.",
+            keywords:["onserverevent","connect"]
+        },
+        {
+            type:"text",
+            q:"Напиши FireClient.",
+            keywords:["fireclient"]
+        },
+        {
+            type:"text",
+            q:"Создай OnClientEvent.",
+            keywords:["onclientevent","connect"]
+        },
+        {
+            type:"text",
+            q:"Свяжи Button.Activated и FireServer.",
+            keywords:["activated","fireserver"]
+        },
+        {
+            type:"text",
+            q:"Создай States.",
+            keywords:["states"]
+        },
+        {
+            type:"text",
+            q:"Объясни Client → RemoteEvent → Server.",
+            keywords:["client","remoteevent","server"]
+        }
+    ]
+},
+
+{
+    n:12,
+    title:"Контрольная №12 — ВСЕ 120 УРОКОВ",
+    description:"Итоговая контрольная по всему курсу.",
+    questions:[
+        {
+            type:"text",
+            q:"Создай local Speed = 100.",
+            keywords:["local","speed","100"]
+        },
+        {
+            type:"text",
+            q:"Получить Players.",
+            keywords:["getservice","players"]
+        },
+        {
+            type:"text",
+            q:"Получить LocalPlayer.",
+            keywords:["localplayer"]
+        },
+        {
+            type:"text",
+            q:"Получить Character.",
+            keywords:["character"]
+        },
+        {
+            type:"text",
+            q:"Получить Humanoid.",
+            keywords:["humanoid","findfirstchild"]
+        },
+        {
+            type:"text",
+            q:"Поставить WalkSpeed = 100.",
+            keywords:["walkspeed","100"]
+        },
+        {
+            type:"text",
+            q:"Поставить JumpPower = 100.",
+            keywords:["jumppower","100"]
+        },
+        {
+            type:"text",
+            q:"Создать SpeedEnabled и if.",
+            keywords:["speedenabled","if"]
+        },
+        {
+            type:"text",
+            q:"Создать ToggleSpeed через not.",
+            keywords:["togglespeed","not"]
+        },
+        {
+            type:"text",
+            q:"Создать function Speed.",
+            keywords:["function","speed"]
+        },
+        {
+            type:"text",
+            q:"Создать FlightEnabled.",
+            keywords:["flightenabled"]
+        },
+        {
+            type:"text",
+            q:"Создать ToggleFlight.",
+            keywords:["toggleflight","not"]
+        },
+        {
+            type:"text",
+            q:"Создать Teleport через Root и CFrame.",
+            keywords:["root","cframe","teleport"]
+        },
+        {
+            type:"text",
+            q:"Создать InvisibleEnabled и Transparency.",
+            keywords:["invisibleenabled","transparency"]
+        },
+        {
+            type:"text",
+            q:"Создать NoclipEnabled и CanCollide.",
+            keywords:["noclipenabled","cancollide"]
+        },
+        {
+            type:"text",
+            q:"Создать ScreenGui.",
+            keywords:["screengui"]
+        },
+        {
+            type:"text",
+            q:"Создать TextButton.",
+            keywords:["textbutton"]
+        },
+        {
+            type:"text",
+            q:"Подключить Activated через Connect.",
+            keywords:["activated","connect"]
+        },
+        {
+            type:"text",
+            q:"Создать RemoteEvent и FireServer.",
+            keywords:["remoteevent","fireserver"]
+        },
+        {
+            type:"text",
+            q:"Объясни Enabled, if и function.",
+            keywords:["enabled","if","function"]
+        }
+    ]
+}
+];
+
+/*
+=============================================
+РАБОТА С УРОКАМИ
+=============================================
+*/
+
+let currentLesson = 1;
+
+function renderLessons(){
+
+    const list = document.getElementById("lessonsList");
+
+    const search =
+        document.getElementById("lessonSearch")
+        .value
+        .toLowerCase()
+        .trim();
+
+    list.innerHTML = "";
+
+    lessons.forEach(lesson=>{
+
+        const searchable = (
+            lesson.title +
+            " " +
+            lesson.topic +
+            " " +
+            lesson.task
+        ).toLowerCase();
+
+        if(
+            search &&
+            !searchable.includes(search)
+        ){
+            return;
+        }
+
+        const unlocked =
+            lessonUnlocked(lesson.n);
+
+        const done =
+            hasLesson(lesson.n);
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "lesson " +
+            (unlocked ? "open " : "locked ") +
+            (done ? "done" : "");
+
+        div.innerHTML = `
+            <h3>
+                ${done ? "✅" : unlocked ? "📘" : "🔒"}
+                Урок ${lesson.n}: ${escapeHTML(lesson.title)}
+            </h3>
+
+            <div class="muted">
+                ${escapeHTML(lesson.topic)}
+            </div>
+
+            <span class="badge">
+                ${
+                    done
+                    ? "Пройден"
+                    : unlocked
+                    ? "Открыт"
+                    : "Закрыт"
+                }
+            </span>
+        `;
+
+        if(unlocked){
+            div.onclick = function(){
+                openLesson(lesson.n);
+            };
+        }
+
+        list.appendChild(div);
+
+    });
+}
+
+function openLesson(n){
+
+    if(!lessonUnlocked(n)){
+        return;
+    }
+
+    currentLesson = n;
+
+    const lesson =
+        lessons[n - 1];
+
+    document.getElementById("lessonNumber")
+        .textContent =
+        `Урок ${n} / 120`;
+
+    document.getElementById("lessonTitle")
+        .textContent =
+        lesson.title;
+
+    document.getElementById("lessonTopic")
+        .textContent =
+        "Тема: " + lesson.topic;
+
+    document.getElementById("lessonTheory")
+        .innerHTML =
+        `<p>${escapeHTML(lesson.theory)}</p>`;
+
+    document.getElementById("lessonCode")
+        .textContent =
+        lesson.code;
+
+    document.getElementById("lessonExplain")
+        .innerHTML =
+        lesson.explain.map(item=>{
+            return `
+                <div class="explainItem">
+                    <b>${escapeHTML(item[0])}</b>
+                    — ${escapeHTML(item[1])}
+                </div>
+            `;
+        }).join("");
+
+    document.getElementById("lessonTask")
+        .textContent =
+        lesson.task;
+
+    document.getElementById("lessonAnswer")
+        .value = "";
+
+    document.getElementById("lessonResult")
+        .innerHTML = "";
+
+    document.getElementById("nextLessonButton")
+        .classList.toggle(
+            "hidden",
+            !hasLesson(n)
+        );
+
+    go("lesson");
+}
+
+function checkLesson(){
+
+    const lesson =
+        lessons[currentLesson - 1];
+
+    const answer =
+        document.getElementById("lessonAnswer")
+        .value
+        .toLowerCase()
+        .trim();
+
+    const result =
+        document.getElementById("lessonResult");
+
+    if(!answer){
+
+        result.innerHTML =
+            `<p class="warn">Напиши ответ.</p>`;
+
+        return;
+    }
+
+    const normalized =
+        answer
+            .replace(/\s+/g," ")
+            .toLowerCase();
+
+    const correct =
+        lesson.keywords.every(
+            keyword =>
+                normalized.includes(
+                    keyword.toLowerCase()
+                )
+        );
+
+    if(correct){
+
+        if(!hasLesson(currentLesson)){
+            state.lessons.push(currentLesson);
+
+            state.lessons.sort(
+                (a,b)=>a-b
+            );
+        }
+
+        save();
+
+        result.innerHTML =
+            `<p class="good">
+                ✅ Правильно! Урок пройден.
+            </p>`;
+
+        document.getElementById("nextLessonButton")
+            .classList.remove("hidden");
+
+        updateAll();
+
+    }else{
+
+        result.innerHTML =
+            `<p class="bad">
+                ❌ Ответ пока не подходит.
+                Посмотри разбор и попробуй ещё раз.
+            </p>`;
+    }
+}
+
+function nextLesson(){
+
+    if(currentLesson < 120){
+
+        openLesson(
+            currentLesson + 1
+        );
+
+    }else{
+
+        go("tests");
+    }
+}
+
+/*
+=============================================
+КОНТРОЛЬНЫЕ
+=============================================
+*/
+
+let currentTest = 1;
+
+let answers =
+    {};
+
+function renderTests(){
+
+    const list =
+        document.getElementById("testsList");
+
+    list.innerHTML = "";
+
+    tests.forEach(test=>{
+
+        const unlocked =
+            testUnlocked(test.n);
+
+        const passed =
+            hasTest(test.n);
+
+        const score =
+            state.scores[test.n];
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "lesson " +
+            (unlocked ? "open " : "locked ") +
+            (passed ? "done" : "");
+
+        div.innerHTML = `
+            <h3>
+                ${passed ? "✅" : unlocked ? "📝" : "🔒"}
+                ${escapeHTML(test.title)}
+            </h3>
+
+            <div class="muted">
+                ${escapeHTML(test.description)}
+            </div>
+
+            <span class="badge">
+                ${
+                    passed
+                    ? "Пройдена"
+                    : unlocked
+                    ? "Открыта"
+                    : "Закрыта"
+                }
+            </span>
+
+            ${
+                score !== undefined
+                ? `<span class="badge">
+                    ${score}%
+                   </span>`
+                : ""
+            }
+        `;
+
+        if(unlocked){
+
+            div.onclick =
+                function(){
+                    openTest(test.n);
+                };
+        }
+
+        list.appendChild(div);
+
+    });
+}
+
+function openTest(n){
+
+    if(!testUnlocked(n)){
+        return;
+    }
+
+    currentTest = n;
+
+    answers = {};
+
+    const test =
+        tests[n - 1];
+
+    document.getElementById("testNumber")
+        .textContent =
+        "Контрольная " + n;
+
+    document.getElementById("testTitle")
+        .textContent =
+        test.title;
+
+    document.getElementById("testDescription")
+        .textContent =
+        test.description;
+
+    document.getElementById("testResult")
+        .innerHTML = "";
+
+    const container =
+        document.getElementById("testQuestions");
+
+    container.innerHTML = "";
+
+    test.questions.forEach(
+        (question,index)=>{
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "question";
+
+            let html =
+                `<h3>
+                    ${index + 1}. 
+                    ${escapeHTML(question.q)}
+                 </h3>`;
+
+            if(question.type === "choice"){
+
+                question.options
+                .forEach(
+                    (option,i)=>{
+
+                        html += `
+                            <button
+                                class="option"
+                                onclick="
+                                    choose(
+                                        ${index},
+                                        ${i}
+                                    )
+                                "
+                                type="button">
+                                ${escapeHTML(option)}
+                            </button>
+                        `;
+                    }
+                );
+
+            }else{
+
+                html += `
+                    <textarea
+                        id="question_${index}"
+                        placeholder="Твой ответ..."
+                    ></textarea>
+                `;
+
+            }
+
+            div.innerHTML = html;
+
+            container.appendChild(div);
+
+        }
+    );
+
+    go("test");
+}
+
+function choose(questionIndex,optionIndex){
+
+    answers[questionIndex] =
+        optionIndex;
+
+    const questions =
+        document.querySelectorAll(
+            ".question"
+        );
+
+    const question =
+        questions[questionIndex];
+
+    question
+        .querySelectorAll(".option")
+        .forEach(
+            (button,index)=>{
+                button.classList.toggle(
+                    "selected",
+                    index === optionIndex
+                );
+            }
+        );
+}
+
+function evaluateQuestion(
+    question,
+    index
+){
+
+    if(question.type === "choice"){
+
+        return (
+            answers[index] ===
+            question.answer
+        );
+    }
+
+    const field =
+        document.getElementById(
+            "question_" + index
+        );
+
+    if(!field){
+        return false;
+    }
+
+    const answer =
+        field.value
+            .toLowerCase()
+            .trim();
+
+    if(!answer){
+        return false;
+    }
+
+    return question.keywords.every(
+        keyword =>
+            answer.includes(
+                keyword.toLowerCase()
+            )
+    );
+}
+
+function submitTest(){
+
+    const test =
+        tests[currentTest - 1];
+
+    let correct = 0;
+
+    test.questions.forEach(
+        (question,index)=>{
+
+            if(
+                evaluateQuestion(
+                    question,
+                    index
+                )
+            ){
+                correct++;
+            }
+
+        }
+    );
+
+    const percent =
+        Math.round(
+            correct /
+            test.questions.length *
+            100
+        );
+
+    const passed =
+        percent >= 70;
+
+    state.scores[currentTest] =
+        percent;
+
+    state.tests[currentTest] =
+        passed;
+
+    if(
+        currentTest === 12 &&
+        passed
+    ){
+        state.final = true;
+    }
+
+    save();
+
+    document.getElementById("testResult")
+        .innerHTML = `
+            <div class="task">
+
+                <h3>Результат</h3>
+
+                <p>
+                    Правильных:
+                    <b>
+                        ${correct}/${test.questions.length}
+                    </b>
+                </p>
+
+                <p>
+                    Результат:
+                    <b>${percent}%</b>
+                </p>
+
+                <p class="${passed ? "good" : "bad"}">
+                    ${
+                        passed
+                        ? "✅ Контрольная пройдена!"
+                        : "❌ Нужно минимум 70%."
+                    }
+                </p>
+
+                ${
+                    currentTest === 12 &&
+                    passed
+                    ?
+                    `<p class="good">
+                        🏆 Финальная практика открыта!
+                     </p>`
+                    :
+                    ""
+                }
+
+            </div>
+        `;
+
+    updateAll();
+}
+
+/*
+=============================================
+ГЛАВЫ
+=============================================
+*/
+
+function renderChapters(){
+
+    const chapters =
+        [
+            ["1–10","Начало с нуля","local, переменные, game, Players, Player, Character"],
+            ["11–20","Humanoid + Speed","FindFirstChild, Humanoid, WalkSpeed, Enabled, if"],
+            ["21–30","Speed-система","else, not, function, ToggleSpeed, Activated"],
+            ["31–40","Jump","JumpEnabled, JumpPower, ToggleJump"],
+            ["41–50","Flight","FlightEnabled, UserInputService, InputBegan"],
+            ["51–60","Teleport","HumanoidRootPart, CFrame, Teleport"],
+            ["61–70","Invisible","Transparency, GetChildren, IsA"],
+            ["71–80","Noclip","CanCollide, GetDescendants, ToggleNoclip"],
+            ["81–90","GUI","ScreenGui, Frame, TextButton, Activated"],
+            ["91–100","Touch GUI","TouchEnabled, сенсорные кнопки"],
+            ["101–110","RemoteEvent","Client, Server, FireServer, FireClient"],
+            ["111–120","Финал","Enabled, функции, GUI, полная система"]
+        ];
+
+    document.getElementById("chapters")
+        .innerHTML =
+        chapters.map(
+            chapter=>`
+                <div class="chapter">
+                    <b>
+                        Уроки ${chapter[0]} —
+                        ${escapeHTML(chapter[1])}
+                    </b>
+                    <span class="muted">
+                        ${escapeHTML(chapter[2])}
+                    </span>
+                </div>
+            `
+        ).join("");
+}
+
+/*
+=============================================
+СТАТИСТИКА
+=============================================
+*/
+
+function renderStats(){
+
+    const lessonCount =
+        state.lessons.length;
+
+    const testCount =
+        Object.values(state.tests)
+        .filter(Boolean)
+        .length;
+
+    const percent =
+        Math.round(
+            lessonCount / 120 * 100
+        );
+
+    document.getElementById("statLessons")
+        .textContent =
+        lessonCount;
+
+    document.getElementById("statTests")
+        .textContent =
+        testCount;
+
+    document.getElementById("statPercent")
+        .textContent =
+        percent + "%";
+
+    document.getElementById("statFinal")
+        .textContent =
+        state.final
+        ? "✅"
+        : "🔒";
+
+    document.getElementById("mainProgressBar")
+        .style.width =
+        percent + "%";
+
+    document.getElementById("mainProgressText")
+        .textContent =
+        `Пройдено ${lessonCount} из 120 уроков.`;
+}
+
+/*
+=============================================
+ФИНАЛ
+=============================================
+*/
+
+function renderFinal(){
+
+    const box =
+        document.getElementById("finalContent");
+
+    if(!state.final){
+
+        box.innerHTML = `
+            <div class="card">
+
+                <h2>🔒 Финал закрыт</h2>
+
+                <p class="warn">
+                    Нужно пройти все 120 уроков
+                    и сдать контрольную №12.
+                </p>
+
+                <p>
+                    После этого откроется практическая
+                    сборка сенсорной GUI-панели.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
+
+            <h2>🏆 Финальный проект</h2>
+
+            <p class="good">
+                Все 120 уроков и контрольная №12 пройдены.
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>📱 Нужно собрать сенсорную панель</h3>
+
+            <div class="chapter">
+                <b>1. Получить Player</b>
+                Players → LocalPlayer
+            </div>
+
+            <div class="chapter">
+                <b>2. Получить Character</b>
+                Player.Character
+            </div>
+
+            <div class="chapter">
+                <b>3. Получить Humanoid</b>
+                Character:FindFirstChild("Humanoid")
+            </div>
+
+            <div class="chapter">
+                <b>4. Speed</b>
+                SpeedEnabled → if → function → WalkSpeed
+            </div>
+
+            <div class="chapter">
+                <b>5. Jump</b>
+                JumpEnabled → if → function → JumpPower
+            </div>
+
+            <div class="chapter">
+                <b>6. Flight</b>
+                FlightEnabled → input → function
+            </div>
+
+            <div class="chapter">
+                <b>7. Teleport</b>
+                HumanoidRootPart → CFrame
+            </div>
+
+            <div class="chapter">
+                <b>8. Invisible</b>
+                InvisibleEnabled → Transparency
+            </div>
+
+            <div class="chapter">
+                <b>9. Noclip</b>
+                NoclipEnabled → CanCollide
+            </div>
+
+            <div class="chapter">
+                <b>10. GUI</b>
+                ScreenGui → Frame → TextButton
+            </div>
+
+            <div class="chapter">
+                <b>11. Touch</b>
+                Activated → Connect → функции
+            </div>
+
+            <div class="chapter">
+                <b>12. Финал</b>
+                Объединить всё в одну сенсорную панель.
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🎯 Кнопки финала</h3>
+
+            <span class="badge">SPEED</span>
+            <span class="badge">JUMP</span>
+            <span class="badge">FLIGHT</span>
+            <span class="badge">TELEPORT</span>
+            <span class="badge">INVISIBLE</span>
+            <span class="badge">NOCLIP</span>
+
+        </div>
+    `;
+}
+
+/*
+=============================================
+ОБНОВЛЕНИЕ
+=============================================
+*/
+
+function updateAll(){
+
+    const count =
+        state.lessons.length;
+
+    const percent =
+        Math.round(
+            count / 120 * 100
+        );
+
+    document.getElementById(
+        "homeProgressBar"
+    ).style.width =
+        percent + "%";
+
+    document.getElementById(
+        "homeProgressText"
+    ).textContent =
+        `${count} / 120 уроков (${percent}%)`;
+}
+
+/*
+=============================================
+СБРОС
+=============================================
+*/
+
+function resetAll(){
+
+    const ok =
+        confirm(
+            "Точно сбросить весь прогресс?"
+        );
+
+    if(!ok){
+        return;
+    }
+
+    state = {
+        lessons:[],
+        tests:{},
+        scores:{},
+        final:false
+    };
+
+    save();
+
+    go("home");
+}
+
+/*
+=============================================
+ЭКРАНИРОВАНИЕ
+=============================================
+*/
+
+function escapeHTML(value){
+
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
+
+/*
+=============================================
+ЗАПУСК
+=============================================
+*/
+
+renderChapters();
+renderLessons();
+renderTests();
+renderStats();
+renderFinal();
+updateAll();
+
+</script>
+
+</body>
+    </html>
