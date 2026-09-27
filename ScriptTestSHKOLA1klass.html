@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Академия школа Roblox Luau — 1 класс</title>
+<style>
+*{box-sizing:border-box}
+html,body{
+margin:0;
+width:100%;
+height:100%;
+font-family:Arial,sans-serif;
+background:#10141b;
+color:#e8edf5;
+overflow:hidden
+}
+button{font:inherit}
+.app{display:flex;width:100%;height:100%}
+.sidebar{
+width:335px;
+background:#171c24;
+border-right:1px solid #2b3340;
+display:flex;
+flex-direction:column;
+flex-shrink:0
+}
+.brand{
+padding:22px 20px;
+border-bottom:1px solid #2b3340
+}
+.brand-title{
+font-size:25px;
+font-weight:800
+}
+.brand-sub{
+margin-top:7px;
+color:#8e98a8;
+font-size:14px;
+line-height:1.35
+}
+.lessons{
+padding:10px;
+overflow:auto;
+flex:1
+}
+.lesson-btn{
+width:100%;
+border:0;
+background:transparent;
+color:#b6c0ce;
+text-align:left;
+padding:12px;
+border-radius:10px;
+margin-bottom:4px;
+cursor:pointer
+}
+.lesson-btn:hover{background:#202734}
+.lesson-btn.active{
+background:#293444;
+color:#fff
+}
+.lesson-num{
+display:inline-flex;
+width:28px;
+height:28px;
+border-radius:8px;
+background:#222b38;
+align-items:center;
+justify-content:center;
+margin-right:8px;
+font-weight:700
+}
+.lesson-btn.done .lesson-num{
+background:#4d9c69;
+color:#fff
+}
+.lesson-title{font-weight:700}
+.lesson-topic{
+font-size:12px;
+color:#7f8a9a;
+margin-left:39px;
+margin-top:3px
+}
+.main{
+flex:1;
+min-width:0;
+display:flex;
+flex-direction:column
+}
+.topbar{
+height:78px;
+border-bottom:1px solid #2b3340;
+display:flex;
+align-items:center;
+gap:10px;
+padding:10px 14px;
+flex-shrink:0
+}
+.title-wrap{
+min-width:240px;
+flex:1
+}
+.title{
+font-size:19px;
+font-weight:800
+}
+.topic{
+font-size:12px;
+color:#7f8a9a;
+margin-top:4px
+}
+.progress{
+width:190px;
+height:8px;
+border-radius:8px;
+background:#29303c;
+overflow:hidden
+}
+.progress-bar{
+height:100%;
+width:0;
+background:#63a4ff
+}
+.tabs{
+display:flex;
+gap:8px;
+overflow:auto;
+padding:10px 12px;
+border-bottom:1px solid #2b3340;
+flex-shrink:0
+}
+.tab{
+border:1px solid #2d3746;
+background:#1b222d;
+color:#aeb9c8;
+padding:10px 15px;
+border-radius:10px;
+cursor:pointer;
+white-space:nowrap
+}
+.tab.active{
+background:#344156;
+color:#fff
+}
+.content{
+flex:1;
+min-height:0;
+overflow:auto;
+padding:14px
+}
+.panel{display:none}
+.panel.active{display:block}
+.card{
+background:#171c24;
+border:1px solid #2a3340;
+border-radius:14px;
+padding:16px;
+margin-bottom:14px
+}
+.card h2,.card h3{margin:0 0 10px}
+.muted{
+color:#8994a5;
+line-height:1.5
+}
+.task-big{
+font-size:20px;
+line-height:1.4
+}
+.requirements{
+margin-top:12px;
+padding:13px;
+border-radius:10px;
+background:#11161d;
+border:1px solid #252e3a;
+line-height:1.55
+}
+.tip{
+margin-top:12px;
+padding:12px;
+background:#202936;
+border:1px solid #2e3b4b;
+border-radius:10px;
+color:#c9d3e0;
+line-height:1.45
+}
+.example{
+margin-top:12px;
+padding:12px;
+background:#10161e;
+border:1px solid #283240;
+border-radius:10px;
+font:13px/1.5 monospace;
+white-space:pre-wrap;
+color:#9fc4ff
+}
+.zone-layout{
+display:grid;
+grid-template-columns:minmax(420px,1fr) 350px;
+gap:12px;
+align-items:start
+}
+.scene-card{
+background:#171c24;
+border:1px solid #2a3340;
+border-radius:14px;
+padding:10px
+}
+.scene-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:8px;
+font-weight:700
+}
+.scene-badge{
+font-size:12px;
+background:#293241;
+color:#aeb9c8;
+padding:5px 8px;
+border-radius:8px
+}
+canvas{
+display:block;
+width:100%;
+height:auto;
+border-radius:10px;
+border:2px solid #344052;
+background:#87cdf1;
+touch-action:none
+}
+.controls{
+display:grid;
+grid-template-columns:repeat(3,60px);
+justify-content:center;
+gap:7px;
+margin-top:10px
+}
+.ctrl{
+height:48px;
+border:1px solid #344052;
+border-radius:11px;
+background:#252e3b;
+color:white;
+font-size:22px;
+cursor:pointer;
+touch-action:none
+}
+.ctrl:active{background:#3a4759}
+.tree-card{
+background:#171c24;
+border:1px solid #2a3340;
+border-radius:14px;
+overflow:hidden
+}
+.tree-head{
+padding:12px 14px;
+border-bottom:1px solid #2a3340;
+font-weight:800
+}
+.tree{
+padding:9px;
+max-height:520px;
+overflow:auto
+}
+.tree-row{
+display:flex;
+align-items:center;
+gap:6px;
+padding:8px 9px;
+border-radius:8px;
+cursor:pointer
+}
+.tree-row:hover{background:#202733}
+.tree-row.selected{background:#334054}
+.arrow{
+width:16px;
+color:#8490a1
+}
+.icon{
+width:20px;
+text-align:center
+}
+.node-name{font-weight:700}
+.node-class{
+font-size:11px;
+color:#788496;
+margin-left:auto
+}
+.children{
+margin-left:18px;
+border-left:1px solid #2f3947
+}
+.inspector{
+border-top:1px solid #2a3340;
+padding:11px
+}
+.inspector-title{
+font-weight:800;
+margin-bottom:8px
+}
+.prop{
+display:flex;
+justify-content:space-between;
+padding:7px 5px;
+border-bottom:1px solid #232c38;
+font-size:13px
+}
+.prop:last-child{border-bottom:0}
+.prop-name{color:#8894a6}
+.prop-value{
+color:#dfe6ef;
+text-align:right;
+max-width:58%;
+word-break:break-word
+}
+.editor-wrap{
+display:flex;
+flex-direction:column;
+gap:9px
+}
+.editor-info{
+background:#11171f;
+border:1px solid #2b3440;
+padding:11px;
+border-radius:10px;
+font-size:13px;
+color:#9da9b8;
+line-height:1.45
+}
+textarea{
+width:100%;
+min-height:390px;
+resize:vertical;
+background:#0d1218;
+color:#dce6f2;
+border:1px solid #303b4a;
+border-radius:12px;
+padding:14px;
+font:14px/1.5 monospace;
+outline:none
+}
+textarea:focus{border-color:#5c8fd5}
+.actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap
+}
+.action{
+border:0;
+border-radius:9px;
+padding:10px 14px;
+background:#2d394a;
+color:#fff;
+cursor:pointer
+}
+.action.primary{background:#467fca}
+.action.danger{background:#9c4f4f}
+.output{
+background:#0b1016;
+border:1px solid #27313e;
+border-radius:10px;
+padding:12px;
+min-height:100px;
+white-space:pre-wrap;
+font:13px/1.5 monospace;
+color:#c8d3df
+}
+.err{color:#f08888}
+.ok{color:#79d59a}
+.doc-link{
+display:block;
+padding:11px 12px;
+border:1px solid #2b3440;
+border-radius:10px;
+color:#9fc4ff;
+text-decoration:none;
+margin-top:8px
+}
+.doc-link:hover{background:#202733}
+.check-box{
+padding:16px;
+border-radius:12px;
+background:#11171f;
+border:1px solid #2a3441
+}
+.status{
+font-size:18px;
+font-weight:800
+}
+.small{
+font-size:12px;
+color:#8691a1
+}
+.mobile-note{
+color:#93a0b1;
+font-size:12px;
+margin-top:8px;
+line-height:1.4
+}
+@media(max-width:1050px){
+.sidebar{width:260px}
+.zone-layout{grid-template-columns:1fr}
+.tree-card{order:2}
+.title-wrap{min-width:120px}
+.progress{width:120px}
+}
+@media(max-width:720px){
+html,body{overflow:auto}
+.app{
+min-height:100%;
+height:auto
+}
+.sidebar{
+width:100%;
+height:auto;
+max-height:290px
+}
+.brand{padding:14px 15px}
+.lessons{max-height:180px}
+.app{display:block}
+.main{
+height:calc(100vh - 290px);
+min-height:700px
+}
+.topbar{height:68px}
+.progress{display:none}
+.content{padding:10px}
+.zone-layout{grid-template-columns:1fr}
+.controls{
+grid-template-columns:repeat(3,55px)
+}
+textarea{min-height:330px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+<div class="brand">
+<div class="brand-title">🏫 Академия-школа</div>
+<div class="brand-sub">
+Roblox Luau • 1 класс<br>
+Продолжение после академии-садика
+</div>
+</div>
+
+<div class="lessons" id="lessonList"></div>
+
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+
+<div class="title-wrap">
+<div class="title" id="lessonTitle"></div>
+<div class="topic" id="lessonTopic"></div>
+</div>
+
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+</div>
+
+<div class="tabs">
+
+<button class="tab active" data-tab="task">Задание</button>
+<button class="tab" data-tab="zone">Тестовая зона</button>
+<button class="tab" data-tab="docs">Документы</button>
+<button class="tab" data-tab="code">Код</button>
+<button class="tab" data-tab="check">Проверка</button>
+
+</div>
+
+<div class="content">
+
+<section class="panel active" id="panel-task">
+
+<div class="card">
+
+<h2>Что нужно сделать</h2>
+
+<div class="task-big" id="taskText"></div>
+
+<div class="requirements" id="requirements"></div>
+
+<div class="tip" id="taskTip"></div>
+
+<div class="example" id="taskExample"></div>
+
+</div>
+
+<div class="card">
+
+<h3>Продолжение после садика</h3>
+
+<div class="muted">
+В 1 классе предполагается, что базовые вещи из академии-садика уже знакомы.
+Поэтому знакомые конструкции используются как инструменты для решения более крупных задач:
+объекты соединяются с логикой, переменные — с состоянием, условия — с действиями,
+а циклы и таблицы — с игровыми системами.
+</div>
+
+</div>
+
+</section>
+
+<section class="panel" id="panel-zone">
+
+<div class="zone-layout">
+
+<div class="scene-card">
+
+<div class="scene-head">
+<span>2D тестовая зона</span>
+<span class="scene-badge">живой мир</span>
+</div>
+
+<canvas id="game" width="900" height="430"></canvas>
+
+<div class="mobile-note">
+Клавиатура: A/D или ←/→, прыжок: W/↑/Пробел.<br>
+Объекты в мире можно выбирать справа и исследовать.
+</div>
+
+<div class="controls">
+
+<div></div>
+<button class="ctrl" data-key="up">▲</button>
+<div></div>
+
+<button class="ctrl" data-key="left">◀</button>
+<button class="ctrl" data-key="down">●</button>
+<button class="ctrl" data-key="right">▶</button>
+
+</div>
+
+</div>
+
+<div class="tree-card">
+
+<div class="tree-head">
+Дерево объектов
+</div>
+
+<div class="tree" id="tree"></div>
+
+<div class="inspector" id="inspector">
+
+<div class="inspector-title">
+Выбери объект
+</div>
+
+<div class="small">
+Нажми на объект в дереве, чтобы посмотреть его свойства.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="panel" id="panel-docs">
+
+<div class="card">
+
+<h2>Документы</h2>
+
+<div class="muted">
+Документация используется как часть решения.
+Тебе не нужно помнить всё наизусть — ищи нужный материал и проверяй его на практике.
+</div>
+
+<a class="doc-link" target="_blank" href="https://devhints.io/lua">
+Lua Cheat Sheet
+</a>
+
+<a class="doc-link" target="_blank" href="https://monzter.dev/lessons/luau-cheat-sheet/">
+Luau Cheat Sheet
+</a>
+
+<a class="doc-link" target="_blank" href="https://play.luau.org">
+Luau Playground
+</a>
+
+<a class="doc-link" target="_blank" href="https://create.roblox.com/docs/tutorials/fundamentals/coding-1/coding-fundamentals">
+Roblox Coding Fundamentals
+</a>
+
+<a class="doc-link" target="_blank" href="https://create.roblox.com/docs/scripting">
+Roblox Scripting
+</a>
+
+<a class="doc-link" target="_blank" href="https://create.roblox.com/docs/reference/engine/classes/Players">
+Players
+</a>
+
+<a class="doc-link" target="_blank" href="https://create.roblox.com/docs/reference/engine/classes/Humanoid">
+Humanoid
+</a>
+
+<a class="doc-link" target="_blank" href="https://create.roblox.com/docs/tutorials/fundamentals/coding-1/object-properties">
+Object Properties
+</a>
+
+</div>
+
+</section>
+
+<section class="panel" id="panel-code">
+
+<div class="card editor-wrap">
+
+<h2>Код</h2>
+
+<div class="editor-info" id="editorInfo">
+Поле пустое специально. Напиши своё решение.
+</div>
+
+<textarea id="editor" spellcheck="false" placeholder="Напиши код здесь..."></textarea>
+
+<div class="actions">
+
+<button class="action primary" id="runBtn">
+▶ Запустить
+</button>
+
+<button class="action danger" id="resetBtn">
+Сбросить
+</button>
+
+</div>
+
+<div class="output" id="output">
+Готово к запуску.
+</div>
+
+</div>
+
+</section>
+
+<section class="panel" id="panel-check">
+
+<div class="card">
+
+<h2>Проверка</h2>
+
+<div class="check-box">
+
+<div class="status" id="checkStatus">
+Урок ещё не пройден
+</div>
+
+<div class="muted" id="checkText" style="margin-top:8px">
+Выполни условие урока.
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</main>
+
+</div>
+
+<script>
+
+const LESSONS=[
+
+{
+title:"Настрой персонажа",
+topic:"Переменные + свойства",
+task:"Используй уже знакомые тебе объекты и свойства, чтобы подготовить персонажа к движению.",
+requirements:"После выполнения WalkSpeed = 24 и JumpPower = 70.",
+tip:"В садике ты уже изучал объект Humanoid и его свойства. Сейчас объедини два изменения в одном решении.",
+example:"Можно получить Humanoid, затем изменить оба свойства.",
+type:"setup"
+},
+
+{
+title:"Рассчитай позицию",
+topic:"Арифметика",
+task:"Смоделируй движение робота по оси X.",
+requirements:"Создай начальное значение x = 100 и прибавь к нему 4 шага по 25. Итог: x = 200.",
+tip:"Здесь важно увидеть связь между данными и результатом алгоритма.",
+example:"Не обязательно выполнять всё одной строкой.",
+type:"movementCalc"
+},
+
+{
+title:"Условное ускорение",
+topic:"if + свойства",
+task:"Персонаж должен получить ускорение, если его здоровье больше 50.",
+requirements:"Получи Humanoid, проверь Health > 50 и при выполнении условия установи WalkSpeed = 28.",
+tip:"Условие теперь не просто выводит текст — оно изменяет состояние объекта.",
+example:"Сначала получи значение Health, затем сравни его.",
+type:"healthBoost"
+},
+
+{
+title:"Сделай функцию настройки",
+topic:"Функции",
+task:"Создай функцию setupCharacter, которая полностью настраивает персонажа.",
+requirements:"После вызова функции WalkSpeed = 26 и JumpPower = 80.",
+tip:"Функция объединяет несколько действий в отдельный блок, который можно вызвать снова.",
+example:"Изучи function ... end и вызов функции.",
+type:"functionSetup"
+},
+
+{
+title:"Скорости роботов",
+topic:"Таблицы",
+task:"Храни скорости двух роботов в таблице и посчитай их общую скорость.",
+requirements:"В таблице должны быть значения 20 и 30, а переменная total должна стать 50.",
+tip:"Таблица позволяет работать сразу с несколькими связанными значениями.",
+example:"Можно использовать числовые индексы таблицы.",
+type:"tableSum"
+},
+
+{
+title:"Раздели предметы",
+topic:"Таблицы + данные",
+task:"Создай две группы предметов для двух складов.",
+requirements:"groupA и groupB должны содержать по 3 элемента.",
+tip:"Подумай, как хранить несколько элементов в одной таблице.",
+example:"Проверяется количество элементов, а не их исходный текст.",
+type:"distribution"
+},
+
+{
+title:"Найди максимальную скорость",
+topic:"Цикл + сравнение",
+task:"Есть скорости 12, 25 и 19. Найди самую большую.",
+requirements:"Переменная fastest должна получить значение 25.",
+tip:"Начни с первого значения и сравни его с остальными.",
+example:"Это уже маленький алгоритм поиска.",
+type:"maxSpeed"
+},
+
+{
+title:"Повтори действие",
+topic:"Цикл",
+task:"Робот выполняет одно и то же действие пять раз.",
+requirements:"После выполнения переменная steps должна быть равна 5.",
+tip:"Когда действие повторяется много раз, цикл делает программу компактнее.",
+example:"Используй for.",
+type:"loopSteps"
+},
+
+{
+title:"Патруль",
+topic:"Цикл + координаты",
+task:"Робот делает три шага вправо и затем три шага влево.",
+requirements:"Начальный x = 170. После выполнения алгоритма итоговый x должен снова стать 170.",
+tip:"Смотри на результат всего алгоритма, а не на отдельные строки.",
+example:"Можно изменять x внутри циклов.",
+type:"patrol"
+},
+
+{
+title:"Найди Target",
+topic:"FindFirstChild",
+task:"Самостоятельно найди объект Target в Workspace и включи его.",
+requirements:"Target.Enabled должна стать true.",
+tip:"В тестовой зоне уже есть нужный объект. Найди его через дерево или документацию.",
+example:"Используй знакомый принцип object:FindFirstChild(...).",
+type:"targetOn"
+},
+
+{
+title:"Открой дверь ключами",
+topic:"if + состояние",
+task:"Игрок открывает дверь только при наличии как минимум трёх ключей.",
+requirements:"Создай keys = 3. Если keys >= 3, Door.Opened должна стать true.",
+tip:"Переменная хранит состояние игры, а условие решает, какое действие разрешено.",
+example:"Проверка смотрит состояние Door.",
+type:"doorKeys"
+},
+
+{
+title:"Система очков",
+topic:"Переменные + арифметика",
+task:"Игрок получает по 10 очков за каждое из четырёх выполненных действий.",
+requirements:"Переменная score должна стать 40.",
+tip:"Знакомую арифметику можно превращать в настоящую игровую систему.",
+example:"Начни с score = 0 и увеличивай его.",
+type:"score"
+},
+
+{
+title:"Инвентарь",
+topic:"Таблицы",
+task:"Создай маленький инвентарь и получи из него третий предмет.",
+requirements:"Таблица inventory должна содержать три предмета, а переменная item должна содержать значение key.",
+tip:"Такая структура уже похожа на настоящие игровые данные.",
+example:"Используй индексы таблицы.",
+type:"inventory"
+},
+
+{
+title:"Поиск цели",
+topic:"Цикл + if",
+task:"Есть список целей. Найди ту, у которой значение Target равно true.",
+requirements:"Переменная found должна стать true.",
+tip:"Просматривай элементы один за другим и проверяй их значения.",
+example:"Сочетай цикл и условие.",
+type:"findTarget"
+},
+
+{
+title:"Передвинь робота",
+topic:"Координаты",
+task:"Начальная координата робота x = 170. Передвинь его на 80 единиц вправо.",
+requirements:"Переменная x должна стать 250.",
+tip:"Не думай о координате как о магическом числе. Это состояние объекта, которое может изменяться.",
+example:"x = x + 80 — один из возможных вариантов.",
+type:"relativeMove"
+},
+
+{
+title:"Обойди препятствие",
+topic:"if + координаты",
+task:"Робот находится в x = 170. Стена начинается на x = 220. Если робот ещё не достиг стены, он может переместиться на 40.",
+requirements:"После алгоритма x должен стать 210.",
+tip:"Условие должно решить, разрешено ли движение.",
+example:"Сравни текущую позицию с границей препятствия.",
+type:"obstacle"
+},
+
+{
+title:"Кнопка GUI",
+topic:"GUI + свойства",
+task:"Найди кнопку StartButton и включи её.",
+requirements:"StartButton.Visible должна стать true.",
+tip:"Теперь ты работаешь не только с объектами мира, но и с интерфейсом игрока.",
+example:"Найди объект в дереве и измени его свойство.",
+type:"buttonGui"
+},
+
+{
+title:"Монеты",
+topic:"Состояние игры",
+task:"Игрок получает 5 монет за каждое из шести выполненных действий.",
+requirements:"coins должна стать 30.",
+tip:"Так работает множество простых игровых экономик.",
+example:"Начальное состояние можно увеличить несколько раз.",
+type:"coins"
+},
+
+{
+title:"Настрой несколько объектов",
+topic:"Объекты + свойства",
+task:"Подготовь игровую комнату: включи Target, открой Door и включи StartButton.",
+requirements:"Target.Enabled = true, Door.Opened = true, StartButton.Visible = true.",
+tip:"Теперь одно решение должно изменить состояние сразу нескольких разных объектов.",
+example:"Ты уже изучил каждый объект отдельно. Объедини знания.",
+type:"roomSetup"
+},
+
+{
+title:"Функция движения",
+topic:"Функции + алгоритм",
+task:"Создай функцию moveRobot, которая получает шаг и меняет координату x.",
+requirements:"Начальный x = 170. После вызовов moveRobot(30) и moveRobot(50) итоговый x должен быть 250.",
+tip:"Функции могут получать данные через параметры.",
+example:"Изучи параметры функции и передай в неё величину движения.",
+type:"moveFunction"
+},
+
+{
+title:"Финальный мини-проект",
+topic:"Повторение",
+task:"Создай небольшой алгоритм подготовки персонажа: получи Humanoid, проверь его здоровье, настрой скорость и прыжок, начисли 20 очков и выведи сообщение.",
+requirements:"WalkSpeed = 32, JumpPower = 90, score = 20 и вывод должен содержать сообщение о завершении.",
+tip:"В этом задании нет одного единственного правильного способа. Собери решение из знаний первого класса.",
+example:"Используй переменные, свойства, if и уже изученные действия.",
+type:"final"
+}
+
+];
+
+let currentLesson=0;
+
+let completed=
+JSON.parse(localStorage.getItem("school1Progress")||"[]");
+
+let selectedPath=null;
+
+const world={
+
+player:{
+x:170,
+y:330,
+vx:0,
+vy:0,
+onGround:true,
+WalkSpeed:16,
+JumpPower:50,
+Health:100
+},
+
+objects:{
+Door:{
+Name:"Door",
+ClassName:"Part",
+Opened:false
+},
+
+SpeedPad:{
+Name:"SpeedPad",
+ClassName:"Part",
+Enabled:true
+},
+
+JumpPad:{
+Name:"JumpPad",
+ClassName:"Part",
+Enabled:true
+},
+
+Target:{
+Name:"Target",
+ClassName:"Part",
+Enabled:false
+},
+
+StartButton:{
+Name:"StartButton",
+ClassName:"TextButton",
+Visible:false
+},
+
+Wall:{
+Name:"Wall",
+ClassName:"Part",
+X:220
+},
+
+Ground:{
+Name:"Ground",
+ClassName:"Part",
+Material:"Grass"
+}
+},
+
+tree:{
+Name:"game",
+ClassName:"DataModel",
+children:[
+
+{
+Name:"Players",
+ClassName:"Players",
+children:[
+{
+Name:"LocalPlayer",
+ClassName:"Player",
+children:[
+{
+Name:"Character",
+ClassName:"Model",
+children:[
+{
+Name:"Humanoid",
+ClassName:"Humanoid",
+children:[]
+},
+{
+Name:"Head",
+ClassName:"Part",
+children:[]
+},
+{
+Name:"Body",
+ClassName:"Part",
+children:[]
+}
+]
+}
+]
+}
+]
+},
+
+{
+Name:"Workspace",
+ClassName:"Workspace",
+children:[
+{
+Name:"Ground",
+ClassName:"Part",
+children:[]
+},
+{
+Name:"Door",
+ClassName:"Part",
+children:[]
+},
+{
+Name:"SpeedPad",
+ClassName:"Part",
+children:[]
+},
+{
+Name:"JumpPad",
+ClassName:"Part",
+children:[]
+},
+{
+Name:"Target",
+ClassName:"Part",
+children:[]
+},
+{
+Name:"Wall",
+ClassName:"Part",
+children:[]
+}
+]
+},
+
+{
+Name:"StarterGui",
+ClassName:"StarterGui",
+children:[
+{
+Name:"ScreenGui",
+ClassName:"ScreenGui",
+children:[
+{
+Name:"StartButton",
+ClassName:"TextButton",
+children:[]
+}
+]
+}
+]
+}
+
+]
+
+}
+
+};
+
+function saveProgress(){
+localStorage.setItem(
+"school1Progress",
+JSON.stringify(completed)
+);
+}
+
+function setCompleted(index){
+
+if(!completed.includes(index)){
+completed.push(index);
+saveProgress();
+}
+
+updateProgress();
+}
+
+function updateProgress(){
+
+document.getElementById("progressBar").style.width=
+((completed.length/LESSONS.length)*100)+"%";
+
+document.querySelectorAll(".lesson-btn").forEach((b,i)=>{
+b.classList.toggle("done",completed.includes(i));
+});
+
+}
+
+function renderLessons(){
+
+const list=document.getElementById("lessonList");
+
+list.innerHTML="";
+
+LESSONS.forEach((lesson,i)=>{
+
+const b=document.createElement("button");
+
+b.className=
+"lesson-btn"+
+(i===currentLesson?" active":"")+
+(completed.includes(i)?" done":"");
+
+b.innerHTML=
+"<span class='lesson-num'>"+(i+1)+"</span>"+
+"<span class='lesson-title'>"+lesson.title+"</span>"+
+"<div class='lesson-topic'>"+lesson.topic+"</div>";
+
+b.onclick=()=>loadLesson(i);
+
+list.appendChild(b);
+
+});
+
+updateProgress();
+}
+
+function loadLesson(index){
+
+currentLesson=index;
+
+selectedPath=null;
+
+renderLessons();
+
+const lesson=LESSONS[index];
+
+document.getElementById("lessonTitle").textContent=
+"Урок "+(index+1)+": "+lesson.title;
+
+document.getElementById("lessonTopic").textContent=
+lesson.topic;
+
+document.getElementById("taskText").textContent=
+lesson.task;
+
+document.getElementById("requirements").textContent=
+lesson.requirements;
+
+document.getElementById("taskTip").textContent=
+lesson.tip;
+
+document.getElementById("taskExample").textContent=
+lesson.example;
+
+document.getElementById("editor").value="";
+
+document.getElementById("output").textContent=
+"Готово к запуску.";
+
+document.getElementById("output").className="output";
+
+document.getElementById("editorInfo").textContent=
+"Поле пустое специально. Самостоятельно напиши решение.";
+
+if(completed.includes(index)){
+document.getElementById("checkStatus").textContent="Урок пройден";
+document.getElementById("checkStatus").className="status ok";
+document.getElementById("checkText").textContent=
+"Условие этого урока уже выполнено.";
+}else{
+document.getElementById("checkStatus").textContent="Урок ещё не пройден";
+document.getElementById("checkStatus").className="status";
+document.getElementById("checkText").textContent=
+"Выполни условие урока.";
+}
+
+resetWorld();
+renderTree();
+}
+
+function resetWorld(){
+
+world.player.x=170;
+world.player.y=330;
+world.player.vx=0;
+world.player.vy=0;
+world.player.onGround=true;
+world.player.WalkSpeed=16;
+world.player.JumpPower=50;
+world.player.Health=100;
+
+world.objects.Door.Opened=false;
+world.objects.SpeedPad.Enabled=true;
+world.objects.JumpPad.Enabled=true;
+world.objects.Target.Enabled=false;
+world.objects.StartButton.Visible=false;
+
+}
+
+function renderTree(){
+
+const wrap=document.getElementById("tree");
+
+wrap.innerHTML="";
+
+renderNode(world.tree,[],wrap,0);
+}
+
+function renderNode(node,path,parent,level){
+
+const holder=document.createElement("div");
+
+const row=document.createElement("div");
+
+row.className=
+"tree-row"+
+(JSON.stringify(selectedPath)===JSON.stringify(path)?" selected":"");
+
+row.style.paddingLeft=(6+level*8)+"px";
+
+const hasChildren=
+node.children&&node.children.length>0;
+
+row.innerHTML=
+"<span class='arrow'>"+(hasChildren?"▾":"")+"</span>"+
+"<span class='icon'>"+iconFor(node.ClassName)+"</span>"+
+"<span class='node-name'>"+node.Name+"</span>"+
+"<span class='node-class'>"+node.ClassName+"</span>";
+
+row.onclick=()=>{
+
+selectedPath=path;
+
+renderTree();
+
+showInspector(node,path);
+
+};
+
+holder.appendChild(row);
+
+if(hasChildren){
+
+const children=document.createElement("div");
+
+children.className="children";
+
+node.children.forEach(child=>{
+renderNode(
+child,
+path.concat(child.Name),
+children,
+level+1
+);
+});
+
+holder.appendChild(children);
+}
+
+parent.appendChild(holder);
+}
+
+function iconFor(cls){
+
+if(cls==="DataModel")return"◈";
+if(cls==="Players")return"👥";
+if(cls==="Player")return"🙂";
+if(cls==="Model")return"🧍";
+if(cls==="Humanoid")return"⚙";
+if(cls==="Workspace")return"🌎";
+if(cls==="Part")return"■";
+if(cls==="StarterGui")return"🖥";
+if(cls==="ScreenGui")return"▣";
+if(cls==="TextButton")return"🔘";
+
+return"•";
+}
+
+function showInspector(node,path){
+
+const box=document.getElementById("inspector");
+
+const full=path.join(".");
+
+const props=[
+["Name",node.Name],
+["ClassName",node.ClassName]
+];
+
+if(full==="Players.LocalPlayer"){
+props.push(["UserId","100001"]);
+}
+
+if(full==="Players.LocalPlayer.Character.Humanoid"){
+props.push(["WalkSpeed",world.player.WalkSpeed]);
+props.push(["JumpPower",world.player.JumpPower]);
+props.push(["Health",world.player.Health]);
+}
+
+if(full==="Workspace.Door"){
+props.push(["Opened",world.objects.Door.Opened]);
+}
+
+if(full==="Workspace.SpeedPad"){
+props.push(["Enabled",world.objects.SpeedPad.Enabled]);
+}
+
+if(full==="Workspace.JumpPad"){
+props.push(["Enabled",world.objects.JumpPad.Enabled]);
+}
+
+if(full==="Workspace.Target"){
+props.push(["Enabled",world.objects.Target.Enabled]);
+}
+
+if(full==="Workspace.Wall"){
+props.push(["X",world.objects.Wall.X]);
+}
+
+if(full==="StarterGui.ScreenGui.StartButton"){
+props.push(["Visible",world.objects.StartButton.Visible]);
+}
+
+box.innerHTML=
+"<div class='inspector-title'>"+node.Name+"</div>"+
+props.map(p=>
+"<div class='prop'>"+
+"<span class='prop-name'>"+p[0]+"</span>"+
+"<span class='prop-value'>"+p[1]+"</span>"+
+"</div>"
+).join("");
+}
+
+const keys={
+left:false,
+right:false,
+up:false
+};
+
+document.addEventListener("keydown",e=>{
+
+const k=e.key.toLowerCase();
+
+if(e.key==="ArrowLeft"||k==="a")keys.left=true;
+if(e.key==="ArrowRight"||k==="d")keys.right=true;
+if(e.key==="ArrowUp"||k==="w"||e.key===" ")keys.up=true;
+
+});
+
+document.addEventListener("keyup",e=>{
+
+const k=e.key.toLowerCase();
+
+if(e.key==="ArrowLeft"||k==="a")keys.left=false;
+if(e.key==="ArrowRight"||k==="d")keys.right=false;
+if(e.key==="ArrowUp"||k==="w"||e.key===" ")keys.up=false;
+
+});
+
+document.querySelectorAll(".ctrl").forEach(btn=>{
+
+const key=btn.dataset.key;
+
+function down(e){
+e.preventDefault();
+if(key==="left"||key==="right"||key==="up")keys[key]=true;
+}
+
+function up(e){
+e.preventDefault();
+if(key==="left"||key==="right"||key==="up")keys[key]=false;
+}
+
+btn.addEventListener("pointerdown",down);
+btn.addEventListener("pointerup",up);
+btn.addEventListener("pointercancel",up);
+btn.addEventListener("pointerleave",up);
+
+});
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+function drawCloud(x,y,s){
+
+ctx.fillStyle="#fff";
+
+ctx.beginPath();
+ctx.arc(x,y,22*s,0,Math.PI*2);
+ctx.arc(x+25*s,y-8*s,28*s,0,Math.PI*2);
+ctx.arc(x+52*s,y,21*s,0,Math.PI*2);
+ctx.fill();
+}
+
+function drawScene(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="#8cd3f3";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="#f8d866";
+ctx.beginPath();
+ctx.arc(790,65,28,0,Math.PI*2);
+ctx.fill();
+
+drawCloud(105,66,1);
+drawCloud(340,86,.9);
+drawCloud(570,60,1);
+
+ctx.fillStyle="#7caf78";
+
+ctx.beginPath();
+ctx.moveTo(0,240);
+ctx.lineTo(150,125);
+ctx.lineTo(285,240);
+ctx.closePath();
+ctx.fill();
+
+ctx.beginPath();
+ctx.moveTo(170,240);
+ctx.lineTo(400,105);
+ctx.lineTo(610,240);
+ctx.closePath();
+ctx.fill();
+
+ctx.fillStyle="#a86752";
+
+ctx.beginPath();
+ctx.moveTo(655,190);
+ctx.lineTo(755,100);
+ctx.lineTo(855,190);
+ctx.closePath();
+ctx.fill();
+
+ctx.fillStyle="#dca96d";
+ctx.fillRect(675,190,160,145);
+
+ctx.fillStyle=
+world.objects.Door.Opened
+?"#69c889"
+:"#754c35";
+
+ctx.fillRect(735,250,42,85);
+
+ctx.fillStyle="#6fa853";
+ctx.fillRect(0,335,canvas.width,95);
+
+if(world.objects.SpeedPad.Enabled){
+ctx.fillStyle="#f2d44e";
+ctx.fillRect(475,323,82,14);
+}
+
+if(world.objects.JumpPad.Enabled){
+ctx.fillStyle="#e28fd8";
+ctx.fillRect(595,323,82,14);
+}
+
+ctx.fillStyle="#555";
+ctx.fillRect(world.objects.Wall.X,300,8,35);
+
+if(world.objects.Target.Enabled){
+ctx.fillStyle="#55d07a";
+ctx.fillRect(360,290,35,45);
+ctx.fillStyle="#fff";
+ctx.font="12px Arial";
+ctx.fillText("TARGET",350,280);
+}
+
+if(world.objects.StartButton.Visible){
+ctx.fillStyle="#6c8df2";
+ctx.fillRect(70,75,135,42);
+ctx.fillStyle="#fff";
+ctx.font="bold 15px Arial";
+ctx.fillText("START",112,102);
+}
+
+const p=world.player;
+
+ctx.fillStyle="#4488dd";
+ctx.fillRect(p.x,p.y,26,52);
+
+ctx.fillStyle="#ffd2ac";
+
+ctx.beginPath();
+ctx.arc(p.x+13,p.y,13,0,Math.PI*2);
+ctx.fill();
+
+ctx.fillStyle="#222";
+
+ctx.beginPath();
+ctx.arc(p.x+8,p.y-2,2,0,Math.PI*2);
+ctx.arc(p.x+18,p.y-2,2,0,Math.PI*2);
+ctx.fill();
+
+ctx.fillStyle="#29343d";
+ctx.font="13px Arial";
+
+ctx.fillText("2D TEST ZONE",15,24);
+ctx.fillText("← → движение   ↑ прыжок",15,44);
+
+ctx.font="12px Arial";
+ctx.fillText("WalkSpeed: "+world.player.WalkSpeed,15,365);
+ctx.fillText("JumpPower: "+world.player.JumpPower,15,382);
+ctx.fillText("Health: "+world.player.Health,15,399);
+}
+
+let last=performance.now();
+
+function loop(now){
+
+const dt=Math.min(.03,(now-last)/1000);
+last=now;
+
+const p=world.player;
+const speed=p.WalkSpeed;
+
+if(keys.left){
+p.vx=-speed*5;
+}else if(keys.right){
+p.vx=speed*5;
+}else{
+p.vx*=.8;
+}
+
+if(keys.up&&p.onGround){
+p.vy=-p.JumpPower*7;
+p.onGround=false;
+}
+
+p.vy+=1100*dt;
+
+p.x+=p.vx*dt;
+p.y+=p.vy*dt;
+
+if(p.y>=330){
+p.y=330;
+p.vy=0;
+p.onGround=true;
+}
+
+p.x=Math.max(5,Math.min(870,p.x));
+
+drawScene();
+
+requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+
+function getObject(path){
+
+if(path==="game")
+return {__type:"DataModel",Name:"game"};
+
+if(path==="game.Players")
+return {__type:"Players",Name:"Players"};
+
+if(path==="game.Players.LocalPlayer")
+return {__type:"Player",Name:"LocalPlayer"};
+
+if(path==="game.Players.LocalPlayer.Character")
+return {__type:"Character",Name:"Character"};
+
+if(path==="game.Players.LocalPlayer.Character.Humanoid")
+return {__type:"Humanoid",Name:"Humanoid"};
+
+if(path==="game.Workspace")
+return {__type:"Workspace",Name:"Workspace"};
+
+if(path==="game.Workspace.Door")
+return {__type:"Door",Name:"Door"};
+
+if(path==="game.Workspace.SpeedPad")
+return {__type:"SpeedPad",Name:"SpeedPad"};
+
+if(path==="game.Workspace.JumpPad")
+return {__type:"JumpPad",Name:"JumpPad"};
+
+if(path==="game.Workspace.Target")
+return {__type:"Target",Name:"Target"};
+
+if(path==="game.Workspace.Wall")
+return {__type:"Wall",Name:"Wall"};
+
+if(path==="game.StarterGui")
+return {__type:"StarterGui",Name:"StarterGui"};
+
+if(path==="game.StarterGui.ScreenGui")
+return {__type:"ScreenGui",Name:"ScreenGui"};
+
+if(path==="game.StarterGui.ScreenGui.StartButton")
+return {__type:"TextButton",Name:"StartButton"};
+
+return null;
+}
+
+function stripComment(s){
+
+let quote=null;
+
+for(let i=0;i<s.length-1;i++){
+
+const c=s[i];
+
+if((c==="'"||c==='"')&&quote===null){
+quote=c;
+continue;
+}
+
+if(c===quote){
+quote=null;
+continue;
+}
+
+if(c==="-"&&s[i+1]==="-"&&quote===null){
+return s.slice(0,i);
+}
+}
+
+return s;
+}
+
+function splitArgs(str){
+
+const result=[];
+let current="";
+let depth=0;
+let quote=null;
+
+for(let i=0;i<str.length;i++){
+
+const c=str[i];
+
+if((c==="'"||c==='"')&&(!quote||quote===c)){
+if(quote===c)quote=null;
+else quote=c;
+current+=c;
+continue;
+}
+
+if(quote){
+current+=c;
+continue;
+}
+
+if(c==="("||c==="{"||c==="[")depth++;
+if(c===")"||c==="}"||c==="]")depth--;
+
+if(c===","&&depth===0){
+result.push(current.trim());
+current="";
+}else{
+current+=c;
+}
+}
+
+if(current.trim()!=="")
+result.push(current.trim());
+
+return result;
+}
+
+function splitTopLevel(expr,operators){
+
+let depth=0;
+let quote=null;
+
+for(let i=0;i<expr.length;i++){
+
+const c=expr[i];
+
+if((c==="'"||c==='"')&&(!quote||quote===c)){
+if(quote===c)quote=null;
+else quote=c;
+continue;
+}
+
+if(quote)continue;
+
+if(c==="("||c==="{"||c==="[")depth++;
+if(c===")"||c==="}"||c==="]")depth--;
+
+if(depth!==0)continue;
+
+for(const op of operators){
+
+if(expr.slice(i,i+op.length)===op){
+
+const left=expr.slice(0,i).trim();
+const right=expr.slice(i+op.length).trim();
+
+if(left&&right)
+return {left,right,op};
+}
+}
+}
+
+return null;
+}
+
+function parseValue(expr,vars,output){
+
+expr=expr.trim();
+
+if(expr==="nil")return null;
+if(expr==="true")return true;
+if(expr==="false")return false;
+
+if(/^".*"$/.test(expr))
+return expr.slice(1,-1);
+
+if(/^'.*'$/.test(expr))
+return expr.slice(1,-1);
+
+if(/^-?\d+(\.\d+)?$/.test(expr))
+return Number(expr);
+
+if(expr.startsWith("#")){
+const v=resolveExpression(expr.slice(1),vars,output);
+return Array.isArray(v)?v.length:0;
+}
+
+const arithmetic=splitTopLevel(expr,["+","-","*","/"]);
+
+if(arithmetic){
+
+const a=Number(resolveExpression(arithmetic.left,vars,output));
+const b=Number(resolveExpression(arithmetic.right,vars,output));
+
+if(Number.isNaN(a)||Number.isNaN(b))
+throw new Error("Нельзя выполнить вычисление.");
+
+if(arithmetic.op==="+")return a+b;
+if(arithmetic.op==="-")return a-b;
+if(arithmetic.op==="*")return a*b;
+if(arithmetic.op==="/")return b===0?0:a/b;
+}
+
+if(expr.startsWith("{")&&expr.endsWith("}")){
+
+const inside=expr.slice(1,-1).trim();
+
+if(!inside)return[];
+
+return splitArgs(inside).map(v=>
+resolveExpression(v,vars,output)
+);
+}
+
+const indexMatch=expr.match(/^(.+)\[(\d+)\]$/);
+
+if(indexMatch){
+
+const arr=resolveExpression(indexMatch[1],vars,output);
+const index=Number(indexMatch[2]);
+
+if(Array.isArray(arr))
+return arr[index-1];
+
+return null;
+}
+
+return resolveExpression(expr,vars,output);
+}
+
+function resolveExpression(expr,vars,output){
+
+expr=expr.trim();
+
+if(Object.prototype.hasOwnProperty.call(vars,expr))
+return vars[expr];
+
+if(expr==="game")
+return {__type:"DataModel",Name:"game"};
+
+const len=expr.match(/^#(.+)$/);
+
+if(len){
+const v=resolveExpression(len[1],vars,output);
+return Array.isArray(v)?v.length:0;
+}
+
+const stringConcat=splitTopLevel(expr,[".."]);
+
+if(stringConcat){
+
+return String(resolveExpression(stringConcat.left,vars,output))+
+String(resolveExpression(stringConcat.right,vars,output));
+
+}
+
+const call=expr.match(/^(.+):GetService\(\s*["']([^"']+)["']\s*\)$/);
+
+if(call){
+
+const service=call[2];
+
+if(service==="Players")
+return {__type:"Players",Name:"Players"};
+
+if(service==="Workspace")
+return {__type:"Workspace",Name:"Workspace"};
+
+throw new Error("Сервис не найден: "+service);
+}
+
+const child=expr.match(/^(.+):FindFirstChild\(\s*["']([^"']+)["']\s*\)$/);
+
+if(child){
+
+const base=resolveExpression(child[1],vars,output);
+const name=child[2];
+
+if(!base)
+throw new Error("Не удалось получить объект.");
+
+if(base.__type==="DataModel"&&name==="Players")
+return {__type:"Players",Name:"Players"};
+
+if(base.__type==="DataModel"&&name==="Workspace")
+return {__type:"Workspace",Name:"Workspace"};
+
+if(base.__type==="DataModel"&&name==="StarterGui")
+return {__type:"StarterGui",Name:"StarterGui"};
+
+if(base.__type==="Character"&&name==="Humanoid")
+return {__type:"Humanoid",Name:"Humanoid"};
+
+if(base.__type==="Workspace"&&world.objects[name])
+return {__type:name,Name:name};
+
+if(base.__type==="ScreenGui"&&name==="StartButton")
+return {__type:"TextButton",Name:"StartButton"};
+
+throw new Error(
+"Объект "+name+" не найден внутри "+base.Name
+);
+}
+
+const method=expr.match(/^(.+):([A-Za-z_][A-Za-z0-9_]*)\((.*)\)$/);
+
+if(method){
+
+const base=resolveExpression(method[1],vars,output);
+const methodName=method[2];
+const args=splitArgs(method[3]).map(v=>resolveExpression(v,vars,output));
+
+if(methodName==="FindFirstChild"){
+
+const name=args[0];
+
+if(base&&base.__type==="Workspace"&&world.objects[name])
+return {__type:name,Name:name};
+
+if(base&&base.__type==="Character"&&name==="Humanoid")
+return {__type:"Humanoid",Name:"Humanoid"};
+}
+
+if(methodName==="GetService"){
+const name=args[0];
+
+if(name==="Players")
+return {__type:"Players",Name:"Players"};
+
+if(name==="Workspace")
+return {__type:"Workspace",Name:"Workspace"};
+}
+
+if(methodName==="Destroy"){
+return null;
+}
+
+throw new Error("Метод "+methodName+" не поддерживается.");
+}
+
+const parts=expr.split(".");
+
+if(parts.length>1){
+
+const baseExpr=parts.slice(0,-1).join(".");
+const prop=parts[parts.length-1];
+
+const base=resolveExpression(baseExpr,vars,output);
+
+if(!base)
+throw new Error("Объект перед ."+prop+" не найден.");
+
+if(base.__type==="Players"&&prop==="LocalPlayer")
+return {__type:"Player",Name:"LocalPlayer"};
+
+if(base.__type==="Player"&&prop==="Character")
+return {__type:"Character",Name:"Character"};
+
+if(base.__type==="Humanoid"){
+
+if(prop==="WalkSpeed")return world.player.WalkSpeed;
+if(prop==="JumpPower")return world.player.JumpPower;
+if(prop==="Health")return world.player.Health;
+}
+
+if(base.__type==="Door"&&prop==="Opened")
+return world.objects.Door.Opened;
+
+if(base.__type==="SpeedPad"&&prop==="Enabled")
+return world.objects.SpeedPad.Enabled;
+
+if(base.__type==="JumpPad"&&prop==="Enabled")
+return world.objects.JumpPad.Enabled;
+
+if(base.__type==="Target"&&prop==="Enabled")
+return world.objects.Target.Enabled;
+
+if(base.__type==="Wall"&&prop==="X")
+return world.objects.Wall.X;
+
+if(base.__type==="StarterGui"&&prop==="ScreenGui")
+return {__type:"ScreenGui",Name:"ScreenGui"};
+
+if(base.__type==="ScreenGui"&&prop==="StartButton")
+return {__type:"TextButton",Name:"StartButton"};
+
+if(base.__type==="TextButton"&&prop==="Visible")
+return world.objects.StartButton.Visible;
+
+if(prop==="Name")
+return base.Name;
+
+}
+
+if(/^".*"$/.test(expr))
+return expr.slice(1,-1);
+
+if(/^'.*'$/.test(expr))
+return expr.slice(1,-1);
+
+if(/^-?\d+(\.\d+)?$/.test(expr))
+return Number(expr);
+
+if(expr==="true")return true;
+if(expr==="false")return false;
+if(expr==="nil")return null;
+
+return null;
+}
+
+function assignTarget(target,value,vars,output){
+
+target=target.trim();
+
+if(/^[A-Za-z_][A-Za-z0-9_]*$/.test(target)){
+vars[target]=value;
+return;
+}
+
+const indexTarget=target.match(/^([A-Za-z_][A-Za-z0-9_]*)\[(\d+)\]$/);
+
+if(indexTarget){
+
+const arr=vars[indexTarget[1]];
+
+if(!Array.isArray(arr))
+throw new Error("Это значение не является таблицей.");
+
+arr[Number(indexTarget[2])-1]=value;
+return;
+}
+
+const parts=target.split(".");
+const prop=parts.pop();
+const baseExpr=parts.join(".");
+const base=resolveExpression(baseExpr,vars,output);
+
+if(!base)
+throw new Error("Не найден объект.");
+
+if(base.__type==="Humanoid"){
+
+if(prop==="WalkSpeed"){
+if(typeof value!=="number")
+throw new Error("WalkSpeed должен быть числом.");
+world.player.WalkSpeed=value;
+return;
+}
+
+if(prop==="JumpPower"){
+if(typeof value!=="number")
+throw new Error("JumpPower должен быть числом.");
+world.player.JumpPower=value;
+return;
+}
+}
+
+if(base.__type==="Door"&&prop==="Opened"){
+world.objects.Door.Opened=!!value;
+return;
+}
+
+if(base.__type==="SpeedPad"&&prop==="Enabled"){
+world.objects.SpeedPad.Enabled=!!value;
+return;
+}
+
+if(base.__type==="JumpPad"&&prop==="Enabled"){
+world.objects.JumpPad.Enabled=!!value;
+return;
+}
+
+if(base.__type==="Target"&&prop==="Enabled"){
+world.objects.Target.Enabled=!!value;
+return;
+}
+
+if(base.__type==="TextButton"&&prop==="Visible"){
+world.objects.StartButton.Visible=!!value;
+return;
+}
+
+throw new Error("Это свойство нельзя изменить.");
+}
+
+function conditionResult(condition,vars,output){
+
+const orParts=condition.split(" or ");
+
+if(orParts.length>1){
+return orParts.some(x=>conditionResult(x,vars,output));
+}
+
+const andParts=condition.split(" and ");
+
+if(andParts.length>1){
+return andParts.every(x=>conditionResult(x,vars,output));
+}
+
+const cmp=splitTopLevel(condition,["==","~=",">=","<=",">","<"]);
+
+if(!cmp)
+throw new Error("Не удалось разобрать условие.");
+
+const a=resolveExpression(cmp.left,vars,output);
+const b=resolveExpression(cmp.right,vars,output);
+
+if(cmp.op==="==")return a===b;
+if(cmp.op==="~=")return a!==b;
+if(cmp.op===">")return a>b;
+if(cmp.op==="<")return a<b;
+if(cmp.op===">=")return a>=b;
+if(cmp.op==="<=")return a<=b;
+
+return false;
+}
+
+function findMatchingEnd(lines,start,end){
+
+let depth=1;
+
+for(let i=start;i<end;i++){
+
+const line=stripComment(lines[i]).trim();
+
+if(/^if\s+/.test(line)||/^for\s+/.test(line)||/^function\s+/.test(line))
+depth++;
+
+if(line==="end")
+depth--;
+
+if(depth===0)return i;
+}
+
+throw new Error("Не найден end.");
+}
+
+function executeBlock(lines,start,end,vars,output,functions){
+
+let i=start;
+
+while(i<end){
+
+let line=stripComment(lines[i]).trim();
+
+if(!line){
+i++;
+continue;
+}
+
+if(line==="end"||line==="else"||line.startsWith("elseif")){
+i++;
+continue;
+}
+
+const functionDecl=
+line.match(/^function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\((.*?)\)$/);
+
+if(functionDecl){
+
+const name=functionDecl[1];
+const params=splitArgs(functionDecl[2]).filter(Boolean);
+
+const finish=findMatchingEnd(lines,i+1,end);
+
+functions[name]={
+params,
+lines:lines.slice(i+1,finish)
+};
+
+i=finish+1;
+continue;
+}
+
+const ifMatch=line.match(/^if\s+(.+)\s+then$/);
+
+if(ifMatch){
+
+let depth=1;
+let j=i+1;
+let elseIndex=-1;
+
+while(j<end){
+
+const l=stripComment(lines[j]).trim();
+
+if(/^if\s+/.test(l))depth++;
+
+if(l==="end")depth--;
+
+if(depth===1&&(l==="else"||l.startsWith("elseif"))){
+elseIndex=j;
+}
+
+if(depth===0)break;
+
+j++;
+}
+
+if(depth!==0)
+throw new Error("У if нет end.");
+
+const yes=conditionResult(ifMatch[1],vars,output);
+
+if(yes){
+
+const childEnd=elseIndex===-1?j:elseIndex;
+
+executeBlock(
+lines,
+i+1,
+childEnd,
+vars,
+output,
+functions
+);
+
+}else if(elseIndex!==-1){
+
+const elseLine=stripComment(lines[elseIndex]).trim();
+
+if(elseLine.startsWith("elseif")){
+
+const nestedIf=
+elseLine.replace(/^elseif\s+/,"if ");
+
+const fakeLines=[nestedIf,...lines.slice(elseIndex+1,j)];
+
+executeBlock(fakeLines,0,fakeLines.length,vars,output,functions);
+
+}else{
+
+executeBlock(
+lines,
+elseIndex+1,
+j,
+vars,
+output,
+functions
+);
+
+}
+
+}
+
+i=j+1;
+continue;
+}
+
+const forMatch=
+line.match(/^for\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s*,\s*(.+)\s+do$/);
+
+if(forMatch){
+
+const variable=forMatch[1];
+const from=Number(resolveExpression(forMatch[2],vars,output));
+const to=Number(resolveExpression(forMatch[3],vars,output));
+
+const finish=findMatchingEnd(lines,i+1,end);
+
+for(let n=from;n<=to;n++){
+
+vars[variable]=n;
+
+executeBlock(
+lines,
+i+1,
+finish,
+vars,
+output,
+functions
+);
+
+}
+
+i=finish+1;
+continue;
+}
+
+const printMatch=line.match(/^print\s*\((.*)\)$/);
+
+if(printMatch){
+
+const value=resolveExpression(printMatch[1],vars,output);
+
+output.push(formatValue(value));
+
+i++;
+continue;
+}
+
+const callMatch=
+line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\((.*)\)$/);
+
+if(callMatch&&functions[callMatch[1]]){
+
+const fn=functions[callMatch[1]];
+
+const args=splitArgs(callMatch[2]).map(v=>
+resolveExpression(v,vars,output)
+);
+
+const localVars={};
+
+fn.params.forEach((p,index)=>{
+localVars[p]=args[index];
+});
+
+Object.keys(vars).forEach(k=>{
+if(k.startsWith("_")){
+localVars[k]=vars[k];
+}
+});
+
+executeBlock(
+fn.lines,
+0,
+fn.lines.length,
+localVars,
+output,
+functions
+);
+
+i++;
+continue;
+}
+
+const local=
+line.match(/^local\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$/);
+
+if(local){
+
+vars[local[1]]=
+resolveExpression(
+local[2],
+vars,
+output
+);
+
+i++;
+continue;
+}
+
+const assignment=
+line.match(/^(.+?)\s*=\s*(.+)$/);
+
+if(assignment){
+
+assignTarget(
+assignment[1],
+resolveExpression(
+assignment[2],
+vars,
+output
+),
+vars,
+output
+);
+
+i++;
+continue;
+}
+
+throw new Error("Не понимаю строку: "+line);
+}
+}
+
+function formatValue(value){
+
+if(value===null)return"nil";
+if(value===true)return"true";
+if(value===false)return"false";
+
+if(Array.isArray(value))
+return"{ "+value.map(formatValue).join(", ")+" }";
+
+if(typeof value==="object")
+return value.Name||"Object";
+
+return String(value);
+}
+
+function validateLesson(vars,output){
+
+const type=LESSONS[currentLesson].type;
+
+let ok=false;
+
+if(type==="setup"){
+ok=
+world.player.WalkSpeed===24&&
+world.player.JumpPower===70;
+}
+
+if(type==="movementCalc"){
+ok=vars.x===200;
+}
+
+if(type==="healthBoost"){
+ok=
+world.player.WalkSpeed===28&&
+vars.humanoid&&
+vars.humanoid.__type==="Humanoid";
+}
+
+if(type==="functionSetup"){
+ok=
+world.player.WalkSpeed===26&&
+world.player.JumpPower===80;
+}
+
+if(type==="tableSum"){
+ok=
+Array.isArray(vars.speeds)&&
+vars.speeds.length===2&&
+vars.speeds[0]===20&&
+vars.speeds[1]===30&&
+vars.total===50;
+}
+
+if(type==="distribution"){
+ok=
+Array.isArray(vars.groupA)&&
+Array.isArray(vars.groupB)&&
+vars.groupA.length===3&&
+vars.groupB.length===3;
+}
+
+if(type==="maxSpeed"){
+ok=vars.fastest===25;
+}
+
+if(type==="loopSteps"){
+ok=vars.steps===5;
+}
+
+if(type==="patrol"){
+ok=vars.x===170;
+}
+
+if(type==="targetOn"){
+ok=world.objects.Target.Enabled===true;
+}
+
+if(type==="doorKeys"){
+ok=
+vars.keys===3&&
+world.objects.Door.Opened===true;
+}
+
+if(type==="score"){
+ok=vars.score===40;
+}
+
+if(type==="inventory"){
+ok=
+Array.isArray(vars.inventory)&&
+vars.inventory.length===3&&
+vars.item==="key";
+}
+
+if(type==="findTarget"){
+ok=vars.found===true;
+}
+
+if(type==="relativeMove"){
+ok=vars.x===250;
+}
+
+if(type==="obstacle"){
+ok=vars.x===210;
+}
+
+if(type==="buttonGui"){
+ok=world.objects.StartButton.Visible===true;
+}
+
+if(type==="coins"){
+ok=vars.coins===30;
+}
+
+if(type==="roomSetup"){
+ok=
+world.objects.Target.Enabled===true&&
+world.objects.Door.Opened===true&&
+world.objects.StartButton.Visible===true;
+}
+
+if(type==="moveFunction"){
+ok=vars.x===250;
+}
+
+if(type==="final"){
+ok=
+world.player.WalkSpeed===32&&
+world.player.JumpPower===90&&
+vars.score===20&&
+output.some(v=>v.toLowerCase().includes("готов"));
+}
+
+if(ok){
+
+setCompleted(currentLesson);
+
+document.getElementById("checkStatus").textContent=
+"Урок пройден";
+
+document.getElementById("checkStatus").className=
+"status ok";
+
+document.getElementById("checkText").textContent=
+"Условие выполнено.";
+
+}else{
+
+document.getElementById("checkStatus").textContent=
+"Пока не выполнено";
+
+document.getElementById("checkStatus").className=
+"status";
+
+document.getElementById("checkText").textContent=
+"Состояние мира или результат программы пока не соответствует заданию.";
+}
+
+renderTree();
+showSelectedInspector();
+}
+
+function runCode(){
+
+const source=document.getElementById("editor").value;
+const outputBox=document.getElementById("output");
+
+if(!source.trim()){
+
+outputBox.textContent=
+"Ошибка: поле кода пустое. Напиши своё решение.";
+
+outputBox.className="output err";
+return;
+}
+
+resetWorld();
+
+const lines=source.split("\n");
+const vars={};
+const output=[];
+const functions={};
+
+try{
+
+executeBlock(
+lines,
+0,
+lines.length,
+vars,
+output,
+functions
+);
+
+outputBox.textContent=
+output.length
+?output.join("\n")
+:"Код выполнен без вывода.";
+
+outputBox.className="output";
+
+validateLesson(vars,output);
+
+}catch(err){
+
+outputBox.textContent=
+"Ошибка: "+err.message;
+
+outputBox.className="output err";
+
+document.getElementById("checkStatus").textContent=
+"Есть ошибка";
+
+document.getElementById("checkStatus").className=
+"status err";
+
+document.getElementById("checkText").textContent=
+"Исправь код и попробуй снова.";
+
+renderTree();
+showSelectedInspector();
+
+}
+
+}
+
+function showSelectedInspector(){
+
+if(!selectedPath)return;
+
+const node=nodeAtPath(world.tree,selectedPath);
+
+if(node)showInspector(node,selectedPath);
+}
+
+function nodeAtPath(root,path){
+
+let node=root;
+
+for(const name of path){
+
+if(!node.children)return null;
+
+node=node.children.find(x=>x.Name===name);
+
+if(!node)return null;
+}
+
+return node;
+}
+
+document.getElementById("runBtn").onclick=runCode;
+
+document.getElementById("resetBtn").onclick=()=>{
+
+resetWorld();
+
+document.getElementById("editor").value="";
+
+document.getElementById("output").textContent=
+"Состояние сброшено.";
+
+document.getElementById("output").className="output";
+
+document.getElementById("checkStatus").textContent=
+"Урок ещё не пройден";
+
+document.getElementById("checkStatus").className="status";
+
+document.getElementById("checkText").textContent=
+"Выполни условие урока.";
+
+renderTree();
+showSelectedInspector();
+};
+
+document.querySelectorAll(".tab").forEach(tab=>{
+
+tab.onclick=()=>{
+
+document.querySelectorAll(".tab").forEach(t=>
+t.classList.remove("active")
+);
+
+document.querySelectorAll(".panel").forEach(p=>
+p.classList.remove("active")
+);
+
+tab.classList.add("active");
+
+document.getElementById(
+"panel-"+tab.dataset.tab
+).classList.add("active");
+
+};
+
+});
+
+renderLessons();
+loadLesson(0);
+
+</script>
+
+</body>
+    </html>
