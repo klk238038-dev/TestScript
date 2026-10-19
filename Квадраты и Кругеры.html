@@ -618,17 +618,6 @@ function update(dt) {
       p.draculaRegenT += dt; if (p.draculaRegenT >= 15) { p.draculaRegenT = 0; s.lives += 1; updateHUD(); s.message = '🧛‍♂️ ВАМПИРИЗМ +1 HP'; s.messageT = 1.5; }
   }
 
-  // РЕГЕНЕРАЦИЯ СТАМИНЫ
-  let regenSpeed = 1.5;
-  if (c.id === 'undef' && save.undefPassive === 'sheep') regenSpeed = 4;
-  if (c.id === 'sheep') regenSpeed = 4;
-  if (p.staminaRegenT === undefined) p.staminaRegenT = 0;
-  p.staminaRegenT += dt;
-  if (p.staminaRegenT >= 1) {
-      p.staminaRegenT = 0;
-      p.stamina = Math.min(p.staminaMax, p.stamina + regenSpeed); 
-  }
-
   const wantDash = input.dash || keys[' '];
   if (wantDash && p.dashCd <= 0 && p.stamina > 0) {
     p.stamina -= 1; updateHUD(); if (save.questProgress) { save.questProgress.dashes = (save.questProgress.dashes || 0) + 1; writeSave(save); }
@@ -1002,4 +991,4 @@ showMenu();
 ctx.fillStyle = '#0d0f0d'; ctx.fillRect(0, 0, W, H);
 </script>
 </body>
-                                                                                                                                                                                                </html>
+</html>
