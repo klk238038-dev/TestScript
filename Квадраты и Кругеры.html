@@ -197,7 +197,7 @@
       <option value="skeleton">Взрыв при смерти (Скелет)</option>
       <option value="dracula">Вампиризм (Дракула)</option>
       <option value="bunny">Прыжок (Зайчик)</option>
-      <option value="sheep">Реген (Овца)</option>
+      <option value="sheep">Толстая шерсть (Овца)</option>
       <option value="tourist">Рентген (Турист)</option>
       <option value="surfer">10% уклон (Серфер)</option>
       <option value="jellyfish">Шок (Медуза)</option>
@@ -257,7 +257,7 @@ const CHARACTERS = [
   { id:'dracula', name:'ДРАКУЛА', icon:'🧛‍♂️', price:8000, color:'#8b0000', isMain:true, event:'halloween', lives:4, speed:4, dash:4, stamina:2, fix:1, passive:'Вампиризм', active:'Побег', hasActive:true, unlockReq:null, currency:'candies', extraPrice:2000 },
   { id:'bunny', name:'ЗАЙЧИК', icon:'🐰', price:400, color:'#ffffff', isMain:false, event:'easter', lives:3, speed:5, dash:2, stamina:3, fix:2, passive:'Прыжок', active:null, hasActive:false, unlockReq:null, currency:'eggs' },
   { id:'chicken', name:'КУРОЧКА', icon:'🐔', price:1800, color:'#f5deb3', isMain:false, event:'easter', lives:4, speed:2, dash:3, stamina:3, fix:3, passive:null, active:'Яйцо', hasActive:true, unlockReq:null, currency:'eggs', extraPrice:200 },
-  { id:'sheep', name:'ОВЦА', icon:'🐑', price:3000, color:'#f0f0f0', isMain:false, event:'easter', lives:5, speed:1, dash:2, stamina:2, fix:5, passive:'Реген', active:null, hasActive:false, unlockReq:null, currency:'eggs', extraPrice:400 },
+  { id:'sheep', name:'ОВЦА', icon:'🐑', price:3000, color:'#f0f0f0', isMain:false, event:'easter', lives:5, speed:1, dash:2, stamina:2, fix:5, passive:'Толстая шерсть', active:null, hasActive:false, unlockReq:null, currency:'eggs', extraPrice:400 },
   { id:'bossbunny', name:'КРОЛИК-БОСС', icon:'🐇', price:7000, color:'#ffb6c1', isMain:true, event:'easter', lives:3, speed:4, dash:4, stamina:3, fix:1, passive:'Зайцы', active:'Свита', hasActive:true, unlockReq:null, currency:'eggs', extraPrice:1500 },
   { id:'tourist', name:'ТУРИСТ', icon:'🎒', price:600, color:'#ffd700', isMain:false, event:'summer', lives:3, speed:3, dash:3, stamina:3, fix:3, passive:'Рентген', active:null, hasActive:false, unlockReq:null, currency:'icecream' },
   { id:'surfer', name:'СЕРФЕР', icon:'🏄‍♂️', price:2200, color:'#00bfff', isMain:false, event:'summer', lives:2, speed:5, dash:4, stamina:2, fix:2, passive:'10% уклон', active:null, hasActive:false, unlockReq:null, currency:'icecream', extraPrice:300 },
@@ -301,7 +301,7 @@ const ITEMS = [
   { id:'flippers', name:'ЛАСТЫ', icon:'🩴', price:3500, event:'summer', plus:{ speed:+3, dash:+2, stamina:-3 }, desc:'+3 скор, +2 рыв, −3 стам', currency:'icecream', extraPrice:800 }
 ];
 
-const SAVE_KEY = 'kvad_krug_save_v24';
+const SAVE_KEY = 'kvad_krug_save_v25';
 function defaultSave() {
   return {
     coins: 0, cookies: 0, milk: 0, candies: 0, pumpkins: 0, eggs: 0, chicks: 0, icecream: 0, water: 0,
@@ -738,6 +738,7 @@ function update(dt) {
       if (c.id === 'undef' && save.undefPassive === 'santa' && !p.santaBlockUsed) { p.santaBlockUsed = true; p.invuln = 1.5; s.message = '🎅 ПУЗО!'; s.messageT = 2; const d2 = dist(p, mon); if (d2 > 0) { const nx = (mon.x - p.x) / d2; const ny = (mon.y - p.y) / d2; tryMove(mon, mon.x + nx * 80, mon.y + ny * 80); } continue; }
       if (c.id === 'undef' && save.undefPassive === 'ice') { mon.stunT = 1.5; p.invuln = 1.5; s.message = '🧊 ПАНЦИРЬ!'; s.messageT = 1.5; }
       if (c.id === 'undef' && save.undefPassive === 'jellyfish') { mon.stunT = 1.5; p.invuln = 1.5; s.message = '🪼 ШОК!'; s.messageT = 1.5; }
+      if (c.id === 'undef' && save.undefPassive === 'sheep' && Math.random() < 0.25) { p.invuln = 1.0; s.message = '🐑 ШЕРСТЬ!'; s.messageT = 1.5; continue; }
 
       // ОРИГИНАЛЬНЫЕ ПАССИВКИ
       if (c.id === 'santa' && !p.santaBlockUsed) { p.santaBlockUsed = true; p.invuln = 1.5; s.message = '🎅 ПУЗО!'; s.messageT = 2; const d2 = dist(p, mon); if (d2 > 0) { const nx = (mon.x - p.x) / d2; const ny = (mon.y - p.y) / d2; tryMove(mon, mon.x + nx * 80, mon.y + ny * 80); } continue; }
@@ -745,6 +746,7 @@ function update(dt) {
       if (c.id === 'darkred' && Math.random() < 0.01) { p.invuln = 0.6; s.message = '🟥 УКЛОНЕНИЕ!'; s.messageT = 1.5; continue; }
       if (c.id === 'surfer' && Math.random() < 0.10) { p.invuln = 0.6; s.message = '🏄‍♂️ УКЛОНЕНИЕ!'; s.messageT = 1.5; continue; }
       if (c.id === 'jellyfish') { mon.stunT = 1.5; p.invuln = 1.5; s.message = '🪼 ШОК!'; s.messageT = 1.5; }
+      if (c.id === 'sheep' && Math.random() < 0.25) { p.invuln = 1.0; s.message = '🐑 ШЕРСТЬ!'; s.messageT = 1.5; continue; }
 
       let dmg = mon.isBoss ? 2 : 1; s.lives -= dmg; if (mon.isBoss) { s.message = '👹 БОСС УДАРИЛ! (-2 HP)'; s.messageT = 2; }
       
