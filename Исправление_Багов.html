@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Rollie's Rooms 3D — Touch</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  html, body { height: 100%; overflow: hidden; background: #0f0e17; color: #fffffe; touch-action: none; }
+  #game-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  /* HUD */
+  #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
+  .hud-top { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 12px; }
+  .panel { background: rgba(15, 14, 23, 0.85); border: 2px solid #2e2f3e; border-radius: 12px; padding: 6px 12px; backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+  .hearts { font-size: 20px; letter-spacing: 2px; color: #ff4757; }
+  .machines-count { font-size: 14px; font-weight: bold; color: #2ed573; margin-top: 2px; }
+  .floor-info { font-size: 16px; font-weight: bold; color: #eccc68; text-align: right; }
+  .nate-info { font-size: 12px; color: #70a1ff; margin-top: 2px; text-align: right; }
+
+  .hud-bottom { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; width: 70%; max-width: 340px; pointer-events: none; }
+  .stamina-bar-wrap { width: 100%; height: 14px; background: rgba(0,0,0,0.7); border: 2px solid #57606f; border-radius: 10px; overflow: hidden; position: relative; }
+  #stamina-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ffa502, #eccc68); transition: width 0.08s linear; }
+  .stamina-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; text-shadow: 1px 1px 2px #000; white-space: nowrap; }
+
+  /* Action prompt */
+  #action-prompt { position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); border: 2px solid #2ed573; color: #2ed573; padding: 8px 16px; border-radius: 10px; font-weight: bold; font-size: 14px; display: none; white-space: nowrap; text-align: center; }
+
+  /* Skill Check */
+  #skillcheck-overlay { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: none; flex-direction: column; align-items: center; pointer-events: none; }
+  #skillcheck-canvas { background: rgba(15, 14, 23, 0.9); border-radius: 50%; box-shadow: 0 0 25px rgba(46, 213, 115, 0.4); width: 130px; height: 130px; }
+  .sc-hint { margin-top: 8px; background: #000; padding: 5px 12px; border-radius: 6px; font-weight: bold; color: #fff; border: 1px solid #2ed573; font-size: 12px; }
+
+  /* Alert Banner */
+  #alert-banner { position: absolute; top: 65px; left: 50%; transform: translateX(-50%); background: rgba(255, 71, 87, 0.9); color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; display: none; box-shadow: 0 0 20px rgba(255,71,87,0.7); white-space: nowrap; max-width: 90vw; text-align: center; z-index: 6; }
+
+  /* Screens */
+  .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(26, 26, 46, 0.82), rgba(15, 14, 23, 0.94)); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; padding: 14px; overflow-y: auto; }
+  .menu-card { background: rgba(22, 22, 38, 0.9); border: 2px solid #3f3d56; border-radius: 18px; padding: 22px 18px; max-width: 460px; width: 100%; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.7); backdrop-filter: blur(8px); margin: auto; }
+  h1 { font-size: 26px; color: #ff8906; margin-bottom: 4px; text-shadow: 0 3px 10px rgba(255, 137, 6, 0.4); }
+  .subtitle { color: #a7a9be; margin-bottom: 14px; font-size: 13px; }
+  .currency-pill { display: inline-block; background: #23233b; border: 2px solid #70a1ff; color: #70a1ff; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 15px; margin-bottom: 14px; }
+
+  .btn { display: block; width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s, background 0.2s; touch-action: manipulation; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: #ff8906; color: #fffffe; }
+  .btn-primary:active { background: #ff9f2e; }
+  .btn-secondary { background: #2e2f3e; color: #fffffe; border: 1px solid #4a4b60; }
+  .btn-secondary:active { background: #3b3c4e; }
+  .btn-success { background: #2ed573; color: #0f0e17; }
+
+  /* Trinkets Shop */
+  .trinket-item { background: #1a1a2e; border: 2px solid #3f3d56; border-radius: 12px; padding: 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; text-align: left; flex-wrap: wrap; gap: 8px; }
+  .trinket-item.equipped { border-color: #2ed573; box-shadow: 0 0 15px rgba(46, 213, 115, 0.25); }
+  .trinket-title { font-size: 15px; font-weight: bold; color: #eccc68; }
+  .trinket-desc { font-size: 12px; color: #a7a9be; margin-top: 2px; }
+  .trinket-btn { width: auto; padding: 8px 14px; font-size: 13px; margin: 0; }
+
+  .controls-help { margin-top: 12px; font-size: 12px; color: #a7a9be; line-height: 1.5; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: left; }
+
+  /* On-screen Touch Controls */
+  #touch-controls { position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; display: none; pointer-events: none; z-index: 5; }
+  .joystick-area { position: absolute; bottom: 20px; left: 20px; width: 120px; height: 120px; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; pointer-events: auto; touch-action: none; }
+  .joystick-knob { width: 52px; height: 52px; background: rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; transition: transform 0.05s; }
+  .action-buttons { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column-reverse; gap: 10px; align-items: flex-end; pointer-events: none; }
+  .action-btn { width: 68px; height: 68px; border-radius: 50%; background: rgba(46, 213, 115, 0.2); border: 2px solid #2ed573; color: #fff; font-weight: bold; font-size: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; touch-action: none; text-shadow: 0 1px 3px #000; transition: background 0.1s, transform 0.1s; line-height: 1.2; }
+  .action-btn:active { background: rgba(46, 213, 115, 0.5); transform: scale(0.95); }
+  .action-btn.small { width: 54px; height: 54px; font-size: 10px; background: rgba(255, 165, 2, 0.2); border-color: #ffa502; }
+  .action-btn.small:active { background: rgba(255, 165, 2, 0.5); }
+  .action-btn.small.sprint { background: rgba(112, 161, 255, 0.2); border-color: #70a1ff; }
+  .action-btn.small.sprint:active { background: rgba(112, 161, 255, 0.5); }
+  .action-btn.small.sprint.active { background: rgba(112, 161, 255, 0.6); border-color: #a8c5ff; box-shadow: 0 0 15px rgba(112, 161, 255, 0.6); }
+  .action-btn .icon { font-size: 20px; line-height: 1; margin-bottom: 2px; }
+  .action-btn.small .icon { font-size: 16px; }
+
+  @media (max-height: 500px) {
+    .menu-card { padding: 14px; }
+    h1 { font-size: 22px; }
+    .btn { padding: 10px; font-size: 14px; margin: 6px 0; }
+    .joystick-area { width: 100px; height: 100px; }
+    .joystick-knob { width: 44px; height: 44px; }
+    .action-btn { width: 58px; height: 58px; }
+    .action-btn.small { width: 46px; height: 46px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="three-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-top">
+      <div class="panel">
+        <div class="hearts" id="hud-hearts">♥♥♥</div>
+        <div class="machines-count" id="hud-machines">⚙ Машины: 0/4</div>
+      </div>
+      <div class="panel">
+        <div class="floor-info" id="hud-floor">Этаж 1</div>
+        <div class="nate-info" id="hud-nate">Нейт: 30</div>
+      </div>
+    </div>
+
+    <div id="alert-banner">ТВИСТЕД ЗАМЕТИЛ ВАС!</div>
+    <div id="action-prompt">Чинить машину</div>
+
+    <div id="skillcheck-overlay">
+      <canvas id="skillcheck-canvas" width="130" height="130"></canvas>
+      <div class="sc-hint">Нажмите в зелёной зоне!</div>
+    </div>
+
+    <div class="hud-bottom">
+      <div class="stamina-bar-wrap">
+        <div id="stamina-fill"></div>
+        <div class="stamina-label" id="stamina-text">СТАМИНА: 100%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- On-screen Touch Controls -->
+  <div id="touch-controls">
+    <div class="joystick-area" id="joystick-area">
+      <div class="joystick-knob" id="joystick-knob"></div>
+    </div>
+    <div class="action-buttons">
+      <div class="action-btn" id="btn-repair">
+        <div class="icon">🔧</div>
+        <div>ЧИНИТЬ</div>
+      </div>
+      <div class="action-btn small" id="btn-dash">
+        <div class="icon">⚡</div>
+        <div>РЫВОК</div>
+      </div>
+      <div class="action-btn small sprint" id="btn-sprint">
+        <div class="icon">🏃</div>
+        <div>БЕГ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Menu -->
+  <div class="screen" id="menu-screen">
+    <div class="menu-card">
+      <h1>Rollie's Rooms 3D</h1>
+      <div class="subtitle">Персонаж: Ролли | Твистед: Красный Цветок</div>
+      <div class="currency-pill" id="menu-nate">Баланс: 30 Нейта</div>
+
+      <button class="btn btn-primary" onclick="startGame()">Играть (Этаж 1)</button>
+      <button class="btn btn-secondary" onclick="openShop()">Тринкеты (Магазин)</button>
+
+      <div class="controls-help">
+        <b>Управление (сенсор):</b><br>
+        <b>Джойстик</b> — движение &nbsp;|&nbsp; <b>Свайп по экрану</b> — камера<br>
+        <b>🔧 ЧИНИТЬ</b> — удерживайте для починки<br>
+        <b>⚡ РЫВОК</b> — неуязвимость &nbsp;|&nbsp; <b>🏃 БЕГ</b> — ускорение (вкл/выкл)<br>
+        <b>Тап по экрану</b> — скилл-чек (в зелёной зоне)
+      </div>
+    </div>
+  </div>
+
+  <!-- Trinkets Shop -->
+  <div class="screen" id="shop-screen" style="display:none;">
+    <div class="menu-card">
+      <h1>Тринкеты</h1>
+      <div class="subtitle">Усиления для Ролли перед забегом</div>
+      <div class="currency-pill" id="shop-nate">Баланс: 30 Нейта</div>
+      <div id="trinkets-list"></div>
+      <button class="btn btn-secondary" onclick="closeShop()">Назад в меню</button>
+    </div>
+  </div>
+
+  <!-- Floor Cleared -->
+  <div class="screen" id="floor-screen" style="display:none;">
+    <div class="menu-card">
+      <h1 id="floor-clear-title">Этаж 1 пройден!</h1>
+      <div class="subtitle" id="floor-reward-text">Награда: +10 Нейта</div>
+      <button class="btn btn-success" onclick="nextFloor()">Следующий этаж</button>
+      <button class="btn btn-secondary" onclick="returnToMenu()">Закончить забег</button>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <div class="screen" id="gameover-screen" style="display:none;">
+    <div class="menu-card">
+      <h1 style="color:#ff4757;">Вас поймали!</h1>
+      <div class="subtitle" id="gameover-stats">Вы дошли до 1 этажа</div>
+      <button class="btn btn-primary" onclick="startGame()">Играть снова</button>
+      <button class="btn btn-secondary" onclick="returnToMenu()">В главное меню</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ========== GAME STATE & TRINKETS ==========
+let nateBalance = 30;
+let ownedTrinkets = [];
+let equippedTrinket = null;
+
+const TRINKETS = [
+  { id: 'magic',    name: '✨ Магия',         price: 30, desc: 'Все статы +50% (скорость, стамина, починка, зона скилл-чека).' },
+  { id: 'sneakers', name: '👟 Быстрые кеды',  price: 15, desc: 'Скорость бега и ходьбы +20%.' },
+  { id: 'wrench',   name: '🔧 Золотой ключ',  price: 20, desc: 'Скорость починки +30%.' }
+];
+
+function updateCurrencyUI() {
+  document.getElementById('menu-nate').textContent = `Баланс: ${nateBalance} Нейта`;
+  document.getElementById('shop-nate').textContent = `Баланс: ${nateBalance} Нейта`;
+  document.getElementById('hud-nate').textContent = `Нейт: ${nateBalance}`;
+}
+
+function renderShop() {
+  const list = document.getElementById('trinkets-list');
+  list.innerHTML = '';
+  TRINKETS.forEach(t => {
+    const owned = ownedTrinkets.includes(t.id);
+    const equipped = equippedTrinket === t.id;
+    const div = document.createElement('div');
+    div.className = 'trinket-item' + (equipped ? ' equipped' : '');
+    let btnHtml = '';
+    if (!owned) {
+      btnHtml = `<button class="btn btn-primary trinket-btn" onclick="buyTrinket('${t.id}')">Купить (${t.price})</button>`;
+    } else if (equipped) {
+      btnHtml = `<button class="btn btn-success trinket-btn" onclick="toggleEquip('${t.id}')">Надето ✓</button>`;
+    } else {
+      btnHtml = `<button class="btn btn-secondary trinket-btn" onclick="toggleEquip('${t.id}')">Надеть</button>`;
+    }
+    div.innerHTML = `<div style="flex:1;min-width:130px;"><div class="trinket-title">${t.name}</div><div class="trinket-desc">${t.desc}</div></div>${btnHtml}`;
+    list.appendChild(div);
+  });
+}
+
+function buyTrinket(id) {
+  const item = TRINKETS.find(t => t.id === id);
+  if (item && nateBalance >= item.price && !ownedTrinkets.includes(id)) {
+    nateBalance -= item.price;
+    ownedTrinkets.push(id);
+    equippedTrinket = id;
+    updateCurrencyUI();
+    renderShop();
+  } else if (item && nateBalance < item.price) {
+    alert('Недостаточно Нейта! Почините больше машин.');
+  }
+}
+
+function toggleEquip(id) {
+  equippedTrinket = (equippedTrinket === id) ? null : id;
+  renderShop();
+}
+
+function openShop() {
+  document.getElementById('menu-screen').style.display = 'none';
+  document.getElementById('shop-screen').style.display = 'flex';
+  renderShop();
+}
+
+function closeShop() {
+  document.getElementById('shop-screen').style.display = 'none';
+  document.getElementById('menu-screen').style.display = 'flex';
+}
+
+// ========== THREE.JS SCENE ==========
+const canvas = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x13121d);
+scene.fog = new THREE.FogExp2(0x13121d, 0.022);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 120);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0xfff4e6, 0.9);
+dirLight.position.set(15, 30, 20);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 1024;
+dirLight.shadow.mapSize.height = 1024;
+dirLight.shadow.camera.near = 0.5;
+dirLight.shadow.camera.far = 80;
+const d = 28;
+dirLight.shadow.camera.left = -d;
+dirLight.shadow.camera.right = d;
+dirLight.shadow.camera.top = d;
+dirLight.shadow.camera.bottom = -d;
+scene.add(dirLight);
+
+const playerLight = new THREE.PointLight(0xffaa44, 0.8, 14);
+scene.add(playerLight);
+
+// ========== ROLLIE MODEL ==========
+function createRollieMesh() {
+  const group = new THREE.Group();
+  const suitMat = new THREE.MeshStandardMaterial({ color: 0x3d3f44, roughness: 0.75 });
+  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf7f8fa, roughness: 0.45 });
+  const blackMat = new THREE.MeshBasicMaterial({ color: 0x111114 });
+  const innerTubeMat = new THREE.MeshStandardMaterial({ color: 0x9fa3ab, roughness: 0.8 });
+
+  const torsoGeo = new THREE.SphereGeometry(0.42, 20, 20);
+  torsoGeo.scale(0.95, 1.35, 0.72);
+  const torso = new THREE.Mesh(torsoGeo, suitMat);
+  torso.position.y = 1.05;
+  torso.castShadow = true;
+  group.add(torso);
+
+  const tieGroup = new THREE.Group();
+  tieGroup.position.set(0, 1.18, 0.30);
+  tieGroup.rotation.x = -0.08;
+  const knotGeo = new THREE.ConeGeometry(0.11, 0.18, 4);
+  knotGeo.scale(1, 1, 0.4);
+  const knot = new THREE.Mesh(knotGeo, whiteMat);
+  knot.position.y = 0.16;
+  tieGroup.add(knot);
+  const tieShape = new THREE.Shape();
+  tieShape.moveTo(0, 0.12);
+  tieShape.lineTo(0.13, -0.35);
+  tieShape.lineTo(0, -0.52);
+  tieShape.lineTo(-0.13, -0.35);
+  tieShape.closePath();
+  const tieExtrude = new THREE.ExtrudeGeometry(tieShape, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01 });
+  tieGroup.add(new THREE.Mesh(tieExtrude, whiteMat));
+  group.add(tieGroup);
+
+  const headGroup = new THREE.Group();
+  headGroup.position.set(0, 1.98, 0.02);
+  const rollGeo = new THREE.CylinderGeometry(0.56, 0.56, 1.18, 32);
+  rollGeo.rotateZ(Math.PI / 2);
+  const rollMesh = new THREE.Mesh(rollGeo, whiteMat);
+  rollMesh.castShadow = true;
+  headGroup.add(rollMesh);
+
+  [-0.591, 0.591].forEach(xPos => {
+    const rimGeo = new THREE.RingGeometry(0.18, 0.55, 28);
+    rimGeo.rotateY(xPos > 0 ? Math.PI / 2 : -Math.PI / 2);
+    const rim = new THREE.Mesh(rimGeo, innerTubeMat);
+    rim.position.x = xPos;
+    headGroup.add(rim);
+    const holeGeo = new THREE.CircleGeometry(0.18, 24);
+    holeGeo.rotateY(xPos > 0 ? Math.PI / 2 : -Math.PI / 2);
+    const hole = new THREE.Mesh(holeGeo, blackMat);
+    hole.position.x = xPos + (xPos > 0 ? 0.002 : -0.002);
+    headGroup.add(hole);
+  });
+
+  [-0.27, 0.27].forEach(eyeX => {
+    const socketGeo = new THREE.SphereGeometry(0.18, 16, 16);
+    socketGeo.scale(1, 1, 0.35);
+    const socket = new THREE.Mesh(socketGeo, whiteMat);
+    socket.position.set(eyeX, 0.14, 0.52);
+    headGroup.add(socket);
+    const pupilGeo = new THREE.SphereGeometry(0.125, 16, 16);
+    pupilGeo.scale(1, 1, 0.35);
+    const pupil = new THREE.Mesh(pupilGeo, blackMat);
+    pupil.position.set(eyeX, 0.14, 0.555);
+    headGroup.add(pupil);
+  });
+
+  const mouthCurve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(-0.22, -0.22, 0.53),
+    new THREE.Vector3(0, -0.06, 0.57),
+    new THREE.Vector3(0.22, -0.22, 0.53)
+  );
+  const mouthGeo = new THREE.TubeGeometry(mouthCurve, 20, 0.026, 8, false);
+  headGroup.add(new THREE.Mesh(mouthGeo, blackMat));
+  group.add(headGroup);
+
+  function createArm(side) {
+    const pivot = new THREE.Group();
+    pivot.position.set(side * 0.43, 1.42, 0);
+    const geo = new THREE.CylinderGeometry(0.085, 0.075, 0.56, 12);
+    geo.translate(0, -0.28, 0);
+    const m = new THREE.Mesh(geo, suitMat);
+    m.castShadow = true;
+    pivot.add(m);
+    const handGeo = new THREE.SphereGeometry(0.11, 14, 14);
+    handGeo.scale(0.95, 1.25, 0.85);
+    const hand = new THREE.Mesh(handGeo, whiteMat);
+    hand.position.set(0, -0.58, 0.02);
+    pivot.add(hand);
+    pivot.rotation.z = side * 0.22;
+    return pivot;
+  }
+  const leftArm = createArm(-1), rightArm = createArm(1);
+  group.add(leftArm, rightArm);
+
+  function createLeg(side) {
+    const pivot = new THREE.Group();
+    pivot.position.set(side * 0.18, 0.62, 0);
+    const geo = new THREE.CylinderGeometry(0.11, 0.09, 0.54, 12);
+    geo.translate(0, -0.27, 0);
+    const m = new THREE.Mesh(geo, suitMat);
+    m.castShadow = true;
+    pivot.add(m);
+    const shoeGeo = new THREE.SphereGeometry(0.125, 14, 14);
+    shoeGeo.scale(0.95, 0.65, 1.55);
+    const shoe = new THREE.Mesh(shoeGeo, whiteMat);
+    shoe.position.set(0, -0.54, 0.07);
+    pivot.add(shoe);
+    return pivot;
+  }
+  const leftLeg = createLeg(-1), rightLeg = createLeg(1);
+  group.add(leftLeg, rightLeg);
+
+  group.userData = { headGroup, leftArm, rightArm, leftLeg, rightLeg };
+  return group;
+}
+
+// ========== TWISTED FLOWER ==========
+function createTwistedFlowerMesh() {
+  const group = new THREE.Group();
+  const brownMat = new THREE.MeshStandardMaterial({ color: 0x8f3812, roughness: 0.6 });
+  const petalMat = new THREE.MeshStandardMaterial({ color: 0xee2211, roughness: 0.45, emissive: 0x330500 });
+  const blackMat = new THREE.MeshStandardMaterial({ color: 0x0d0d10, roughness: 0.8 });
+  const eyeRingMat = new THREE.MeshBasicMaterial({ color: 0xff2e2e });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
+  const toothMat = new THREE.MeshBasicMaterial({ color: 0xf5e6c8 });
+
+  const headGroup = new THREE.Group();
+  headGroup.position.set(0, 1.85, 0.05);
+  const headCoreGeo = new THREE.SphereGeometry(0.68, 24, 24);
+  headCoreGeo.scale(1.0, 1.0, 0.72);
+  const headCore = new THREE.Mesh(headCoreGeo, brownMat);
+  headCore.castShadow = true;
+  headGroup.add(headCore);
+
+  const petalShape = new THREE.Shape();
+  petalShape.moveTo(0, 0);
+  petalShape.quadraticCurveTo(0.16, 0.35, 0, 0.78);
+  petalShape.quadraticCurveTo(-0.16, 0.35, 0, 0);
+  const petalGeo = new THREE.ExtrudeGeometry(petalShape, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 });
+  petalGeo.center();
+  const numPetals = 14;
+  for (let i = 0; i < numPetals; i++) {
+    const petalPivot = new THREE.Group();
+    petalPivot.rotation.z = (i / numPetals) * Math.PI * 2;
+    const petal = new THREE.Mesh(petalGeo, petalMat);
+    petal.position.set(0, 0.92, -0.02);
+    petal.rotation.x = 0.08;
+    petal.castShadow = true;
+    petalPivot.add(petal);
+    headGroup.add(petalPivot);
+  }
+
+  [-0.25, 0.25].forEach(eyeX => {
+    const ringGeo = new THREE.CircleGeometry(0.19, 24);
+    const ring = new THREE.Mesh(ringGeo, eyeRingMat);
+    ring.position.set(eyeX, 0.14, 0.485);
+    ring.rotation.y = eyeX * 0.25;
+    headGroup.add(ring);
+    const pupilGeo = new THREE.CircleGeometry(0.135, 24);
+    const pupil = new THREE.Mesh(pupilGeo, pupilMat);
+    pupil.position.set(eyeX, 0.14, 0.49);
+    pupil.rotation.y = eyeX * 0.25;
+    headGroup.add(pupil);
+    const dotGeo = new THREE.CircleGeometry(0.022, 12);
+    const dot = new THREE.Mesh(dotGeo, eyeRingMat);
+    dot.position.set(eyeX, 0.14, 0.495);
+    dot.rotation.y = eyeX * 0.25;
+    headGroup.add(dot);
+  });
+
+  const mouthShape = new THREE.Shape();
+  mouthShape.moveTo(-0.32, -0.14);
+  mouthShape.quadraticCurveTo(0, -0.24, 0.32, -0.14);
+  mouthShape.quadraticCurveTo(0, -0.44, -0.32, -0.14);
+  const mouth = new THREE.Mesh(new THREE.ShapeGeometry(mouthShape), pupilMat);
+  mouth.position.set(0, -0.02, 0.49);
+  headGroup.add(mouth);
+
+  [-0.12, 0.12].forEach(fangX => {
+    const fangGeo = new THREE.ConeGeometry(0.035, 0.09, 4);
+    fangGeo.rotateZ(Math.PI);
+    const fang = new THREE.Mesh(fangGeo, toothMat);
+    fang.position.set(fangX, -0.21, 0.495);
+    headGroup.add(fang);
+  });
+  group.add(headGroup);
+
+  const torsoGeo = new THREE.SphereGeometry(0.32, 18, 18);
+  torsoGeo.scale(0.95, 1.35, 0.8);
+  const torso = new THREE.Mesh(torsoGeo, brownMat);
+  torso.position.set(0, 0.88, 0);
+  torso.castShadow = true;
+  group.add(torso);
+
+  function createBlackArm(side) {
+    const pivot = new THREE.Group();
+    pivot.position.set(side * 0.32, 1.15, 0);
+    const geo = new THREE.CylinderGeometry(0.055, 0.05, 0.48, 10);
+    geo.translate(0, -0.24, 0);
+    pivot.add(new THREE.Mesh(geo, blackMat));
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 10), blackMat);
+    hand.position.set(0, -0.48, 0);
+    pivot.add(hand);
+    pivot.rotation.z = side * 0.32;
+    return pivot;
+  }
+  const leftArm = createBlackArm(-1), rightArm = createBlackArm(1);
+  group.add(leftArm, rightArm);
+
+  function createBlackLeg(side) {
+    const pivot = new THREE.Group();
+    pivot.position.set(side * 0.13, 0.52, 0);
+    const geo = new THREE.CylinderGeometry(0.08, 0.07, 0.45, 10);
+    geo.translate(0, -0.22, 0);
+    pivot.add(new THREE.Mesh(geo, blackMat));
+    const footGeo = new THREE.SphereGeometry(0.09, 10, 10);
+    footGeo.scale(1, 0.7, 1.35);
+    const foot = new THREE.Mesh(footGeo, blackMat);
+    foot.position.set(0, -0.45, 0.04);
+    pivot.add(foot);
+    return pivot;
+  }
+  const leftLeg = createBlackLeg(-1), rightLeg = createBlackLeg(1);
+  group.add(leftLeg, rightLeg);
+
+  group.userData = { headGroup, leftArm, rightArm, leftLeg, rightLeg };
+  return group;
+}
+
+const playerMesh = createRollieMesh();
+scene.add(playerMesh);
+
+// ========== LEVEL ==========
+const ROOM_SIZE = 44;
+let walls = [];
+let machines = [];
+let enemies = [];
+let elevatorMesh = null;
+let elevatorLight = null;
+
+const floorGeo = new THREE.PlaneGeometry(ROOM_SIZE, ROOM_SIZE);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x222233, roughness: 0.85 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const gridHelper = new THREE.GridHelper(ROOM_SIZE, 22, 0x383854, 0x2a2a40);
+gridHelper.position.y = 0.01;
+scene.add(gridHelper);
+
+function clearLevel() {
+  walls.forEach(w => scene.remove(w.mesh));
+  machines.forEach(m => scene.remove(m.mesh));
+  enemies.forEach(e => scene.remove(e.mesh));
+  if (elevatorMesh) scene.remove(elevatorMesh);
+  walls = []; machines = []; enemies = []; elevatorMesh = null; elevatorLight = null;
+}
+
+function addWall(x, z, w, d) {
+  const geo = new THREE.BoxGeometry(w, 4.2, d);
+  const mat = new THREE.MeshStandardMaterial({ color: 0x2f3148, roughness: 0.7 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, 2.1, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  walls.push({ mesh, minX: x - w / 2, maxX: x + w / 2, minZ: z - d / 2, maxZ: z + d / 2 });
+}
+
+function createMachine(x, z) {
+  const group = new THREE.Group();
+  group.position.set(x, 0, z);
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.4, 2.2, 1.2),
+    new THREE.MeshStandardMaterial({ color: 0x3d4459, metalness: 0.4, roughness: 0.5 })
+  );
+  body.position.y = 1.1;
+  body.castShadow = true;
+  group.add(body);
+  const tankMat = new THREE.MeshStandardMaterial({ color: 0xff4757, emissive: 0x550000 });
+  const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.3, 16), tankMat);
+  tank.position.set(0, 1.3, 0.55);
+  group.add(tank);
+  const beacon = new THREE.PointLight(0xff4757, 1.2, 7);
+  beacon.position.set(0, 2.6, 0);
+  group.add(beacon);
+  scene.add(group);
+  machines.push({ mesh: group, tankMat, beacon, x, z, progress: 0, completed: false });
+}
+
+function createElevator(x, z) {
+  const group = new THREE.Group();
+  group.position.set(x, 0, z);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(4.2, 4.2, 3.6), new THREE.MeshStandardMaterial({ color: 0x1e202c }));
+  frame.position.y = 2.1;
+  group.add(frame);
+  const padMat = new THREE.MeshStandardMaterial({ color: 0xff4757, emissive: 0x440000 });
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.15, 3.0), padMat);
+  pad.position.set(0, 0.08, 0.4);
+  group.add(pad);
+  elevatorLight = new THREE.PointLight(0xff4757, 1.5, 10);
+  elevatorLight.position.set(0, 3.2, 1.2);
+  group.add(elevatorLight);
+  scene.add(group);
+  elevatorMesh = group;
+  elevatorMesh.userData = { x, z, padMat, open: false };
+}
+
+function createTwisted(x, z, speed) {
+  const mesh = createTwistedFlowerMesh();
+  mesh.position.set(x, 0, z);
+  scene.add(mesh);
+  enemies.push({ mesh, x, z, speed, dirX: Math.random() > 0.5 ? 1 : -1, dirZ: Math.random() > 0.5 ? 1 : -1, chaseTimer: 0, walkPhase: Math.random() * 6 });
+}
+
+// ========== GAMEPLAY ==========
+let gameActive = false;
+let currentFloor = 1;
+let player = {
+  x: 0, z: 16, hp: 3, maxHp: 3,
+  stamina: 100, maxStamina: 100,
+  baseSpeed: 6.5, repairSpeed: 22, scZoneSize: 0.22,
+  dashCooldown: 0, invulnTimer: 0, walkPhase: 0, isRepairing: false
+};
+
+let camAngle = 0;
+const keys = {};
+
+// ========== TOUCH STATE ==========
+let joystickTouchId = null;
+let joystickX = 0, joystickY = 0;
+let joystickCenterX = 0, joystickCenterY = 0;
+let cameraTouchId = null;
+let lastCameraX = 0;
+let isRepairingTouch = false;
+let isSprintingTouch = false;
+
+const joystickArea = document.getElementById('joystick-area');
+const joystickKnob = document.getElementById('joystick-knob');
+const btnRepair = document.getElementById('btn-repair');
+const btnDash = document.getElementById('btn-dash');
+const btnSprint = document.getElementById('btn-sprint');
+const JOY_RADIUS = 50;
+
+// ========== KEYBOARD (for desktop testing) ==========
+window.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Space' && skillCheck.active) handleSkillCheckHit();
+  if (e.code === 'KeyQ' && gameActive) triggerDash();
+  if (['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ========== JOYSTICK TOUCH ==========
+function updateJoystick(clientX, clientY) {
+  let dx = clientX - joystickCenterX;
+  let dy = clientY - joystickCenterY;
+  const dist = Math.hypot(dx, dy);
+  if (dist > JOY_RADIUS) { dx = dx / dist * JOY_RADIUS; dy = dy / dist * JOY_RADIUS; }
+  joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  joystickX = dx / JOY_RADIUS;
+  joystickY = dy / JOY_RADIUS;
+}
+
+joystickArea.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  joystickTouchId = t.identifier;
+  const rect = joystickArea.getBoundingClientRect();
+  joystickCenterX = rect.left + rect.width / 2;
+  joystickCenterY = rect.top + rect.height / 2;
+  updateJoystick(t.clientX, t.clientY);
+}, { passive: false });
+
+joystickArea.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) updateJoystick(t.clientX, t.clientY);
+  }
+}, { passive: false });
+
+function endJoystick(e) {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) {
+      joystickTouchId = null;
+      joystickX = 0; joystickY = 0;
+      joystickKnob.style.transform = 'translate(-50%, -50%)';
+    }
+  }
+}
+joystickArea.addEventListener('touchend', endJoystick);
+joystickArea.addEventListener('touchcancel', endJoystick);
+
+// ========== ACTION BUTTONS ==========
+btnRepair.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (skillCheck.active) { handleSkillCheckHit(); return; }
+  isRepairingTouch = true;
+}, { passive: false });
+btnRepair.addEventListener('touchend', (e) => { e.preventDefault(); isRepairingTouch = false; }, { passive: false });
+btnRepair.addEventListener('touchcancel', () => { isRepairingTouch = false; });
+
+btnDash.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (skillCheck.active) { handleSkillCheckHit(); return; }
+  if (gameActive) triggerDash();
+}, { passive: false });
+
+btnSprint.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (skillCheck.active) { handleSkillCheckHit(); return; }
+  isSprintingTouch = !isSprintingTouch;
+  btnSprint.classList.toggle('active', isSprintingTouch);
+}, { passive: false });
+
+// ========== GLOBAL TOUCH (camera drag + skill check) ==========
+document.addEventListener('touchstart', (e) => {
+  for (const t of e.changedTouches) {
+    const target = e.target;
+    if (target.closest('#joystick-area, .action-btn, .screen, .btn, .menu-card')) continue;
+    if (!gameActive) continue;
+
+    if (skillCheck.active) {
+      handleSkillCheckHit();
+      continue;
+    }
+    if (cameraTouchId === null) {
+      cameraTouchId = t.identifier;
+      lastCameraX = t.clientX;
+    }
+  }
+}, { passive: false });
+
+document.addEventListener('touchmove', (e) => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === cameraTouchId && gameActive) {
+      const dx = t.clientX - lastCameraX;
+      camAngle -= dx * 0.012;
+      lastCameraX = t.clientX;
+    }
+  }
+}, { passive: false });
+
+function endCameraTouch(e) {
+  for (const t of e.changedTouches) {
+    if (t.identifier === cameraTouchId) cameraTouchId = null;
+  }
+}
+document.addEventListener('touchend', endCameraTouch);
+document.addEventListener('touchcancel', endCameraTouch);
+
+// Prevent context menu / double-tap zoom
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());
+
+// ========== SKILL CHECK ==========
+const scCanvas = document.getElementById('skillcheck-canvas');
+const scCtx = scCanvas.getContext('2d');
+let skillCheck = { active: false, angle: 0, targetStart: 0, targetEnd: 0, machine: null, cooldown: 0 };
+
+function startSkillCheck(machine) {
+  skillCheck.active = true;
+  skillCheck.angle = 0;
+  const start = 1.2 + Math.random() * 3.2;
+  skillCheck.targetStart = start;
+  skillCheck.targetEnd = start + player.scZoneSize * Math.PI * 2;
+  skillCheck.machine = machine;
+  document.getElementById('skillcheck-overlay').style.display = 'flex';
+}
+
+function closeSkillCheck() {
+  skillCheck.active = false;
+  skillCheck.cooldown = 2.2;
+  document.getElementById('skillcheck-overlay').style.display = 'none';
+}
+
+function handleSkillCheckHit() {
+  if (!skillCheck.active) return;
+  const a = ((skillCheck.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  if (a >= skillCheck.targetStart && a <= skillCheck.targetEnd) {
+    skillCheck.machine.progress = Math.min(100, skillCheck.machine.progress + 18);
+    showBanner('ОТЛИЧНО! +18% ПОЧИНКИ', '#2ed573');
+  } else {
+    skillCheck.machine.progress = Math.max(0, skillCheck.machine.progress - 12);
+    showBanner('ПРОВАЛ СКИЛЛ-ЧЕКА! ТВИСТЕД СЛЫШИТ ВАС!', '#ff4757');
+    enemies.forEach(en => { en.chaseTimer = 6.0; });
+  }
+  closeSkillCheck();
+}
+
+function drawSkillCheck() {
+  if (!skillCheck.active) return;
+  const W = 130, H = 130;
+  scCtx.clearRect(0, 0, W, H);
+  const cx = W / 2, cy = H / 2, r = 48;
+  scCtx.beginPath();
+  scCtx.arc(cx, cy, r, 0, Math.PI * 2);
+  scCtx.lineWidth = 12;
+  scCtx.strokeStyle = '#2f3542';
+  scCtx.stroke();
+  scCtx.beginPath();
+  scCtx.arc(cx, cy, r, skillCheck.targetStart, skillCheck.targetEnd);
+  scCtx.lineWidth = 12;
+  scCtx.strokeStyle = '#2ed573';
+  scCtx.stroke();
+  const nx = cx + Math.cos(skillCheck.angle) * (r + 9);
+  const ny = cy + Math.sin(skillCheck.angle) * (r + 9);
+  scCtx.beginPath();
+  scCtx.moveTo(cx, cy);
+  scCtx.lineTo(nx, ny);
+  scCtx.lineWidth = 3;
+  scCtx.strokeStyle = '#ffa502';
+  scCtx.stroke();
+}
+
+let bannerTimeout = null;
+function showBanner(text, color = '#ff4757') {
+  const b = document.getElementById('alert-banner');
+  b.textContent = text;
+  b.style.background = color;
+  b.style.display = 'block';
+  clearTimeout(bannerTimeout);
+  bannerTimeout = setTimeout(() => { b.style.display = 'none'; }, 2200);
+}
+
+// ========== LEVEL GENERATION ==========
+function setupFloor(floorNum) {
+  clearLevel();
+  const half = ROOM_SIZE / 2;
+  addWall(0, -half, ROOM_SIZE, 1);
+  addWall(0, half, ROOM_SIZE, 1);
+  addWall(-half, 0, 1, ROOM_SIZE);
+  addWall(half, 0, 1, ROOM_SIZE);
+  addWall(-9, -6, 8, 1.2);
+  addWall(9, -6, 8, 1.2);
+  addWall(-9, 7, 8, 1.2);
+  addWall(9, 7, 8, 1.2);
+  addWall(0, 0, 1.2, 9);
+
+  createElevator(0, -half + 1.8);
+
+  const spots = [[-16, -15], [16, -15], [-16, 14], [16, 14], [-5, -13], [5, 11]];
+  const machineCount = Math.min(6, 3 + floorNum);
+  for (let i = 0; i < machineCount; i++) createMachine(spots[i][0], spots[i][1]);
+
+  const enemyCount = Math.min(4, 1 + Math.floor(floorNum / 2));
+  const enemySpots = [[-14, 0], [14, 0], [0, -10], [-10, -14]];
+  for (let i = 0; i < enemyCount; i++) {
+    createTwisted(enemySpots[i][0], enemySpots[i][1], 4.6 + floorNum * 0.35);
+  }
+
+  player.x = 0;
+  player.z = 16;
+  playerMesh.position.set(player.x, 0, player.z);
+  playerMesh.rotation.y = 0;
+  camAngle = 0;
+
+  let mult = 1.0, speedMult = 1.0, repairMult = 1.0;
+  if (equippedTrinket === 'magic') { mult = 1.5; speedMult = 1.5; repairMult = 1.5; }
+  else if (equippedTrinket === 'sneakers') { speedMult = 1.2; }
+  else if (equippedTrinket === 'wrench') { repairMult = 1.3; }
+
+  player.maxStamina = 100 * mult;
+  player.stamina = player.maxStamina;
+  player.baseSpeed = 6.5 * speedMult;
+  player.repairSpeed = 22 * repairMult;
+  player.scZoneSize = Math.min(0.45, 0.22 * mult);
+  player.dashCooldown = 0;
+  player.invulnTimer = 0;
+  player.isRepairing = false;
+
+  // Reset touch state
+  isRepairingTouch = false;
+  isSprintingTouch = false;
+  btnSprint.classList.remove('active');
+  joystickX = 0; joystickY = 0;
+  joystickKnob.style.transform = 'translate(-50%, -50%)';
+  joystickTouchId = null;
+  cameraTouchId = null;
+
+  // Snap camera behind player immediately on floor start
+  const camDist = 6.8, camHeight = 4.2;
+  camera.position.set(
+    player.x + Math.sin(camAngle) * camDist,
+    camHeight,
+    player.z + Math.cos(camAngle) * camDist
+  );
+
+  updateHUD();
+}
+
+// ========== GAME CONTROL ==========
+function startGame() {
+  currentFloor = 1;
+  player.hp = 3;
+  document.getElementById('menu-screen').style.display = 'none';
+  document.getElementById('gameover-screen').style.display = 'none';
+  document.getElementById('floor-screen').style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+  document.getElementById('touch-controls').style.display = 'block';
+  setupFloor(currentFloor);
+  gameActive = true;
+}
+
+function nextFloor() {
+  currentFloor++;
+  document.getElementById('floor-screen').style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+  document.getElementById('touch-controls').style.display = 'block';
+  setupFloor(currentFloor);
+  gameActive = true;
+}
+
+function returnToMenu() {
+  gameActive = false;
+  document.getElementById('hud').style.display = 'none';
+  document.getElementById('touch-controls').style.display = 'none';
+  document.getElementById('floor-screen').style.display = 'none';
+  document.getElementById('gameover-screen').style.display = 'none';
+  document.getElementById('menu-screen').style.display = 'flex';
+  updateCurrencyUI();
+}
+
+function triggerDash() {
+  if (player.dashCooldown > 0) return;
+  player.dashCooldown = 5.0;
+  player.invulnTimer = 0.7;
+  const forwardX = -Math.sin(camAngle);
+  const forwardZ = -Math.cos(camAngle);
+  moveEntity(player, forwardX * 4.5, forwardZ * 4.5, 0.55);
+  showBanner('РЫВОК!', '#ffa502');
+}
+
+// ========== COLLISION (fixed — sub-stepping prevents tunneling & camera fly-away) ==========
+function moveEntity(ent, dx, dz, radius) {
+  const dist = Math.hypot(dx, dz);
+  const maxStep = 0.25;
+  const steps = Math.max(1, Math.ceil(dist / maxStep));
+  const stepDx = dx / steps;
+  const stepDz = dz / steps;
+
+  for (let i = 0; i < steps; i++) {
+    let nx = ent.x + stepDx;
+    let nz = ent.z + stepDz;
+
+    for (const w of walls) {
+      // X axis collision
+      if (nx + radius > w.minX && nx - radius < w.maxX && ent.z + radius > w.minZ && ent.z - radius < w.maxZ) {
+        nx = ent.x;
+      }
+      // Z axis collision
+      if (ent.x + radius > w.minX && ent.x - radius < w.maxX && nz + radius > w.minZ && nz - radius < w.maxZ) {
+        nz = ent.z;
+      }
+    }
+    ent.x = nx;
+    ent.z = nz;
+  }
+
+  // Hard bounds clamp — safety net against any escape
+  const bound = ROOM_SIZE / 2 - 1.2;
+  if (!isFinite(ent.x)) ent.x = 0;
+  if (!isFinite(ent.z)) ent.z = 0;
+  ent.x = Math.max(-bound, Math.min(bound, ent.x));
+  ent.z = Math.max(-bound, Math.min(bound, ent.z));
+}
+
+function updateHUD() {
+  const heartsStr = '♥'.repeat(Math.max(0, player.hp)) + '♡'.repeat(Math.max(0, player.maxHp - player.hp));
+  document.getElementById('hud-hearts').textContent = heartsStr;
+  const done = machines.filter(m => m.completed).length;
+  document.getElementById('hud-machines').textContent = `⚙ Машины: ${done}/${machines.length}`;
+  document.getElementById('hud-floor').textContent = `Этаж ${currentFloor}`;
+  document.getElementById('hud-nate').textContent = `Нейт: ${nateBalance}`;
+  const stamPct = Math.round((player.stamina / player.maxStamina) * 100);
+  document.getElementById('stamina-fill').style.width = `${stamPct}%`;
+  document.getElementById('stamina-text').textContent = `СТАМИНА: ${stamPct}%`;
+}
+
+// ========== MAIN LOOP ==========
+let lastTime = performance.now();
+
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min(0.05, (now - lastTime) / 1000);
+  lastTime = now;
+
+  if (!gameActive) {
+    // Menu showcase
+    playerMesh.position.set(0, 0, 0);
+    playerMesh.rotation.y += dt * 0.9;
+    camera.position.set(0, 2.3, 4.8);
+    camera.lookAt(0, 1.3, 0);
+    renderer.render(scene, camera);
+    return;
+  }
+
+  // Keyboard camera rotation
+  if (keys['ArrowLeft'])  camAngle += 2.2 * dt;
+  if (keys['ArrowRight']) camAngle -= 2.2 * dt;
+
+  // Timers
+  if (player.dashCooldown > 0) player.dashCooldown = Math.max(0, player.dashCooldown - dt);
+  if (player.invulnTimer > 0) player.invulnTimer = Math.max(0, player.invulnTimer - dt);
+  if (skillCheck.cooldown > 0) skillCheck.cooldown = Math.max(0, skillCheck.cooldown - dt);
+
+  // ----- Input: keyboard + joystick -----
+  let moveForward = 0;
+  let moveRight = 0;
+  if (keys['KeyW']) moveForward += 1;
+  if (keys['KeyS']) moveForward -= 1;
+  if (keys['KeyD']) moveRight += 1;
+  if (keys['KeyA']) moveRight -= 1;
+
+  // Joystick (screen Y is inverted → up = forward)
+  const joyMag = Math.hypot(joystickX, joystickY);
+  if (joyMag > 0.12) {
+    moveForward += -joystickY;
+    moveRight   += joystickX;
+  }
+
+  // Clamp input magnitude (keyboard diagonal = 1, joystick preserves analog magnitude)
+  const inputMag = Math.hypot(moveForward, moveRight);
+  if (inputMag > 1) { moveForward /= inputMag; moveRight /= inputMag; }
+
+  const isMoving = (inputMag > 0.1);
+  const wantsRun = keys['ShiftLeft'] || keys['ShiftRight'] || isSprintingTouch;
+  const wantsRepair = keys['KeyE'] || isRepairingTouch;
+  const isRunning = isMoving && wantsRun && player.stamina > 1 && !player.isRepairing;
+
+  // Stamina
+  if (isRunning) player.stamina = Math.max(0, player.stamina - 28 * dt);
+  else           player.stamina = Math.min(player.maxStamina, player.stamina + 18 * dt);
+
+  const currentSpeed = player.baseSpeed * (isRunning ? 1.55 : 1.0);
+
+  // Movement
+  if (isMoving && !player.isRepairing) {
+    const sin = Math.sin(camAngle);
+    const cos = Math.cos(camAngle);
+    const speedMag = Math.min(1, Math.hypot(moveForward, moveRight));
+    const vx = (-sin * moveForward + cos * moveRight) * currentSpeed * dt;
+    const vz = (-cos * moveForward - sin * moveRight) * currentSpeed * dt;
+    moveEntity(player, vx, vz, 0.55);
+    playerMesh.rotation.y = Math.atan2(vx, vz);
+    player.walkPhase += dt * (isRunning ? 15 : 9);
+  } else {
+    player.walkPhase = 0;
+  }
+
+  // Animate Rollie
+  const { headGroup, leftArm, rightArm, leftLeg, rightLeg } = playerMesh.userData;
+  if (player.isRepairing) {
+    leftArm.rotation.x  = -1.1 + Math.sin(now * 0.015) * 0.25;
+    rightArm.rotation.x = -1.1 - Math.sin(now * 0.015) * 0.25;
+    leftLeg.rotation.x = 0;
+    rightLeg.rotation.x = 0;
+  } else if (isMoving) {
+    const swing = Math.sin(player.walkPhase) * (isRunning ? 0.85 : 0.55);
+    leftLeg.rotation.x  = swing;
+    rightLeg.rotation.x = -swing;
+    leftArm.rotation.x  = -swing * 0.85;
+    rightArm.rotation.x =  swing * 0.85;
+    headGroup.position.y = 1.98 + Math.abs(Math.sin(player.walkPhase)) * 0.06;
+  } else {
+    leftLeg.rotation.x  *= 0.85;
+    rightLeg.rotation.x *= 0.85;
+    leftArm.rotation.x  *= 0.85;
+    rightArm.rotation.x *= 0.85;
+    headGroup.position.y = 1.98 + Math.sin(now * 0.004) * 0.02;
+  }
+
+  playerMesh.position.set(player.x, 0, player.z);
+  playerMesh.visible = (player.invulnTimer <= 0) || (Math.floor(now / 80) % 2 === 0);
+  playerLight.position.set(player.x, 2.8, player.z);
+
+  // ----- Machine interaction -----
+  let nearestMachine = null;
+  let minDist = 2.6;
+  for (const m of machines) {
+    if (!m.completed) {
+      const dist = Math.hypot(player.x - m.x, player.z - m.z);
+      if (dist < minDist) { minDist = dist; nearestMachine = m; }
+    }
+  }
+
+  const promptEl = document.getElementById('action-prompt');
+  if (nearestMachine) {
+    promptEl.style.display = 'block';
+    promptEl.textContent = `Удерживайте 🔧 для починки (${Math.round(nearestMachine.progress)}%)`;
+
+    if (wantsRepair) {
+      player.isRepairing = true;
+      nearestMachine.progress += player.repairSpeed * dt;
+
+      if (!skillCheck.active && skillCheck.cooldown <= 0 && Math.random() < 0.015) {
+        startSkillCheck(nearestMachine);
+      }
+
+      if (nearestMachine.progress >= 100) {
+        nearestMachine.progress = 100;
+        nearestMachine.completed = true;
+        nearestMachine.tankMat.color.setHex(0x2ed573);
+        nearestMachine.tankMat.emissive.setHex(0x0b5328);
+        nearestMachine.beacon.color.setHex(0x2ed573);
+        nateBalance += 5;
+        showBanner('МАШИНА ПОЧИНЕНА! +5 НЕЙТА', '#2ed573');
+        if (skillCheck.active) closeSkillCheck();
+      }
+    } else {
+      player.isRepairing = false;
+      if (skillCheck.active) closeSkillCheck();
+    }
+  } else {
+    player.isRepairing = false;
+    if (skillCheck.active) closeSkillCheck();
+
+    const allDone = machines.every(m => m.completed);
+    if (allDone) {
+      if (!elevatorMesh.userData.open) {
+        elevatorMesh.userData.open = true;
+        elevatorMesh.userData.padMat.color.setHex(0x2ed573);
+        elevatorMesh.userData.padMat.emissive.setHex(0x106b35);
+        elevatorLight.color.setHex(0x2ed573);
+        showBanner('ВСЕ МАШИНЫ ПОЧИНЕНЫ! БЕГИТЕ В ЛИФТ!', '#2ed573');
+      }
+      promptEl.style.display = 'block';
+      promptEl.textContent = 'Бегите в зелёный лифт!';
+    } else {
+      promptEl.style.display = 'none';
+    }
+  }
+
+  // Skill check needle
+  if (skillCheck.active) {
+    skillCheck.angle += 3.3 * dt;
+    if (skillCheck.angle > Math.PI * 2) handleSkillCheckHit();
+    drawSkillCheck();
+  }
+
+  // Elevator exit
+  if (elevatorMesh.userData.open) {
+    const distEl = Math.hypot(player.x - elevatorMesh.userData.x, player.z - elevatorMesh.userData.z);
+    if (distEl < 2.2) {
+      gameActive = false;
+      const reward = 10 + currentFloor * 2;
+      nateBalance += reward;
+      document.getElementById('hud').style.display = 'none';
+      document.getElementById('touch-controls').style.display = 'none';
+      document.getElementById('floor-clear-title').textContent = `Этаж ${currentFloor} пройден!`;
+      document.getElementById('floor-reward-text').textContent = `Награда за этаж: +${reward} Нейта`;
+      document.getElementById('floor-screen').style.display = 'flex';
+      return;
+    }
+  }
+
+  // ----- Enemies -----
+  for (const en of enemies) {
+    const distToPlayer = Math.hypot(player.x - en.x, player.z - en.z);
+    if (distToPlayer < 10.5) en.chaseTimer = 3.0;
+
+    let moveX = 0, moveZ = 0;
+    if (en.chaseTimer > 0) {
+      en.chaseTimer -= dt;
+      const ang = Math.atan2(player.x - en.x, player.z - en.z);
+      moveX = Math.sin(ang) * en.speed * dt;
+      moveZ = Math.cos(ang) * en.speed * dt;
+    } else {
+      if (Math.random() < 0.02) {
+        const randA = Math.random() * Math.PI * 2;
+        en.dirX = Math.sin(randA);
+        en.dirZ = Math.cos(randA);
+      }
+      moveX = en.dirX * (en.speed * 0.55) * dt;
+      moveZ = en.dirZ * (en.speed * 0.55) * dt;
+    }
+
+    const oldX = en.x, oldZ = en.z;
+    moveEntity(en, moveX, moveZ, 0.55);
+    if (Math.hypot(en.x - oldX, en.z - oldZ) < 0.005) {
+      en.dirX = -en.dirX;
+      en.dirZ = -en.dirZ;
+    }
+
+    en.mesh.position.set(en.x, 0, en.z);
+    if (moveX !== 0 || moveZ !== 0) en.mesh.rotation.y = Math.atan2(moveX, moveZ);
+
+    en.walkPhase += dt * (en.chaseTimer > 0 ? 14 : 7);
+    const eData = en.mesh.userData;
+    const eSwing = Math.sin(en.walkPhase) * 0.65;
+    eData.leftLeg.rotation.x  = eSwing;
+    eData.rightLeg.rotation.x = -eSwing;
+    eData.leftArm.rotation.x  = -eSwing * 0.8;
+    eData.rightArm.rotation.x =  eSwing * 0.8;
+    eData.headGroup.rotation.z = Math.sin(en.walkPhase * 0.5) * 0.14;
+
+    if (distToPlayer < 1.25 && player.invulnTimer <= 0) {
+      player.hp--;
+      player.invulnTimer = 2.0;
+      showBanner('ТВИСТЕД АТАКОВАЛ ВАС! -1 ♥', '#ff4757');
+      if (player.hp <= 0) {
+        gameActive = false;
+        document.getElementById('hud').style.display = 'none';
+        document.getElementById('touch-controls').style.display = 'none';
+        document.getElementById('gameover-stats').textContent = `Вы дошли до ${currentFloor} этажа`;
+        document.getElementById('gameover-screen').style.display = 'flex';
+        return;
+      }
+    }
+  }
+
+  // ----- Camera follow (with wall-collision & bounds clamp) -----
+  const camDist = 6.8;
+  const camHeight = 4.2;
+  const targetCamX = player.x + Math.sin(camAngle) * camDist;
+  const targetCamZ = player.z + Math.cos(camAngle) * camDist;
+
+  // Smooth follow
+  camera.position.x += (targetCamX - camera.position.x) * 0.18;
+  camera.position.z += (targetCamZ - camera.position.z) * 0.18;
+  camera.position.y += (camHeight - camera.position.y) * 0.18;
+
+  // Clamp camera inside the room (outer walls never occlude the view)
+  const camBound = ROOM_SIZE / 2 - 1.5;
+  camera.position.x = Math.max(-camBound, Math.min(camBound, camera.position.x));
+  camera.position.z = Math.max(-camBound, Math.min(camBound, camera.position.z));
+
+  // Push camera out of inner walls (so it doesn't clip through them)
+  const camR = 0.6;
+  for (const w of walls) {
+    if (camera.position.x + camR > w.minX && camera.position.x - camR < w.maxX &&
+        camera.position.z + camR > w.minZ && camera.position.z - camR < w.maxZ) {
+      const dx = player.x - camera.position.x;
+      const dz = player.z - camera.position.z;
+      const dd = Math.hypot(dx, dz) || 1;
+      camera.position.x += (dx / dd) * 0.8;
+      camera.position.z += (dz / dd) * 0.8;
+    }
+  }
+
+  // Safety: NaN guard
+  if (!isFinite(camera.position.x)) camera.position.x = player.x;
+  if (!isFinite(camera.position.z)) camera.position.z = player.z + camDist;
+  if (!isFinite(camera.position.y)) camera.position.y = camHeight;
+
+  camera.lookAt(player.x, 1.5, player.z);
+
+  updateHUD();
+  renderer.render(scene, camera);
+}
+
+// ========== RESIZE ==========
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', () => setTimeout(onResize, 200));
+
+// ========== INIT ==========
+updateCurrencyUI();
+requestAnimationFrame(animate);
+</script>
+</body>
+  </html>
