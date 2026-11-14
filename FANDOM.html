@@ -31,7 +31,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:
 <canvas id="sc" width="180" height="180"></canvas>
 <div id="joy"><div id="knob"></div></div>
 <div class="btn" id="ab" style="display:none">ЧЕРНИКА</div><div class="btn" id="run">БЕГ</div><div class="btn" id="fix">ЧИНИТЬ</div>
-<div id="ov"><h1>Randy's Rooms web</h1><button id="cdb">Коды</button><button id="svb">Сохранение</button><div id="ovt">Чини машины: за каждую по 5 Нейта. На Нейт открываются новые персонажи.<br>Почини все машины и добеги до лифта. WASD / стик — ходьба, перетаскивание по экрану или ←/→ — поворот камеры, Shift — бег, E — чинить.</div><div id="nt" style="font-weight:800"></div><div id="pks"><button class="pk on" data-k="tony">Тони<small>ср. скорость и стамина, плохо чинит</small></button><button class="pk" data-k="matt">Метью<small>быстрый, средняя стамина, чуть хуже заметен, чинит очень неточно</small></button><button class="pk" data-k="cel">Селестия<small>много стамины; Q — режим 1: быстрее, 2 скилл-чека / режим 2: медленнее, 1 скилл-чек</small></button><button class="pk" data-k="sam">Сэм<small>батарейка: чем меньше жизней, тем быстрее и легче чинит, но заметнее; вода убивает</small></button><button class="pk" data-k="razzy">Раззи<small>самая медленная, чинит средне, может стать черникой (Q)</small></button><button class="pk" data-k="george">Джордж<small>медленный, море стамины, чинит быстро</small></button><button class="pk" data-k="cube">Эгберт<small>очень быстрый но не может бегать, починка средняя, скилл-чек маленький</small></button><button class="pk" data-k="rich_cube">Камерон<small>Очень большой скилл-чек починка слабая, тратит много стамины мало востонавливает, скорость неплохая, х2 нейта</small></button></div><div id="trs" style="display:none"></div><button id="trb">Тринкеты</button><button id="stb">Настройки</button><button id="go">Играть</button></div>
+<div id="ov"><h1>Randy's Rooms web</h1><button id="cdb">Коды</button><button id="svb">Сохранение</button><div id="ovt">Чини машины: за каждую по 5 Нейта. На Нейт открываются новые персонажи.<br>Почини все машины и добеги до лифта. WASD / стик — ходьба, перетаскивание по экрану или ←/→ — поворот камеры, Shift — бег, E — чинить.</div><div id="nt" style="font-weight:800"></div><div id="pks"><button class="pk on" data-k="tony">Тони<small>ср. скорость и стамина, плохо чинит</small></button><button class="pk" data-k="matt">Метью<small>быстрый, средняя стамина, чуть хуже заметен, чинит очень неточно</small></button><button class="pk" data-k="cel">Селестия<small>много стамины; Q — режим 1: быстрее, 2 скилл-чека / режим 2: медленнее, 1 скилл-чек</small></button><button class="pk" data-k="sam">Сэм<small>батарейка: чем меньше жизней, тем быстрее и легче чинит, но заметнее; вода убивает</small></button><button class="pk" data-k="razzy">Раззи<small>самая медленная, чинит средне, может стать черникой (Q)</small></button><button class="pk" data-k="george">Джордж<small>медленный, море стамины, чинит быстро</small></button><button class="pk" data-k="cube">Эгберт<small>очень быстрый но не может бегать, починка средняя, скилл-чек маленький</small></button><button class="pk" data-k="rich_cube">Камерон<small>Очень большой скилл-чек починка слабая, тратит много стамины мало востонавливает, скорость неплохая, х2 нейта</small></button><button class="pk" data-k="friend">Друг<small>Секретный персонаж</small></button></div><div id="trs" style="display:none"></div><button id="trb">Тринкеты</button><button id="stb">Настройки</button><button id="go">Играть</button></div>
 <div id="st" style="display:none"><h1>Настройки</h1>
 <label>Громкость: <span id="volv"></span><input id="vol" type="range" min="0" max="100"></label>
 <label>Чувствительность камеры: <span id="sensv"></span><input id="sens" type="range" min="30" max="200"></label>
@@ -232,7 +232,8 @@ const CH={
  razzy:{n:'Раззи',cost:75,walk:2.6,run:3.8,drain:20,regen:15,len:1.7,hits:2,m:mk(FBX4,TEX4,41.5,0)},
  george:{n:'Джордж',cost:25,walk:3.1,run:4.5,drain:9,regen:20,len:1.7,hits:1,m:mkG()},
  cube:{n:'Эгберт',cost:325,walk:6.5,run:6.5,drain:0,regen:0,len:.8,hits:2,m:mkCube()},
- rich_cube:{n:'Камерон',cost:175,walk:4.8,run:7.1,drain:30,regen:10,len:2.0,hits:3,m:mkCube()}};
+ rich_cube:{n:'Камерон',cost:175,walk:4.8,run:7.1,drain:30,regen:10,len:2.0,hits:3,m:mkCube()},
+ friend:{n:'Друг',cost:0,walk:5.1,run:8.9,drain:0,regen:0.1,len:3.4,hits:5,m:mkCube()}};
 let cur='tony',SV={neit:0,un:['tony']};
 try{const s=JSON.parse(localStorage.getItem('rr_lib'));if(s&&Array.isArray(s.un)&&typeof s.neit=='number')SV=s}catch(e){}
 SV.tr=SV.tr||[];if(SV.te===undefined)SV.te=null;if(!Array.isArray(SV.eq))SV.eq=SV.te?[SV.te]:[];
@@ -360,8 +361,27 @@ function trTap(k){const t=TR[k],c=t.cost;if(k=='wrench'&&!SV.tr.includes('wrench
  if(tpend!=k){tpend=k;renderTr();$('nt').textContent='Нейт: '+SV.neit+(SV.neit>=c?' — нажми ещё раз, чтобы купить «'+t.n+'» за '+c:' — не хватает, нужно '+c);return}
  if(SV.neit>=c){SV.neit-=c;SV.tr.push(k);if(SV.eq.length>=2)SV.eq.splice(1,1);SV.eq.push(k);save();tpend=null;renderTr()}else $('nt').textContent='Нейт: '+SV.neit+' — не хватает, нужно '+c}
 $('trb').onclick=()=>{const open=$('trs').style.display!='none';$('trs').style.display=open?'none':'flex';$('pks').style.display=open?'grid':'none';$('trb').textContent=open?'Тринкеты':'Персонажи';if(open)renderPicks();else renderTr()};
-function renderPicks(){$('nt').textContent='Нейт: '+SV.neit;document.querySelectorAll('.pk').forEach(b=>{const k=b.dataset.k,u=SV.un.includes(k);let l=b.querySelector('.lk');if(!l){l=document.createElement('b');l.className='lk';b.prepend(l)}l.textContent=u?'':'🔒 '+CH[k].cost+' Нейта';b.classList.toggle('lock',!u);b.classList.toggle('on',k==cur)})}
-let pend=null;
+function renderPicks(){
+  $('nt').textContent='Нейт: '+SV.neit;
+  document.querySelectorAll('.pk').forEach(b=>{
+    const k=b.dataset.k,u=SV.un.includes(k);
+    
+    // Если это "Друг" и он не разблокирован — полностью скрываем кнопку
+    if(k==='friend' && !u){
+      b.style.display='none';
+      return;
+    } else {
+      b.style.display=''; // Показываем остальных
+    }
+
+    let l=b.querySelector('.lk');
+    if(!l){l=document.createElement('b');l.className='lk';b.prepend(l)}
+    l.textContent=u?'':'🔒 '+CH[k].cost+' Нейта';
+    b.classList.toggle('lock',!u);
+    b.classList.toggle('on',k==cur)
+  })
+}
+ let pend=null;
 document.querySelectorAll('.pk').forEach(b=>b.onclick=()=>{const k=b.dataset.k,c=CH[k].cost;
  if(SV.un.includes(k)){pend=null;pick(k);renderPicks();return}
  if(pend!=k){pend=k;renderPicks();$('nt').textContent='Нейт: '+SV.neit+(SV.neit>=c?' — нажми ещё раз, чтобы купить '+CH[k].n+' за '+c:' — не хватает, нужно '+c);return}
