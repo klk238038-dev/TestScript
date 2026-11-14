@@ -232,7 +232,7 @@ const CH={
  matt:{n:'Метью',cost:150,walk:5.0,run:7.2,drain:25,regen:15,len:.3,hits:2,st:.8,m:mk(FBX5,TEX5,-1,0)},
  razzy:{n:'Раззи',cost:75,walk:2.6,run:3.8,drain:20,regen:15,len:1.7,hits:2,m:mk(FBX4,TEX4,41.5,0)},
  george:{n:'Джордж',cost:25,walk:3.1,run:4.5,drain:9,regen:20,len:1.7,hits:1,m:mkG()},
- Cube:{n:'Эгберт',cost:325,walk:6.5,run:6.5,drain:0,regen:0,len:.8,hits:2,m:mkCube()}};
+ cube:{n:'Эгберт',cost:325,walk:6.5,run:6.5,drain:0,regen:0,len:.8,hits:2,m:mkCube()}};
 let cur='tony',SV={neit:0,un:['tony']};
 try{const s=JSON.parse(localStorage.getItem('rr_lib'));if(s&&Array.isArray(s.un)&&typeof s.neit=='number')SV=s}catch(e){}
 SV.tr=SV.tr||[];if(SV.te===undefined)SV.te=null;if(!Array.isArray(SV.eq))SV.eq=SV.te?[SV.te]:[];
