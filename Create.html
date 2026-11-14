@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>3D Editor — 150x150 Optimized</title>
+  <title>3D Editor — Fixed & Snap Rotation</title>
   <style>
     body { margin: 0; overflow: hidden; background: #222; font-family: sans-serif; color: white; user-select: none; touch-action: none; }
     canvas { display: block; }
@@ -23,18 +23,21 @@
     #bottom-bar {
       position: absolute; bottom: 0; left: 0; width: 100%; height: 70px;
       background: rgba(30, 30, 35, 0.9); border-top: 2px solid #444;
-      display: flex; justify-content: space-around; align-items: center;
-      box-sizing: border-box; pointer-events: auto; padding: 0 10px;
+      display: flex; justify-content: space-evenly; align-items: center;
+      box-sizing: border-box; pointer-events: auto; padding: 0 5px;
     }
 
     button {
       background: #444; color: white; border: none; border-radius: 8px;
       font-weight: bold; font-size: 14px; transition: 0.1s; cursor: pointer; pointer-events: auto;
+      display: flex; align-items: center; justify-content: center;
     }
     button:active { background: #666; transform: scale(0.95); }
     button.active { background: #00a2ff; border: 2px solid #fff; }
     .danger { background: #aa2222; }
     .action { background: #ffaa00; color: black; }
+    .load-btn { background: #3182ce; color: white; }
+    .snap-btn { background: #ed8936; color: white; font-size: 11px; }
 
     #properties-panel {
       position: absolute; top: 70px; right: 10px; width: 160px;
@@ -61,38 +64,43 @@
     input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 20px; background: #cbd5e0; border: 1px solid #000; cursor: pointer; border-radius: 2px;}
 
-    /* СОХРАНЕНИЕ */
+    /* СОХРАНЕНИЕ И ЗАГРУЗКА */
     #json-modal {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9); z-index: 20; display: none;
+      background: rgba(0,0,0,0.95); z-index: 20; display: none;
       flex-direction: column; padding: 20px; box-sizing: border-box; pointer-events: auto;
     }
     textarea {
       flex: 1; width: 100%; background: #000; color: #00ff88; border: 1px solid #555;
-      padding: 10px; font-family: monospace; font-size: 12px; margin-bottom: 10px; box-sizing: border-box;
+      padding: 10px; font-family: monospace; font-size: 14px; margin-bottom: 10px; 
+      box-sizing: border-box; border-radius: 5px; user-select: text;
     }
+    .modal-btns { display: flex; gap: 10px; width: 100%; }
+    .modal-btns button { flex: 1; padding: 15px 5px; font-size: 14px; }
   </style>
 </head>
 <body>
 
   <div id="ui-layer">
     <div id="top-bar">
-      <button style="height: 40px; padding: 0 15px; background: #00a2ff;" id="btn-add-block">+ Добавить Блок</button>
+      <button style="height: 40px; padding: 0 15px; background: #00a2ff;" id="btn-add-block">+ Блок</button>
     </div>
 
     <div id="properties-panel">
-      <button id="btn-open-color" style="background: #555; height: 35px;">Палитра цветов</button>
+      <button id="btn-open-color" style="background: #555; height: 35px;">Палитра</button>
       <div style="font-size: 12px;">Размер (общий):</div>
       <input type="range" id="prop-size" min="0.5" max="10" step="0.1" value="1">
     </div>
 
     <div id="bottom-bar">
-      <button id="tool-move" class="active" style="width: 50px; height: 50px; border-radius: 50%; font-size: 18px;">✥</button>
-      <button id="tool-rotate" style="width: 50px; height: 50px; border-radius: 50%; font-size: 18px;">↻</button>
-      <button id="tool-scale" style="width: 50px; height: 50px; border-radius: 50%; font-size: 18px;">⤢</button>
-      <button id="btn-copy-obj" class="action" style="width: 50px; height: 50px; border-radius: 50%; font-size: 18px;">📋</button>
-      <button id="btn-delete" class="danger" style="width: 50px; height: 50px; border-radius: 50%; font-size: 18px;">🗑</button>
-      <button id="btn-save" style="background: #00ff88; color: black; height: 45px; padding: 0 10px;">СОХР</button>
+      <button id="tool-move" class="active" style="width: 45px; height: 45px; border-radius: 50%; font-size: 18px;">✥</button>
+      <button id="tool-rotate" style="width: 45px; height: 45px; border-radius: 50%; font-size: 18px;">↻</button>
+      <button id="btn-snap" class="snap-btn" style="width: 45px; height: 45px; border-radius: 50%;">22.5°</button>
+      <button id="tool-scale" style="width: 45px; height: 45px; border-radius: 50%; font-size: 18px;">⤢</button>
+      <button id="btn-multi" style="width: 45px; height: 45px; border-radius: 50%; font-size: 18px; background: #6b46c1;">👥</button>
+      <button id="btn-copy-obj" class="action" style="width: 45px; height: 45px; border-radius: 50%; font-size: 18px;">📋</button>
+      <button id="btn-delete" class="danger" style="width: 45px; height: 45px; border-radius: 50%; font-size: 18px;">🗑</button>
+      <button id="btn-save" style="background: #00ff88; color: black; height: 40px; padding: 0 10px; font-size: 12px;">СОХР</button>
     </div>
   </div>
 
@@ -110,12 +118,15 @@
     <button id="btn-apply-color" style="background: #48bb78; color: white; padding: 10px; border-radius: 5px; font-size: 16px;">Применить</button>
   </div>
 
-  <!-- СОХРАНЕНИЕ -->
+  <!-- СОХРАНЕНИЕ И ЗАГРУЗКА -->
   <div id="json-modal">
     <h3 style="text-align: center; margin-top: 0;">Код карты (JSON)</h3>
-    <textarea id="json-out" readonly></textarea>
-    <button id="btn-copy-text" style="padding: 15px; background: #00ff88; color: black; font-size: 16px; margin-bottom: 10px;">СКОПИРОВАТЬ ТЕКСТ</button>
-    <button id="btn-close" style="padding: 15px; background: #444; font-size: 16px;">ЗАКРЫТЬ</button>
+    <textarea id="json-out" placeholder="Вставь сюда код карты..."></textarea>
+    <div class="modal-btns">
+      <button id="btn-copy-text" style="background: #00ff88; color: black;">СКОПИРОВАТЬ</button>
+      <button id="btn-load-map" class="load-btn">ЗАГРУЗИТЬ</button>
+    </div>
+    <button id="btn-close" style="margin-top: 10px; padding: 15px; background: #444; font-size: 16px; width: 100%;">ЗАКРЫТЬ</button>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -140,41 +151,39 @@
     orbit.maxPolarAngle = Math.PI / 2 - 0.05;
     orbit.touches.ONE = THREE.TOUCH.ROTATE;
     orbit.touches.TWO = THREE.TOUCH.DOLLY_PAN;
-    orbit.maxDistance = 300; // Ограничили зум под размер карты
+    orbit.maxDistance = 300;
 
     const gizmo = new THREE.TransformControls(camera, renderer.domElement);
     gizmo.setSize(1.2);
     scene.add(gizmo);
 
+    const pivot = new THREE.Group();
+    scene.add(pivot);
+
     gizmo.addEventListener('dragging-changed', function (e) {
       orbit.enabled = !e.value;
       if (!e.value) updateJSON();
     });
+    gizmo.addEventListener('objectChange', function () { updateJSON(); });
 
-    // Свет
     scene.add(new THREE.AmbientLight(0xffffff, 0.7));
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(20, 50, 20);
     dirLight.castShadow = true;
-    
-    // Оптимизация теней под 150х150 (чтобы не лагало)
     dirLight.shadow.camera.left = -50;
     dirLight.shadow.camera.right = 50;
     dirLight.shadow.camera.top = 50;
     dirLight.shadow.camera.bottom = -50;
-    dirLight.shadow.mapSize.width = 1024; // Уменьшили разрешение теней для скорости
+    dirLight.shadow.mapSize.width = 1024;
     dirLight.shadow.mapSize.height = 1024;
     scene.add(dirLight);
 
     // ================= ПОЛ 150x150 =================
     const mapSize = 150;
-    
-    // Сетка (150 квадратов)
     const grid = new THREE.GridHelper(mapSize, mapSize, 0x888888, 0x333333);
     grid.position.y = 0.01; 
     scene.add(grid);
 
-    // Сам пол
     const floorGeo = new THREE.PlaneGeometry(mapSize, mapSize);
     const floorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
@@ -185,7 +194,9 @@
 
     // ================= ЛОГИКА =================
     const objects = [];
-    let selected = null;
+    let selectedObjects = [];
+    let isMultiSelect = false;
+    let isSnapEnabled = false;
 
     function createBlock(colorHex) {
       const material = new THREE.MeshStandardMaterial({ color: colorHex || 0xffffff });
@@ -231,39 +242,167 @@
         mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(objects, true);
+        
         if (intersects.length > 0) {
           let rootObj = intersects[0].object;
           while (rootObj.parent && !objects.includes(rootObj)) rootObj = rootObj.parent;
-          selectObject(rootObj);
+          
+          if (isMultiSelect) {
+            if (selectedObjects.includes(rootObj)) {
+              selectObjects(selectedObjects.filter(o => o !== rootObj));
+            } else {
+              selectObjects([...selectedObjects, rootObj]);
+            }
+          } else {
+            selectObjects([rootObj]);
+          }
         } else {
-          selectObject(null);
+          if (!isMultiSelect) selectObjects([]);
         }
       }
     }, { passive: true });
 
-    function selectObject(obj) {
-      selected = obj;
-      if (obj) {
-        gizmo.attach(obj);
-        document.getElementById('properties-panel').style.display = 'flex';
-        document.getElementById('prop-size').value = obj.scale.x;
-      } else {
-        gizmo.detach();
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫДЕЛЕНИЯ (Чинит баги с движением)
+    function selectObjects(objs) {
+      gizmo.detach(); // Отвязываем гизмо от всего
+      
+      selectedObjects.forEach(o => {
+        removeHighlight(o);
+        if (o.parent === pivot) {
+          scene.attach(o); // Возвращаем объект из группы пивота на сцену
+        }
+      });
+      selectedObjects = [];
+      pivot.clear();
+      
+      // Сбрасываем пивот
+      pivot.position.set(0, 0, 0);
+      pivot.rotation.set(0, 0, 0);
+      pivot.scale.set(1, 1, 1);
+
+      selectedObjects = objs;
+      
+      if (selectedObjects.length === 0) {
         document.getElementById('properties-panel').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('properties-panel').style.display = 'flex';
+      selectedObjects.forEach(o => addHighlight(o));
+      
+      if (selectedObjects.length === 1) {
+        gizmo.attach(selectedObjects[0]);
+        document.getElementById('prop-size').value = selectedObjects[0].scale.x;
+      } else {
+        const box = new THREE.Box3();
+        selectedObjects.forEach(o => box.expandByObject(o));
+        const center = box.getCenter(new THREE.Vector3());
+        
+        pivot.position.copy(center);
+        selectedObjects.forEach(o => pivot.attach(o));
+        gizmo.attach(pivot);
+        document.getElementById('prop-size').value = pivot.scale.x;
       }
     }
 
+    function addHighlight(obj) {
+      obj.traverse(c => {
+        if (c.isMesh) {
+          if (!c.userData.originalEmissive) c.userData.originalEmissive = c.material.emissive.getHex();
+          c.material.emissive.setHex(0x00a2ff); 
+        }
+      });
+    }
+    function removeHighlight(obj) {
+      obj.traverse(c => {
+        if (c.isMesh) c.material.emissive.setHex(c.userData.originalEmissive || 0x000000);
+      });
+    }
+
+    // ================= КНОПКИ ИНСТРУМЕНТОВ =================
+    document.getElementById('tool-move').onclick = function() { 
+      gizmo.setMode('translate'); 
+      gizmo.space = 'world'; // Движение всегда по прямым осям, даже если блок повернут
+      setActiveBtn(this); 
+    };
+    
+    document.getElementById('tool-rotate').onclick = function() { 
+      gizmo.setMode('rotate'); 
+      setActiveBtn(this); 
+    };
+    
+    document.getElementById('tool-scale').onclick = function() { 
+      gizmo.setMode('scale'); 
+      setActiveBtn(this); 
+    };
+
+    // КНОПКА ПОВОРОТА НА 22.5 ГРАДУСОВ
+    document.getElementById('btn-snap').onclick = function() {
+      isSnapEnabled = !isSnapEnabled;
+      if (isSnapEnabled) {
+        this.classList.add('active');
+        gizmo.rotationSnap = Math.PI / 8; // 22.5 градусов
+      } else {
+        this.classList.remove('active');
+        gizmo.rotationSnap = null; // Свободное вращение
+      }
+    };
+
+    function setActiveBtn(btn) {
+      document.querySelectorAll('#bottom-bar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (isSnapEnabled) document.getElementById('btn-snap').classList.add('active');
+      if (isMultiSelect) document.getElementById('btn-multi').classList.add('active');
+    }
+
+    document.getElementById('btn-multi').onclick = function() {
+      isMultiSelect = !isMultiSelect;
+      this.classList.toggle('active');
+      if (!isMultiSelect && selectedObjects.length > 1) {
+        selectObjects([selectedObjects[selectedObjects.length - 1]]);
+      }
+    };
+
+    // ================= ИСПРАВЛЕННОЕ УДАЛЕНИЕ =================
+    document.getElementById('btn-delete').onclick = () => {
+      if (selectedObjects.length === 0) return;
+      
+      // Берем копию массива, чтобы не сломать цикл
+      const toDelete = [...selectedObjects];
+      selectObjects([]); // Снимаем выделение (это отвяжет их от пивота)
+      
+      toDelete.forEach(o => {
+        scene.remove(o);
+        const idx = objects.indexOf(o);
+        if (idx > -1) objects.splice(idx, 1);
+      });
+      
+      updateJSON();
+    };
+
     // ================= КОПИРОВАНИЕ =================
     document.getElementById('btn-copy-obj').onclick = () => {
-      if (!selected) return;
-      const clone = selected.clone();
-      clone.traverse((child) => {
-        if (child.isMesh) child.material = child.material.clone();
+      if (selectedObjects.length === 0) return;
+      const newObjs = [];
+      
+      selectedObjects.forEach(o => {
+        removeHighlight(o); // Снимаем синий цвет с оригинала
+        
+        const clone = o.clone();
+        clone.traverse((child) => {
+          if (child.isMesh) {
+             child.material = child.material.clone();
+             child.material.emissive.setHex(child.userData.originalEmissive || 0x000000);
+          }
+        });
+        
+        clone.position.x += 3; // Сдвиг копии
+        scene.add(clone);
+        objects.push(clone);
+        newObjs.push(clone);
       });
-      clone.position.x += 3; 
-      scene.add(clone);
-      objects.push(clone);
-      selectObject(clone);
+      
+      selectObjects(newObjs); // Выделяем копии
       updateJSON();
     };
 
@@ -358,8 +497,8 @@
     });
 
     document.getElementById('btn-open-color').onclick = () => {
-      if (!selected) return;
-      selected.traverse(c => {
+      if (selectedObjects.length === 0) return;
+      selectedObjects[0].traverse(c => {
         if (c.isMesh) {
           currentColor.r = Math.round(c.material.color.r * 255);
           currentColor.g = Math.round(c.material.color.g * 255);
@@ -371,69 +510,79 @@
     };
 
     document.getElementById('btn-apply-color').onclick = () => {
-      if (selected) {
+      if (selectedObjects.length > 0) {
         const hex = new THREE.Color(`rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`);
-        selected.traverse(c => { if (c.isMesh) c.material.color.copy(hex); });
+        selectedObjects.forEach(o => {
+          o.traverse(c => { if (c.isMesh) c.material.color.copy(hex); });
+        });
         updateJSON();
       }
       document.getElementById('color-modal').style.display = 'none';
     };
 
-    // ================= ОСТАЛЬНЫЕ КНОПКИ =================
+    // ================= ДОБАВЛЕНИЕ И РАЗМЕР =================
     document.getElementById('btn-add-block').onclick = () => {
       const block = createBlock(0xaaaaaa);
       block.position.copy(orbit.target);
       block.position.y = 0;
       scene.add(block);
       objects.push(block);
-      selectObject(block);
+      selectObjects([block]);
       updateJSON();
     };
 
-    document.getElementById('btn-delete').onclick = () => {
-      if (selected) {
-        scene.remove(selected);
-        objects.splice(objects.indexOf(selected), 1);
-        selectObject(null);
-        updateJSON();
-      }
-    };
-
-    document.getElementById('tool-move').onclick = function() { gizmo.setMode('translate'); setActiveBtn(this); };
-    document.getElementById('tool-rotate').onclick = function() { gizmo.setMode('rotate'); setActiveBtn(this); };
-    document.getElementById('tool-scale').onclick = function() { gizmo.setMode('scale'); setActiveBtn(this); };
-
-    function setActiveBtn(btn) {
-      document.querySelectorAll('#bottom-bar button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-
     document.getElementById('prop-size').oninput = function(e) {
-      if (selected) {
-        const val = parseFloat(e.target.value);
-        selected.scale.set(val, val, val);
-        updateJSON();
+      if (selectedObjects.length === 0) return;
+      const val = parseFloat(e.target.value);
+      if (selectedObjects.length === 1) {
+        selectedObjects[0].scale.set(val, val, val);
+      } else {
+        pivot.scale.set(val, val, val);
       }
+      updateJSON();
     };
 
-    // ================= СОХРАНЕНИЕ =================
+    // ================= СОХРАНЕНИЕ И ЗАГРУЗКА =================
     document.getElementById('btn-save').onclick = () => document.getElementById('json-modal').style.display = 'flex';
     document.getElementById('btn-close').onclick = () => document.getElementById('json-modal').style.display = 'none';
     
     document.getElementById('btn-copy-text').onclick = () => {
       const textarea = document.getElementById('json-out');
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(textarea.value).then(() => {
-          alert('Текст скопирован! Вставляй в чат.');
-        }).catch(err => {
-          textarea.select();
-          document.execCommand('copy');
-          alert('Текст скопирован!');
-        });
+        navigator.clipboard.writeText(textarea.value).then(() => alert('Скопировано!'))
+        .catch(err => { textarea.select(); document.execCommand('copy'); alert('Скопировано!'); });
       } else {
-        textarea.select();
-        document.execCommand('copy');
-        alert('Текст скопирован!');
+        textarea.select(); document.execCommand('copy'); alert('Скопировано!');
+      }
+    };
+
+    document.getElementById('btn-load-map').onclick = () => {
+      const text = document.getElementById('json-out').value.trim();
+      if (!text) { alert('Вставь текст!'); return; }
+
+      try {
+        const data = JSON.parse(text);
+        if (!Array.isArray(data)) throw new Error("Неверный формат данных");
+
+        // Полная очистка
+        selectObjects([]); 
+        objects.forEach(o => scene.remove(o));
+        objects.length = 0;
+
+        data.forEach(item => {
+          const block = createBlock(item.color);
+          block.position.set(item.x || 0, item.y || 0, item.z || 0);
+          block.rotation.set(item.rx || 0, item.ry || 0, item.rz || 0);
+          block.scale.set(item.sx || 1, item.sy || 1, item.sz || 1);
+          scene.add(block);
+          objects.push(block);
+        });
+
+        updateJSON();
+        document.getElementById('json-modal').style.display = 'none';
+        alert('Карта загружена!');
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
       }
     };
 
@@ -441,10 +590,18 @@
       const data = objects.map(o => {
         let col = "#ffffff";
         o.traverse(c => { if (c.isMesh) col = '#' + c.material.color.getHexString(); });
+        
+        o.updateWorldMatrix(true, false);
+        const p = new THREE.Vector3();
+        const q = new THREE.Quaternion();
+        const s = new THREE.Vector3();
+        o.matrixWorld.decompose(p, q, s);
+        const e = new THREE.Euler().setFromQuaternion(q);
+
         return {
-          x: Number(o.position.x.toFixed(2)), y: Number(o.position.y.toFixed(2)), z: Number(o.position.z.toFixed(2)),
-          rx: Number(o.rotation.x.toFixed(2)), ry: Number(o.rotation.y.toFixed(2)), rz: Number(o.rotation.z.toFixed(2)),
-          sx: Number(o.scale.x.toFixed(2)), sy: Number(o.scale.y.toFixed(2)), sz: Number(o.scale.z.toFixed(2)),
+          x: Number(p.x.toFixed(2)), y: Number(p.y.toFixed(2)), z: Number(p.z.toFixed(2)),
+          rx: Number(e.x.toFixed(2)), ry: Number(e.y.toFixed(2)), rz: Number(e.z.toFixed(2)),
+          sx: Number(s.x.toFixed(2)), sy: Number(s.y.toFixed(2)), sz: Number(s.z.toFixed(2)),
           color: col
         };
       });
