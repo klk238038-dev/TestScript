@@ -456,7 +456,7 @@ function renderShop(msg){$('shn').textContent='Нейт за этот забег
 function openShop(){state='shop';renderShop();$('shop').style.display='flex';sfx('floor')}
 function closeShop(){$('shop').style.display='none';state='play';DC=2;P.x=Math.min(X-1,P.x+3);P.inv=Math.max(P.inv,1.5)}
 $('shx').onclick=closeShop;
-const CODES={'РЕНДИ':'test','РЭНДИ':'test','КЛЮЧ':'wrench','ПОДАРОК':'neit150','БОБЫ':'neit100','8826015':'neit500','НИКИТА':'nikita','ЗЕНО':'друг'};
+const CODES={'РЕНДИ':'test','РЭНДИ':'test','КЛЮЧ':'wrench','ПОДАРОК':'neit150','БОБЫ':'neit100','8826015':'neit500','НИКИТА':'nikita','ЗЕНО':'friend'};
 const SALT='rr-save-v1';
 function h32(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h.toString(16)}
 function b64e(s){return btoa(unescape(encodeURIComponent(s)))}
