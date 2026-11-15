@@ -436,7 +436,7 @@ pick('tony');renderPicks();
 $('go').onclick=()=>{ac();amb();reset();state='play';$('ov').style.display='none'};
 // скилл-чек (Тони чинит плохо → узкая зона)
 function startSC(m){sfx('start');sc={m,a:0,z:Math.random()*3+1.5,len:CH[cur].len*(eq('loupe')?1.1:1)};}
-function gain(){const g=5*(HARD?2:1);SV.neit+=g;RN+=g}
+function gain(){const g=(5*(HARD?2:1))*(cur==='cameron'?2:1);SV.neit+=g;RN+=g}
 function hitSC(){if(!sc)return;const d=((sc.a-sc.z)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
  if(d<sc.len+.15||d>Math.PI*2-.15){sfx('hit');sc.m.p++;say('Попал! '+sc.m.p+'/'+CH[cur].hits+(sc.m.p<CH[cur].hits?' — нажми «Чинить» ещё раз':''),2);if(sc.m.p>=CH[cur].hits){sc.m.done=true;sc.m.l.material.color.set(0x44ff88);fixed++;sfx('done');gain();save();upd();say('Машина починена! +'+(HARD?10:5)+' Нейта');if(fixed==NM)say('Лифт открыт! Беги наверх ↑',4)}}
  else{sfx('miss');P.rage=5;say('Промах! Твист разъярился. Нажми «Чинить» и попробуй снова',2)}sc=null;}
@@ -593,6 +593,5 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000
  sun.position.set(P.x,10,P.z);cam.position.set(P.x-Math.sin(CY)*11,9,P.z-Math.cos(CY)*11);cam.lookAt(P.x+Math.sin(CY)*3,1,P.z+Math.cos(CY)*3);
  if(sc){sc.a%=Math.PI*20}drawSC();R.render(S,cam)}
 requestAnimationFrame(loop);$('ov').style.display='flex'}
-const _oG=gain;gain=function(){const _n=SV.neit;_oG();if(cur==='cameron'){SV.neit+=(SV.neit-_n);upd()}};
 
 </script></body></html>
