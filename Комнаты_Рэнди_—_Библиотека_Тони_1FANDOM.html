@@ -500,11 +500,12 @@ $('svi').onclick=()=>{const r=readSave($('svt').value);if(r.err){$('svm').textCo
 $('cdb').onclick=()=>{$('cdm').textContent='';$('cdi').value='';$('cd').style.display='flex'};
 $('cdx').onclick=()=>{$('cd').style.display='none'};
 $('cdok').onclick=()=>{const c=$('cdi').value.trim().toUpperCase().replace(/Ё/g,'Е');const k=CODES[c];
- else if (k === 'nikita') {
-  Object.keys(CHARS).forEach(key => save.unlocked[key] = true);
-  Object.keys(TRINKETS).forEach(key => save.trinkets[key] = true);
-  writeSave();
+ if (k === 'nikita') {
+  SV.un = Object.keys(CHARS); // Открыть всех персонажей
+  SV.tr = Object.keys(TRINKETS); // Открыть все тринкеты
+  save(); // Вызов твоей функции сохранения
   $('cdm').textContent = 'Всё открыто!';
+  return; // Останавливаем код, чтобы он не пошел дальше
  }
  if(!k){$('cdm').textContent='Неверный код';return}
  if(k==='test'){$('cd').style.display='none';$('go').onclick();loadMap('big');floor=2;Mo.on=false;At.on=false;Az.on=false;Rn.on=false;spawnRandy();RSPD=1;$('ov').style.display='none';state='play';sfx('floor');say('Тест: большая библиотека, Рэнди в обычной скорости',4);return}
