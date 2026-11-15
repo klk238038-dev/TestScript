@@ -510,7 +510,8 @@ $('cdok').onclick=()=>{const c=$('cdi').value.trim().toUpperCase().replace(/Ё/g
     SV.un.push('friend'); save(); renderPicks(); 
     $('cdm').textContent='Код ЗЕНО принят! "Друг" разблокирован.'; sfx('pick'); return;
   } else { $('cdm').textContent='Этот персонаж уже открыт!'; return; }
-                       }
+ }
+                       //---------
  if(SV.tr.includes(k)){$('cdm').textContent='Этот тринкет у вас уже есть';return}
  SV.tr.push(k);save();renderTr();renderPicks();$('cdm').textContent='Код принят! Тринкет «'+TR[k].n+'» добавлен бесплатно (в меню «Тринкеты»)';sfx('pick')};
 let cdr=null,clx=0;const cv=$('c');
