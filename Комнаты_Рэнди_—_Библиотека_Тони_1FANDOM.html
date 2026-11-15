@@ -500,12 +500,12 @@ $('svi').onclick=()=>{const r=readSave($('svt').value);if(r.err){$('svm').textCo
 $('cdb').onclick=()=>{$('cdm').textContent='';$('cdi').value='';$('cd').style.display='flex'};
 $('cdx').onclick=()=>{$('cd').style.display='none'};
 $('cdok').onclick=()=>{const c=$('cdi').value.trim().toUpperCase().replace(/Ё/g,'Е');const k=CODES[c];
-                       else if (code === 'nikita') {
-  Object.keys(CHARS).forEach(k => save.unlocked[k] = true);
-  Object.keys(TRINKETS).forEach(k => save.trinkets[k] = true);
+ else if (k === 'nikita') {
+  Object.keys(CHARS).forEach(key => save.unlocked[key] = true);
+  Object.keys(TRINKETS).forEach(key => save.trinkets[key] = true);
   writeSave();
-  cdm.textContent = 'Всё открыто!';
-                       }
+  $('cdm').textContent = 'Всё открыто!';
+ }
  if(!k){$('cdm').textContent='Неверный код';return}
  if(k==='test'){$('cd').style.display='none';$('go').onclick();loadMap('big');floor=2;Mo.on=false;At.on=false;Az.on=false;Rn.on=false;spawnRandy();RSPD=1;$('ov').style.display='none';state='play';sfx('floor');say('Тест: большая библиотека, Рэнди в обычной скорости',4);return}
  if(k==='neit150'||k==='neit100'||k==='neit500'){const amt=k==='neit150'?150:k==='neit500'?500:100;if(!SV.cu)SV.cu=[];if(SV.cu.includes(c)){$('cdm').textContent='Этот код уже использован';return}SV.cu.push(c);SV.neit+=amt;save();renderPicks();$('cdm').textContent='Код принят! +'+amt+' Нейта';sfx('pick');return}
