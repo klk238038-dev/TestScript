@@ -263,6 +263,33 @@ function mkG(){try{const L=new THREE.FBXLoader(),buf=b=>Uint8Array.from(atob(b),
  const bb=new THREE.Box3().setFromObject(body),k=1.3/Math.max(bb.getSize(new THREE.Vector3()).y,.001);
  o.scale.setScalar(k);o.updateMatrixWorld(true);const b2=new THREE.Box3().setFromObject(body);o.position.set(-(b2.min.x+b2.max.x)/2,-b2.min.y,-(b2.min.z+b2.max.z)/2);
  return flip(o,39.5,hose,body)}catch(e){console.warn('G',e);return null}}
+ function mkBlackSquare(){
+  const g = new THREE.Group();
+
+  // Чёрное квадратное тело
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.1, 1.1, 0.65),
+    new THREE.MeshLambertMaterial({color:0x050505})
+  );
+  body.position.y = 0.65;
+  g.add(body);
+
+  // Белые глаза
+  const eyeMat = new THREE.MeshBasicMaterial({color:0xffffff});
+
+  const eye1 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.25, 0.25, 0.08),
+    eyeMat
+  );
+  eye1.position.set(-0.25, 0.78, 0.35);
+  g.add(eye1);
+
+  const eye2 = eye1.clone();
+  eye2.position.x = 0.25;
+  g.add(eye2);
+
+  return g;
+ }
 const CH={
  tony:{n:'Тони',cost:0,walk:4.2,run:6.2,drain:25,regen:15,len:1.0,hits:3,m:mk(FBX,TEX,39.5)},
  cel:{n:'Селестия',cost:450,drain:9,regen:20,len:1.2,get walk(){return P.cm==1?4.6:3.0},get run(){return P.cm==1?8.6:6.4},get hits(){return P.cm==1?2:1},m:mk(FBXC,TEXC,41,0)},
@@ -446,7 +473,7 @@ function renderShop(msg){$('shn').textContent='Нейт за этот забег
 function openShop(){state='shop';renderShop();$('shop').style.display='flex';sfx('floor')}
 function closeShop(){$('shop').style.display='none';state='play';DC=2;P.x=Math.min(X-1,P.x+3);P.inv=Math.max(P.inv,1.5)}
 $('shx').onclick=closeShop;
-const CODES={'РЕНДИ':'test','РЭНДИ':'test','КЛЮЧ':'wrench','ПОДАРОК':'neit150','БОБЫ':'neit100','8826015':'neit500'};
+const CODES={'РЕНДИ':'test','РЭНДИ':'test','КЛЮЧ':'wrench','ПОДАРОК':'neit150','БОБЫ':'neit100','8826015':'neit500','НИКИТА':'all'};
 const SALT='rr-save-v1';
 function h32(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h.toString(16)}
 function b64e(s){return btoa(unescape(encodeURIComponent(s)))}
@@ -475,6 +502,12 @@ $('cdx').onclick=()=>{$('cd').style.display='none'};
 $('cdok').onclick=()=>{const c=$('cdi').value.trim().toUpperCase().replace(/Ё/g,'Е');const k=CODES[c];
  if(!k){$('cdm').textContent='Неверный код';return}
  if(k==='test'){$('cd').style.display='none';$('go').onclick();loadMap('big');floor=2;Mo.on=false;At.on=false;Az.on=false;Rn.on=false;spawnRandy();RSPD=1;$('ov').style.display='none';state='play';sfx('floor');say('Тест: большая библиотека, Рэнди в обычной скорости',4);return}
+                       else if (code === 'НИКИТА') {
+  Object.keys(CHARS).forEach(k => save.unlocked[k] = true);
+  Object.keys(TRINKETS).forEach(k => save.trinkets[k] = true);
+  writeSave();
+  cdm.textContent = 'Всё открыто!';
+                       }
  if(k==='neit150'||k==='neit100'||k==='neit500'){const amt=k==='neit150'?150:k==='neit500'?500:100;if(!SV.cu)SV.cu=[];if(SV.cu.includes(c)){$('cdm').textContent='Этот код уже использован';return}SV.cu.push(c);SV.neit+=amt;save();renderPicks();$('cdm').textContent='Код принят! +'+amt+' Нейта';sfx('pick');return}
  if(SV.tr.includes(k)){$('cdm').textContent='Этот тринкет у вас уже есть';return}
  SV.tr.push(k);save();renderTr();renderPicks();$('cdm').textContent='Код принят! Тринкет «'+TR[k].n+'» добавлен бесплатно (в меню «Тринкеты»)';sfx('pick')};
