@@ -307,7 +307,7 @@ function eq(k){return SV.eq.includes(k)}if(typeof SV.vol!='number')SV.vol=1;if(t
 function save(){try{localStorage.setItem('rr_lib',JSON.stringify(SV))}catch(e){}}
 const berry=new THREE.Group();{const b=new THREE.Mesh(new THREE.SphereGeometry(.42,20,16),M(0x2b3a8f,{emissive:0x0a0f30}));b.position.y=.45;berry.add(b);
  const c=new THREE.Mesh(new THREE.ConeGeometry(.14,.12,5),M(0x2a6a3a));c.position.y=.87;berry.add(c)}berry.visible=false;S.add(berry);
-function pick(k){cur=k;$('ab').style.display=(k=='razzy'||k=='cel')?'flex':'none';tony.clear();tony.add(CH[k].m||fb());document.querySelectorAll('.pk').forEach(b=>b.classList.toggle('on',b.dataset.k==k))}
+function pick(k){cur=k;$('ab').style.display=(k=='razzy'||k=='cel'||k=='marko')?'flex':'none';tony.clear();tony.add(CH[k].m||fb());document.querySelectorAll('.pk').forEach(b=>b.classList.toggle('on',b.dataset.k==k))}
 function fb(){const c=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,.8,20),M(0xf5f0e8));c.position.y=.45;return c}
 const rm=new THREE.Group();S.add(rm);rm.visible=false;const Rn={on:false,x:0,z:0,r:.6,tx:0,tz:0,wt:0,mem:0};
 {const g=mk(FBXR,TEXR,0);if(g){g.scale.setScalar(1.45);rm.add(g)}else{const f=new THREE.Mesh(new THREE.SphereGeometry(.6),M(0x6a2a10));f.position.y=.7;rm.add(f)}}
