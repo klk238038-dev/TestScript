@@ -501,9 +501,9 @@ $('cdb').onclick=()=>{$('cdm').textContent='';$('cdi').value='';$('cd').style.di
 $('cdx').onclick=()=>{$('cd').style.display='none'};
 $('cdok').onclick=()=>{const c=$('cdi').value.trim().toUpperCase().replace(/Ё/g,'Е');const k=CODES[c];
  if(!k){$('cdm').textContent='Неверный код';return}
-                       if (k === 'nikita') {
+ if (k === 'nikita') {
   SV.un = Object.keys(CHARS);
-  SV.tr = Object.keys(TRINKETS);
+  SV.tr = Object.keys(TR);
   save();
   renderPicks();
   renderTr();
