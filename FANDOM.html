@@ -585,4 +585,83 @@ const sp=(sc?0:(run?CH[cur].run:CH[cur].walk)+P.sb)*(P.bb>0?.5:1)*(inP?.5:1)*spM
  sun.position.set(P.x,10,P.z);cam.position.set(P.x-Math.sin(CY)*11,9,P.z-Math.cos(CY)*11);cam.lookAt(P.x+Math.sin(CY)*3,1,P.z+Math.cos(CY)*3);
  if(sc){sc.a%=Math.PI*20}drawSC();R.render(S,cam)}
 requestAnimationFrame(loop);$('ov').style.display='flex';
+ <script>
+(function() {
+    // ЖДЕМ, КОГДА ЗАГРУЗИТСЯ МЕНЮ
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // ПРОВЕРКА: Кто выбран? 
+        // Если нужен другой персонаж, напиши его код вместо 'tony' (например: 'matt', 'george', 'cel', 'sam', 'razzy', или 'friend')
+        const selectedChar = document.querySelector('.pk.on')?.dataset.k;
+
+        // Если выбран НЕ Тони — выходим, способностей не будет.
+        // (Если хочешь для всех — просто удали эту строчку if)
+        if (selectedChar !== 'friend') {
+            return; 
+        }
+
+        console.log("Способности активированы для: " + selectedChar);
+
+        // 1. Создаем кнопки
+        const btnF = document.createElement('div');
+        btnF.className = 'btn';
+        btnF.style.cssText = 'right:114px; bottom:210px; width:66px; height:66px; background:#5ac8fa; display:flex; align-items:center; justify-content:center; font-size:24px; z-index:9999; color:#fff; pointer-events:auto;';
+        btnF.innerText = '❄️';
+
+        const btnI = document.createElement('div');
+        btnI.className = 'btn';
+        btnI.style.cssText = 'right:18px; bottom:210px; width:66px; height:66px; background:#ffcc00; display:flex; align-items:center; justify-content:center; font-size:24px; z-index:9999; color:#fff; pointer-events:auto;';
+        btnI.innerText = '🛡️';
+
+        document.body.appendChild(btnF);
+        document.body.appendChild(btnI);
+
+        let frozen = false, fEnd = 0, fCd = 0;
+        let invincible = false, iEnd = 0, iCd = 0;
+
+        // 2. Заморозка
+        const originalRAF = window.requestAnimationFrame;
+        let savedCallback = null;
+        window.requestAnimationFrame = function(callback) {
+            if (frozen) { savedCallback = callback; return 1; }
+            return originalRAF(callback);
+        };
+
+        // 3. Бессмертие
+        let lastHp = "";
+        setInterval(() => {
+            const hpEl = document.getElementById('hp');
+            if (hpEl) {
+                if (!invincible) { lastHp = hpEl.innerText; } 
+                else { if (hpEl.innerText !== lastHp) { hpEl.innerText = lastHp; } }
+            }
+        }, 30);
+
+        // 4. Нажатия
+        btnF.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (Date.now() < fCd) return;
+            frozen = true; fEnd = Date.now() + 10000; fCd = Date.now() + 15000;
+        });
+
+        btnI.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (Date.now() < iCd) return;
+            invincible = true; iEnd = Date.now() + 30000; iCd = Date.now() + 10000;
+        });
+
+        // 5. Таймеры
+        setInterval(() => {
+            const now = Date.now();
+            if (frozen && now > fEnd) { frozen = false; if (savedCallback) { originalRAF(savedCallback); savedCallback = null; } }
+            if (invincible && now > iEnd) { invincible = false; }
+
+            btnF.innerText = (now < fCd) ? Math.ceil((fCd - now) / 1000) : '❄️';
+            btnF.style.opacity = (now < fCd) ? '0.5' : '1';
+            
+            btnI.innerText = (now < iCd) ? Math.ceil((iCd - now) / 1000) : '🛡️';
+            btnI.style.opacity = (now < iCd) ? '0.5' : '1';
+        }, 100);
+    });
+})();
 </script></body></html>
