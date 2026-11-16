@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Randy's Rooms — 3D Models</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#11151d;color:#f4f6fb;font-family:Arial,sans-serif}#stage{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.panel{position:fixed;z-index:3;left:12px;top:12px;width:min(360px,calc(100vw - 24px));max-height:calc(100dvh - 80px);overflow:auto;padding:14px;background:#1b2230ed;border:1px solid #46536a;border-radius:14px;box-shadow:0 8px 28px #0008}.panel h1{font-size:17px;margin:0 0 7px}.sub{font-size:12px;color:#c1cbdb;line-height:1.45;margin:0 0 10px}button,select,input{width:100%;padding:11px;margin-top:8px;border:1px solid #55647c;border-radius:9px;background:#293449;color:white;font-size:14px}button{background:#4268d3;border:0;font-weight:700;cursor:pointer}button:active{filter:brightness(1.2)}button.secondary{background:#354154}.status{font-size:12px;color:#bed0ef;line-height:1.4;margin-top:10px;overflow-wrap:anywhere}.error{color:#ffaaaa}.tip{position:fixed;z-index:2;bottom:12px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 24px);padding:8px 12px;border-radius:10px;background:#192130df;color:#e4eaf5;font-size:12px;text-align:center;pointer-events:none}.hide{position:fixed;z-index:4;right:12px;top:12px;width:auto;padding:10px 12px}.small{font-size:11px;color:#aab7cc;margin-top:8px;line-height:1.4}@media(max-width:520px){.panel{top:10px;left:10px;padding:12px}.tip{font-size:10px}}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<section class="panel" id="panel">
+  <h1>Randy's Rooms — 3D Models</h1>
+  <p class="sub">Загружаю RR_Assets.zip из твоего GitHub. После загрузки выбери модель и вращай её пальцем.</p>
+  <select id="modelSelect" disabled><option>Загрузка архива…</option></select>
+  <button id="reload" class="secondary">Загрузить архив ещё раз</button>
+  <label class="small" for="zipInput">Если автоматическая загрузка не сработала — выбери RR_Assets.zip:</label>
+  <input id="zipInput" type="file" accept=".zip,application/zip">
+  <button id="saveModel">Сохранить только выбранную модель (.glb)</button>
+  <button id="reset" class="secondary">Сбросить камеру</button>
+  <div id="status" class="status">Подключаюсь к GitHub…</div>
+  <div id="error" class="status error"></div>
+  <div class="small">Модели из набора: Employee's, Altered's и Rabuba's. Для загрузки архива и 3D-библиотеки нужен интернет.</div>
+</section>
+<button class="hide" id="toggle">Скрыть меню</button>
+<div class="tip">Вращение — один палец · Масштаб — щипок двумя пальцами · Перемещение — два пальца</div>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {FBXLoader} from 'three/addons/loaders/FBXLoader.js';
+import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
+
+const stage=document.getElementById('stage');
+const statusEl=document.getElementById('status');
+const errorEl=document.getElementById('error');
+const select=document.getElementById('modelSelect');
+const zipInput=document.getElementById('zipInput');
+const ZIP_URL='https://raw.githubusercontent.com/klk238038-dev/TestScript/refs/heads/main/RR_Assets.zip';
+
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x171c26);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.001,100000);
+camera.position.set(4,3,6);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.075;controls.screenSpacePanning=true;
+scene.add(new THREE.HemisphereLight(0xffffff,0x657086,2.0));
+const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(5,8,6);scene.add(sun);
+const fill=new THREE.DirectionalLight(0x9bbcff,1.0);fill.position.set(-6,3,-5);scene.add(fill);
+const grid=new THREE.GridHelper(10,20,0x65718a,0x30394c);scene.add(grid);
+let current=null,entries=[],textureUrls=[],archive=null;
+
+function cleanCurrent(){if(current){scene.remove(current);disposeObject(current);current=null}}
+function disposeObject(root){root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){for(const v of Object.values(m)){if(v&&v.isTexture)v.dispose()}m.dispose()}}})}
+function centerAndFrame(root){
+  const box=new THREE.Box3().setFromObject(root);if(box.isEmpty())return;
+  const size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+  const pivot=new THREE.Group();pivot.add(root);root.position.sub(center);scene.add(pivot);current=pivot;
+  const max=Math.max(size.x,size.y,size.z,0.1),d=max*2.5;
+  camera.position.set(d*.95,d*.65,d*1.15);camera.near=Math.max(max/10000,.001);camera.far=max*100;camera.updateProjectionMatrix();
+  controls.target.set(0,0,0);controls.minDistance=max*.04;controls.maxDistance=max*35;controls.update();
+  grid.position.y=-size.y*.5;grid.scale.setScalar(Math.max(1,max/10));
+}
+function showModel(index){
+  const item=entries[index];if(!item)return;cleanCurrent();
+  const pivot=new THREE.Group();pivot.add(item.object);
+  const box=new THREE.Box3().setFromObject(item.object);
+  if(!box.isEmpty()){const center=box.getCenter(new THREE.Vector3());item.object.position.sub(center);const size=box.getSize(new THREE.Vector3());const max=Math.max(size.x,size.y,size.z,.1),d=max*2.5;camera.position.set(d*.95,d*.65,d*1.15);camera.near=Math.max(max/10000,.001);camera.far=max*100;camera.updateProjectionMatrix();controls.target.set(0,0,0);controls.minDistance=max*.04;controls.maxDistance=max*35;grid.position.y=-size.y*.5;grid.scale.setScalar(Math.max(1,max/10));}
+  scene.add(pivot);current=pivot;controls.update();statusEl.textContent='Модель: '+item.name;
+}
+function normalizePath(s){return decodeURIComponent(String(s||'').replace(/\\/g,'/')).replace(/^\.\//,'').toLowerCase()}
+async function loadZipFile(file){
+  errorEl.textContent='';statusEl.textContent='Читаю ZIP-архив…';select.disabled=true;select.innerHTML='<option>Чтение архива…</option>';cleanCurrent();entries=[];
+  try{
+    if(!window.JSZip)throw new Error('Не загрузилась библиотека для ZIP. Проверь интернет и обнови страницу.');
+    archive=await JSZip.loadAsync(file);
+    const files=Object.values(archive.files).filter(f=>!f.dir&&f.name.toLowerCase().endsWith('.fbx'));
+    if(!files.length)throw new Error('В ZIP не найдено ни одного файла FBX.');
+    statusEl.textContent=`Найдено FBX-моделей: ${files.length}. Подготавливаю текстуры…`;
+    // Create browser URLs for archive textures and other linked assets.
+    const assetMap=new Map();
+    for(const f of Object.values(archive.files)){
+      if(f.dir||f.name.toLowerCase().endsWith('.fbx'))continue;
+      const blob=await f.async('blob');const url=URL.createObjectURL(blob);textureUrls.push(url);
+      assetMap.set(normalizePath(f.name),url);assetMap.set(normalizePath(f.name.split('/').pop()),url);
+    }
+    const manager=new THREE.LoadingManager();
+    manager.setURLModifier(url=>{
+      let raw=url.split(/[?#]/)[0];try{raw=decodeURIComponent(raw)}catch{}
+      let key=normalizePath(raw);
+      if(assetMap.has(key))return assetMap.get(key);
+      const base=normalizePath(key.split('/').pop());
+      if(assetMap.has(base))return assetMap.get(base);
+      return url;
+    });
+    const loader=new FBXLoader(manager);
+    for(let i=0;i<files.length;i++){
+      const f=files[i];statusEl.textContent=`Загружаю модель ${i+1}/${files.length}: ${f.name.split('/').pop()}`;
+      try{
+        const buffer=await f.async('arraybuffer');
+        const object=loader.parse(buffer,'');
+        object.traverse(o=>{if(o.isMesh){o.frustumCulled=false;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>{m.needsUpdate=true})}}});
+        entries.push({name:f.name.split('/').pop(),object});
+      }catch(err){console.warn('FBX parse error:',f.name,err)}
+    }
+    if(!entries.length)throw new Error('FBX-файлы найдены, но браузер не смог разобрать модели.');
+    select.innerHTML='';entries.forEach((item,i)=>{const op=document.createElement('option');op.value=i;op.textContent=item.name;select.appendChild(op)});
+    select.disabled=false;showModel(0);statusEl.textContent=`Готово. Загружено моделей: ${entries.length}.`;
+  }catch(err){console.error(err);statusEl.textContent='Не удалось загрузить модели.';errorEl.textContent=err.message||String(err)}
+}
+async function fetchDefaultZip(){
+  errorEl.textContent='';statusEl.textContent='Скачиваю RR_Assets.zip из твоего GitHub…';select.disabled=true;
+  try{
+    const response=await fetch(ZIP_URL,{cache:'no-store'});
+    if(!response.ok)throw new Error('GitHub ответил '+response.status+'. Выбери ZIP вручную ниже.');
+    const blob=await response.blob();
+    if(blob.size<1000)throw new Error('Вместо ZIP получен пустой ответ. Выбери ZIP вручную.');
+    const file=new File([blob],'RR_Assets.zip',{type:'application/zip'});
+    await loadZipFile(file);
+  }catch(err){console.warn(err);statusEl.textContent='Автоматическая загрузка не сработала.';errorEl.textContent=(err.message||String(err))+' Можно выбрать RR_Assets.zip вручную.'}
+}
+select.addEventListener('change',()=>showModel(Number(select.value)));
+zipInput.addEventListener('change',()=>{if(zipInput.files&&zipInput.files[0])loadZipFile(zipInput.files[0])});
+document.getElementById('reload').addEventListener('click',fetchDefaultZip);
+document.getElementById('saveModel').addEventListener('click',async()=>{
+  const item=entries[Number(select.value)];
+  if(!item){errorEl.textContent='Сначала загрузи и выбери одну модель.';return}
+  const button=document.getElementById('saveModel');button.disabled=true;button.textContent='Подготавливаю модель…';errorEl.textContent='';
+  try{
+    const exporter=new GLTFExporter();
+    const single=item.object.clone(true);
+    single.traverse(o=>{if(o.isMesh){if(o.geometry)o.geometry=o.geometry.clone();if(o.material)o.material=Array.isArray(o.material)?o.material.map(m=>m.clone()):o.material.clone();}});
+    const result=await exporter.parseAsync(single,{binary:true,onlyVisible:true});
+    const url=URL.createObjectURL(new Blob([result],{type:'model/gltf-binary'}));
+    const a=document.createElement('a');a.href=url;
+    const safeName=item.name.replace(/\.fbx$/i,'').replace(/[^a-z0-9а-яё_-]+/gi,'_')||'model';
+    a.download=safeName+'.glb';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+    statusEl.textContent='Сохранена только выбранная модель: '+a.download;
+  }catch(err){console.error(err);errorEl.textContent='Не удалось сохранить модель: '+(err.message||String(err));}
+  finally{button.disabled=false;button.textContent='Сохранить только выбранную модель (.glb)';}
+});
+
+document.getElementById('reset').addEventListener('click',()=>{if(current){const box=new THREE.Box3().setFromObject(current),size=box.getSize(new THREE.Vector3());const max=Math.max(size.x,size.y,size.z,.1),d=max*2.5;camera.position.set(d*.95,d*.65,d*1.15);controls.target.set(0,0,0);controls.update()}});
+document.getElementById('toggle').addEventListener('click',()=>{const p=document.getElementById('panel');p.hidden=!p.hidden;document.getElementById('toggle').textContent=p.hidden?'Показать меню':'Скрыть меню'});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera)});
+fetchDefaultZip();
+</script>
+</body>
+</html>
