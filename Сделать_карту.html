@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unity 3D Map Builder & Game (Mobile + PC)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
+  body, html { width: 100%; height: 100%; overflow: hidden; background: #1e1e1e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #e0e0e0; font-size: 13px; }
+  #canvas-container { position: fixed; inset: 0; z-index: 1; }
+  
+  /* Top Toolbar */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 48px; background: #252526; border-bottom: 1px solid #3c3c3c;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 8px; z-index: 20; gap: 6px; overflow-x: auto;
+  }
+  .btn-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  button {
+    background: #333337; color: #f0f0f0; border: 1px solid #47474c; border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    transition: background 0.12s, transform 0.08s;
+  }
+  button:active { transform: scale(0.96); }
+  button.active { background: #0e639c; border-color: #1177bb; color: #fff; }
+  button.play-btn { background: #2ea043; border-color: #3fb950; color: #fff; }
+  button.play-btn.playing { background: #da3633; border-color: #f85149; }
+  button.ai-btn { background: #6e40c9; border-color: #8957e5; color: #fff; }
+
+  /* Side Panels (Collapsible for Mobile) */
+  .panel {
+    position: fixed; top: 48px; bottom: 0; width: 250px; max-width: 78vw; background: rgba(37, 37, 38, 0.95);
+    border-right: 1px solid #3c3c3c; z-index: 15; display: flex; flex-direction: column; transition: transform 0.2s ease;
+    backdrop-filter: blur(6px);
+  }
+  #left-panel { left: 0; }
+  #left-panel.collapsed { transform: translateX(-100%); }
+  #right-panel { right: 0; border-right: none; border-left: 1px solid #3c3c3c; }
+  #right-panel.collapsed { transform: translateX(100%); }
+
+  .panel-header {
+    padding: 8px 10px; background: #2d2d30; border-bottom: 1px solid #3c3c3c; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .panel-body { padding: 8px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; touch-action: pan-y; }
+
+  .spawn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .spawn-grid button { justify-content: flex-start; padding: 8px 6px; font-size: 11px; }
+  .special-btn { grid-column: span 2; background: #2b3a4a; border-color: #3d5a80; font-size: 12px !important; }
+
+  .hierarchy-list { display: flex; flex-direction: column; gap: 3px; }
+  .hier-item {
+    padding: 6px 8px; border-radius: 4px; background: #2d2d30; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  }
+  .hier-item.selected { background: #094771; color: #fff; }
+
+  /* Inspector Controls */
+  .prop-group { background: #2d2d30; padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
+  .prop-label { font-size: 11px; color: #aaa; font-weight: 600; }
+  .vec3-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+  .vec3-cell { display: flex; align-items: center; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 2px 4px; }
+  .vec3-cell span { font-size: 10px; font-weight: bold; margin-right: 3px; }
+  .vec3-cell input { width: 100%; background: transparent; border: none; color: #fff; font-size: 12px; outline: none; }
+  select, input[type="text"], input[type="color"] {
+    width: 100%; background: #1e1e1e; border: 1px solid #444; color: #fff; padding: 5px; border-radius: 4px; font-size: 12px;
+  }
+  input[type="color"] { height: 32px; padding: 2px; cursor: pointer; }
+
+  /* Mobile On-Screen Controls */
+  #mobile-editor-pad {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 12;
+    display: flex; gap: 8px; background: rgba(30,30,30,0.85); padding: 6px 10px; border-radius: 12px; border: 1px solid #444;
+  }
+  .nudge-grid { display: grid; grid-template-columns: repeat(3, 36px); grid-template-rows: repeat(2, 36px); gap: 4px; }
+  .nudge-grid button, .vert-pad button { padding: 0; justify-content: center; font-size: 15px; width: 36px; height: 36px; }
+  .vert-pad { display: flex; flex-direction: column; gap: 4px; }
+
+  /* Play Mode HUD & Touch Controls */
+  #play-hud { position: fixed; inset: 0; pointer-events: none; z-index: 18; display: none; }
+  #play-hud.active { display: block; }
+  #joystick-zone {
+    position: fixed; bottom: 24px; left: 24px; width: 120px; height: 120px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.3); pointer-events: auto;
+  }
+  #joystick-knob {
+    position: absolute; top: 35px; left: 35px; width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.65); pointer-events: none;
+  }
+  #action-buttons {
+    position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; pointer-events: auto;
+  }
+  .touch-action-btn {
+    width: 64px; height: 64px; border-radius: 50%; font-size: 14px; font-weight: 800; justify-content: center;
+    background: rgba(14, 99, 156, 0.85); border: 2px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  #extract-btn { background: rgba(218, 54, 51, 0.9); display: none; }
+  #machine-progress-box {
+    position: fixed; top: 64px; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.9);
+    border: 2px solid #f85149; border-radius: 10px; padding: 10px 18px; text-align: center; display: none;
+  }
+  #progress-bar-bg { width: 200px; height: 14px; background: #333; border-radius: 7px; overflow: hidden; margin-top: 6px; }
+  #progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #da3633, #3fb950); transition: width 0.08s; }
+
+  /* Modal for JSON */
+  #json-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50; display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  #json-modal.open { display: flex; }
+  .modal-card { background: #252526; border: 1px solid #444; border-radius: 10px; width: 100%; max-width: 480px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  textarea { width: 100%; height: 180px; background: #1e1e1e; color: #9cdcfe; border: 1px solid #444; border-radius: 6px; padding: 8px; font-family: monospace; font-size: 11px; resize: none; touch-action: pan-y; }
+  #toast {
+    position: fixed; top: 58px; left: 50%; transform: translateX(-50%); background: #2ea043; color: #fff;
+    padding: 8px 16px; border-radius: 20px; font-weight: 700; z-index: 60; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+<div id="toast">Скопировано!</div>
+
+<!-- Top Toolbar -->
+<div id="topbar">
+  <div class="btn-group">
+    <button id="toggle-left-btn" title="Объекты">☰</button>
+    <button id="mode-move" class="active" data-mode="move">✥ Двиг</button>
+    <button id="mode-rot" data-mode="rotate">↻ Вращ</button>
+    <button id="mode-scale" data-mode="scale">⤢ Разм</button>
+    <button id="snap-btn" class="active">🧲 Сетка</button>
+  </div>
+  <div class="btn-group">
+    <button id="play-toggle-btn" class="play-btn">▶ Играть</button>
+    <button id="copy-ai-btn" class="ai-btn">📋 Копировать</button>
+    <button id="load-json-btn">📥 JSON</button>
+    <button id="toggle-right-btn" title="Инспектор">⚙️</button>
+  </div>
+</div>
+
+<!-- Left Panel: Objects & Hierarchy -->
+<div id="left-panel" class="panel">
+  <div class="panel-header">
+    <span>Создать объект</span>
+    <button id="close-left-btn" style="padding:2px 6px;">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="spawn-grid">
+      <button class="special-btn" id="add-player-spawn">☀️ Спавн Игрока (Roblox)</button>
+      <button class="special-btn" id="add-dandy-machine">🛢️ Машина (Dandy's World)</button>
+      <button id="add-cube">📦 Куб</button>
+      <button id="add-platform">🟫 Платформа</button>
+      <button id="add-wall">🧱 Стена</button>
+      <button id="add-ramp">📐 Рампа</button>
+      <button id="add-cylinder">🛢 Цилиндр</button>
+      <button id="add-sphere">⚪ Сфера</button>
+    </div>
+    <div class="prop-label" style="margin-top:6px;">ИЕРАРХИЯ СЦЕНЫ</div>
+    <div id="hierarchy-list" class="hierarchy-list"></div>
+  </div>
+</div>
+
+<!-- Right Panel: Inspector & 30 Textures -->
+<div id="right-panel" class="panel">
+  <div class="panel-header">
+    <span>Инспектор</span>
+    <button id="close-right-btn" style="padding:2px 6px;">✕</button>
+  </div>
+  <div class="panel-body" id="inspector-body">
+    <div style="color:#888; text-align:center; margin-top:20px;">Выберите объект на сцене</div>
+  </div>
+</div>
+
+<!-- Mobile Precision Nudge Pad (Editor Mode) -->
+<div id="mobile-editor-pad">
+  <div class="nudge-grid">
+    <div></div>
+    <button id="pad-z-neg">▲</button>
+    <div></div>
+    <button id="pad-x-neg">◀</button>
+    <button id="pad-z-pos">▼</button>
+    <button id="pad-x-pos">▶</button>
+  </div>
+  <div class="vert-pad">
+    <button id="pad-y-pos">⬆</button>
+    <button id="pad-y-neg">⬇</button>
+  </div>
+</div>
+
+<!-- Play Mode HUD -->
+<div id="play-hud">
+  <div id="machine-progress-box">
+    <div id="machine-status-text" style="font-weight:700; font-size:13px;">Заполнение колбы ихором...</div>
+    <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
+  </div>
+  <div id="joystick-zone"><div id="joystick-knob"></div></div>
+  <div id="action-buttons">
+    <button id="extract-btn" class="touch-action-btn">⚙️<br>ВЕНТИЛЬ</button>
+    <button id="jump-btn" class="touch-action-btn">⬆️<br>ПРЫЖОК</button>
+  </div>
+</div>
+
+<!-- JSON Import/Export Modal -->
+<div id="json-modal">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong>JSON Карты (Загрузка / Просмотр)</strong>
+      <button id="close-modal-btn">✕</button>
+    </div>
+    <textarea id="json-textarea" placeholder="Вставьте сюда JSON карты от Claude или скопируйте текущий..."></textarea>
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button id="apply-json-btn" class="play-btn">Загрузить на сцену</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// --- 1. TEXTURE LIBRARY (30 TEXTURES, #1 IS PLAIN SOLID COLOR) ---
+const TEXTURE_NAMES = [
+  "1. Обычная (Без узора)",
+  "2. Roblox Studs (Пупырышки)",
+  "3. Roblox Spawn Sun (Солнце)",
+  "4. Кирпичная кладка",
+  "5. Бетонные плиты",
+  "6. Деревянные доски",
+  "7. Рифлёный металл",
+  "8. Шахматная доска",
+  "9. Зелёный газон (Трава)",
+  "10. Асфальт с разметкой",
+  "11. Неоновая сетка (Synthwave)",
+  "12. Каменный булыжник",
+  "13. Белый мрамор",
+  "14. Плитка бассейна",
+  "15. Жёлтый песок",
+  "16. Звёздный космос",
+  "17. Ржавый металл",
+  "18. Карбон (Углепластик)",
+  "19. Кожаная обивка",
+  "20. Ткань / Брезент",
+  "21. Цифровая матрица",
+  "22. Раскалённая лава",
+  "23. Золотой слиток",
+  "24. Ледяной кристалл",
+  "25. Декоративная штукатурка",
+  "26. Военный камуфляж",
+  "27. Паркет ёлочкой",
+  "28. Тротуарная брусчатка",
+  "29. Обшивка звездолёта",
+  "30. Предупреждающая лента"
+];
+
+const textureCache = {};
+
+function getProceduralTexture(index, tileX = 1, tileY = 1) {
+  const key = `${index}_${tileX}_${tileY}`;
+  if (textureCache[key]) return textureCache[key];
+
+  if (index === 0) {
+    textureCache[key] = null; // #1 Обычная (Plain material)
+    return null;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Base white/neutral so object color tints it nicely
+  ctx.fillStyle = '#dcdcdc';
+  ctx.fillRect(0, 0, 256, 256);
+
+  switch (index) {
+    case 1: // Roblox Studs
+      ctx.fillStyle = '#cfcfcf';
+      ctx.fillRect(0, 0, 256, 256);
+      for (let y = 32; y < 256; y += 64) {
+        for (let x = 32; x < 256; x += 64) {
+          ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI * 2);
+          ctx.fillStyle = '#b0b0b0'; ctx.fill();
+          ctx.beginPath(); ctx.arc(x - 2, y - 2, 17, 0, Math.PI * 2);
+          ctx.fillStyle = '#e6e6e6'; ctx.fill();
+        }
+      }
+      break;
+    case 2: // Roblox Spawn Sun
+      ctx.fillStyle = '#e5e5e5';
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.save();
+      ctx.translate(128, 128);
+      ctx.strokeStyle = '#181818';
+      ctx.fillStyle = '#181818';
+      ctx.lineWidth = 10;
+      ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.stroke();
+      for (let i = 0; i < 8; i++) {
+        ctx.save();
+        ctx.rotate((i * Math.PI) / 4);
+        ctx.beginPath();
+        ctx.moveTo(-14, -44);
+        ctx.quadraticCurveTo(10, -78, 28, -112);
+        ctx.quadraticCurveTo(-2, -82, 14, -44);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+      break;
+    case 3: // Brick
+      ctx.fillStyle = '#b8b8b8'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#e8e8e8';
+      for (let row = 0; row < 8; row++) {
+        const off = (row % 2) * 32;
+        for (let col = -1; col < 5; col++) {
+          ctx.fillRect(col * 64 + off + 3, row * 32 + 3, 58, 26);
+        }
+      }
+      break;
+    case 4: // Concrete
+      for (let i = 0; i < 1800; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)';
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 4, 4);
+      }
+      ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 3;
+      ctx.strokeRect(2, 2, 252, 252);
+      break;
+    case 5: // Wood Planks
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#d8c8b4' : '#cbb89e';
+        ctx.fillRect(0, i * 64, 256, 62);
+        ctx.fillStyle = 'rgba(80,50,20,0.15)';
+        for (let j = 0; j < 12; j++) ctx.fillRect(0, i * 64 + j * 5, 256, 1);
+      }
+      break;
+    case 6: // Diamond Plate Metal
+      ctx.fillStyle = '#c4c8cc'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#f2f5f7';
+      for (let y = 16; y < 256; y += 32) {
+        for (let x = 16; x < 256; x += 32) {
+          ctx.save(); ctx.translate(x, y); ctx.rotate(((x + y) / 32) % 2 === 0 ? 0.78 : -0.78);
+          ctx.fillRect(-8, -3, 16, 6); ctx.restore();
+        }
+      }
+      break;
+    case 7: // Checkerboard
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          ctx.fillStyle = (x + y) % 2 === 0 ? '#f5f5f5' : '#4a4a4a';
+          ctx.fillRect(x * 32, y * 32, 32, 32);
+        }
+      }
+      break;
+    case 8: // Grass
+      ctx.fillStyle = '#8ec973'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 1400; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#6ba84f' : '#a8e08d';
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 3, 7);
+      }
+      break;
+    case 9: // Asphalt
+      ctx.fillStyle = '#555555'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 2000; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#666' : '#444';
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+      }
+      ctx.fillStyle = '#f0c419'; ctx.fillRect(122, 16, 12, 80); ctx.fillRect(122, 150, 12, 80);
+      break;
+    case 10: // Neon Grid
+      ctx.fillStyle = '#141428'; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#00f3ff'; ctx.lineWidth = 4;
+      for (let i = 0; i <= 256; i += 32) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
+      }
+      break;
+    case 11: // Cobblestone
+      ctx.fillStyle = '#777'; ctx.fillRect(0, 0, 256, 256);
+      for (let y = 0; y < 256; y += 42) {
+        for (let x = 0; x < 256; x += 42) {
+          ctx.fillStyle = '#bbb';
+          ctx.beginPath(); ctx.roundRect(x + 3, y + 3, 36, 36, 10); ctx.fill();
+        }
+      }
+      break;
+    case 12: // Marble
+      ctx.fillStyle = '#f7f7f7'; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = 'rgba(140,140,150,0.35)'; ctx.lineWidth = 3;
+      for (let i = 0; i < 8; i++) {
+        ctx.beginPath(); ctx.moveTo(0, i * 32);
+        ctx.bezierCurveTo(80, i * 32 + 40, 170, i * 32 - 30, 256, i * 32 + 15);
+        ctx.stroke();
+      }
+      break;
+    case 13: // Pool Tile
+      ctx.fillStyle = '#e0f7fa'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#4dd0e1';
+      for (let y = 0; y < 256; y += 32)
+        for (let x = 0; x < 256; x += 32)
+          ctx.fillRect(x + 2, y + 2, 28, 28);
+      break;
+    case 14: // Sand
+      ctx.fillStyle = '#e6d2a8'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 1500; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#d4bc8b' : '#f5e6c4';
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 3, 2);
+      }
+      break;
+    case 15: // Space Stars
+      ctx.fillStyle = '#090a16'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 90; i++) {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(Math.random() * 256, Math.random() * 256, Math.random() * 2.2, 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    case 16: // Rust
+      ctx.fillStyle = '#8c4a27'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 600; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#5c2c12' : '#b86835';
+        ctx.beginPath(); ctx.arc(Math.random() * 256, Math.random() * 256, Math.random() * 8, 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    case 17: // Carbon Fiber
+      ctx.fillStyle = '#222'; ctx.fillRect(0, 0, 256, 256);
+      for (let y = 0; y < 256; y += 16) {
+        for (let x = 0; x < 256; x += 16) {
+          ctx.fillStyle = (x + y) % 32 === 0 ? '#3a3a3a' : '#181818';
+          ctx.fillRect(x, y, 8, 8);
+        }
+      }
+      break;
+    case 18: // Leather
+      ctx.fillStyle = '#8d6e63'; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      for (let i = 0; i < 400; i++) {
+        ctx.strokeRect(Math.random() * 256, Math.random() * 256, 12, 12);
+      }
+      break;
+    case 19: // Fabric
+      ctx.fillStyle = '#cfd8dc'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      for (let i = 0; i < 256; i += 6) {
+        ctx.fillRect(i, 0, 2, 256); ctx.fillRect(0, i, 256, 2);
+      }
+      break;
+    case 20: // Matrix
+      ctx.fillStyle = '#051405'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#00ff41'; ctx.font = '14px monospace';
+      for (let x = 4; x < 256; x += 18) {
+        for (let y = 14; y < 256; y += 18) {
+          ctx.fillText(Math.random() > 0.5 ? '1' : '0', x, y);
+        }
+      }
+      break;
+    case 21: // Lava
+      ctx.fillStyle = '#d84315'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 70; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#ffeb3b' : '#3e2723';
+        ctx.beginPath(); ctx.arc(Math.random() * 256, Math.random() * 256, 8 + Math.random() * 14, 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    case 22: // Gold
+      const grad = ctx.createLinearGradient(0, 0, 256, 256);
+      grad.addColorStop(0, '#ffd54f'); grad.addColorStop(0.5, '#fff8e1'); grad.addColorStop(1, '#ffb300');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#ff8f00'; ctx.lineWidth = 8; ctx.strokeRect(8, 8, 240, 240);
+      break;
+    case 23: // Ice
+      ctx.fillStyle = '#b3e5fc'; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+      for (let i = 0; i < 25; i++) {
+        ctx.beginPath(); ctx.moveTo(Math.random() * 256, Math.random() * 256);
+        ctx.lineTo(Math.random() * 256, Math.random() * 256); ctx.stroke();
+      }
+      break;
+    case 24: // Stucco
+      ctx.fillStyle = '#ede7f6'; ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 900; i++) {
+        ctx.fillStyle = 'rgba(0,0,0,0.08)';
+        ctx.beginPath(); ctx.arc(Math.random() * 256, Math.random() * 256, 3, 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    case 25: // Camo
+      ctx.fillStyle = '#556b2f'; ctx.fillRect(0, 0, 256, 256);
+      const camoColors = ['#3b4d1e', '#8f9779', '#4b3621'];
+      for (let i = 0; i < 45; i++) {
+        ctx.fillStyle = camoColors[i % 3];
+        ctx.beginPath(); ctx.ellipse(Math.random() * 256, Math.random() * 256, 30, 16, Math.random() * 3, 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    case 26: // Parquet
+      for (let y = 0; y < 256; y += 32) {
+        for (let x = 0; x < 256; x += 64) {
+          ctx.fillStyle = ((x + y) / 32) % 2 === 0 ? '#d7ccc8' : '#bcaaa4';
+          ctx.fillRect(x, y, 62, 30);
+        }
+      }
+      break;
+    case 27: // Paving Stones
+      ctx.fillStyle = '#90a4ae'; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#455a64'; ctx.lineWidth = 4;
+      for (let y = 0; y < 256; y += 64)
+        for (let x = 0; x < 256; x += 64)
+          ctx.strokeRect(x + 2, y + 2, 60, 60);
+      break;
+    case 28: // Sci-Fi Hull
+      ctx.fillStyle = '#b0bec5'; ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#37474f'; ctx.lineWidth = 4;
+      ctx.strokeRect(10, 10, 236, 236);
+      ctx.strokeRect(40, 40, 176, 176);
+      ctx.fillStyle = '#00e5ff'; ctx.fillRect(118, 18, 20, 8);
+      break;
+    case 29: // Hazard Tape
+      ctx.fillStyle = '#fdd835'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#212121';
+      for (let i = -256; i < 512; i += 48) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + 24, 0); ctx.lineTo(i - 104, 256); ctx.lineTo(i - 128, 256); ctx.fill();
+      }
+      break;
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(tileX, tileY);
+  textureCache[key] = tex;
+  return tex;
+}
+
+// --- 2. THREE.JS SCENE SETUP ---
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1b222c);
+scene.fog = new THREE.Fog(0x1b222c, 40, 140);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+camera.position.set(10, 10, 14);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
+
+// Lights
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444455, 0.85);
+scene.add(hemiLight);
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+dirLight.position.set(18, 30, 15);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set(1024, 1024);
+scene.add(dirLight);
+
+const gridHelper = new THREE.GridHelper(60, 60, 0x4a5568, 0x2d3748);
+scene.add(gridHelper);
+
+// --- 3. OBJECT MANAGEMENT ---
+let sceneObjects = []; // { id, name, type, mesh, color, texIndex, tileX, tileY, collider, machineData }
+let selectedObj = null;
+let transformMode = 'move'; // 'move' | 'rotate' | 'scale'
+let useSnap = true;
+let isPlaying = false;
+
+function createDandyMachineMesh(colorHex) {
+  const group = new THREE.Group();
+
+  // Base metallic pedestal
+  const baseMat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.4, metalness: 0.5 });
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.72, 0.7, 20), baseMat);
+  base.position.y = 0.35;
+  base.castShadow = true;
+  group.add(base);
+
+  // Lower rim
+  const rim1 = new THREE.Mesh(new THREE.CylinderGeometry(0.82, 0.72, 0.2, 20), baseMat);
+  rim1.position.y = 0.75;
+  group.add(rim1);
+
+  // Glass tank
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0xdff6ff, transparent: true, opacity: 0.35, roughness: 0.1, metalness: 0.1
+  });
+  const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 1.5, 20), glassMat);
+  glass.position.y = 1.6;
+  group.add(glass);
+
+  // Inner Ichor Liquid (scales up as player extracts)
+  const ichorMat = new THREE.MeshStandardMaterial({ color: 0x111116, roughness: 0.2 });
+  const ichor = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 1.45, 20), ichorMat);
+  ichor.position.y = 0.88;
+  ichor.scale.y = 0.02;
+  group.add(ichor);
+
+  // Upper rim & cap
+  const rim2 = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.82, 0.22, 20), baseMat);
+  rim2.position.y = 2.45;
+  group.add(rim2);
+
+  // Black Pipe going up
+  const pipeMat = new THREE.MeshStandardMaterial({ color: 0x1e1e22, roughness: 0.6 });
+  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 1.4, 16), pipeMat);
+  pipe.position.y = 3.2;
+  group.add(pipe);
+
+  // Red/Green Indicator Light on top rim
+  const lightMat = new THREE.MeshStandardMaterial({ color: 0xff1e1e, emissive: 0xff0000, emissiveIntensity: 0.9 });
+  const indicator = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.14, 16), lightMat);
+  indicator.rotation.x = Math.PI / 2;
+  indicator.position.set(0, 2.48, 0.78);
+  group.add(indicator);
+
+  // Red Valve Wheel on front lower base
+  const valveGroup = new THREE.Group();
+  valveGroup.position.set(0, 0.42, 0.72);
+  const valveMat = new THREE.MeshStandardMaterial({ color: 0xe52521, roughness: 0.3 });
+  const torus = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.06, 10, 20), valveMat);
+  const bar1 = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.07, 0.07), valveMat);
+  const bar2 = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.62, 0.07), valveMat);
+  valveGroup.add(torus, bar1, bar2);
+  group.add(valveGroup);
+
+  group.userData.dandyParts = { ichor, indicator, lightMat, valveGroup };
+  return group;
+}
+
+function buildMeshForType(type, colorHex, texIndex, tileX, tileY) {
+  if (type === 'dandy_machine') {
+    return createDandyMachineMesh(colorHex);
+  }
+
+  let geo;
+  if (type === 'player_spawn') {
+    geo = new THREE.BoxGeometry(3, 0.25, 3);
+  } else if (type === 'platform') {
+    geo = new THREE.BoxGeometry(1, 1, 1);
+  } else if (type === 'wall') {
+    geo = new THREE.BoxGeometry(1, 1, 1);
+  } else if (type === 'cylinder') {
+    geo = new THREE.CylinderGeometry(0.5, 0.5, 1, 24);
+  } else if (type === 'sphere') {
+    geo = new THREE.SphereGeometry(0.5, 24, 18);
+  } else if (type === 'ramp') {
+    // Wedge geometry
+    const shape = new THREE.Shape();
+    shape.moveTo(-0.5, -0.5);
+    shape.lineTo(0.5, -0.5);
+    shape.lineTo(0.5, 0.5);
+    shape.closePath();
+    geo = new THREE.ExtrudeGeometry(shape, { depth: 1, bevelEnabled: false });
+    geo.translate(0, 0, -0.5);
+  } else {
+    geo = new THREE.BoxGeometry(1, 1, 1);
+  }
+
+  const tex = getProceduralTexture(texIndex, tileX, tileY);
+  const mat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    map: tex,
+    roughness: 0.65,
+    metalness: 0.1
+  });
+
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function addObject(opts) {
+  const id = 'obj_' + Math.random().toString(36).substr(2, 7);
+  const type = opts.type || 'cube';
+  const name = opts.name || `${type}_${sceneObjects.length + 1}`;
+  const color = opts.color || (type === 'player_spawn' ? '#d4d4d4' : '#ffffff');
+  const texIndex = opts.texIndex !== undefined ? opts.texIndex : (type === 'player_spawn' ? 2 : 0);
+  const tileX = opts.tileX || 1;
+  const tileY = opts.tileY || 1;
+
+  const mesh = buildMeshForType(type, color, texIndex, tileX, tileY);
+  mesh.position.set(...(opts.position || [0, 0.5, 0]));
+  mesh.rotation.set(...(opts.rotation || [0, 0, 0]));
+  mesh.scale.set(...(opts.scale || [1, 1, 1]));
+  scene.add(mesh);
+
+  const item = {
+    id, name, type, mesh, color, texIndex, tileX, tileY,
+    collider: opts.collider !== undefined ? opts.collider : (type !== 'player_spawn'),
+    machineProgress: 0,
+    machineCompleted: false
+  };
+  mesh.userData.objRef = item;
+  sceneObjects.push(item);
+  updateHierarchy();
+  selectObject(item);
+  return item;
+}
+
+function applyMaterialUpdate(item) {
+  if (item.type === 'dandy_machine') {
+    item.mesh.children.forEach((child, idx) => {
+      if (idx === 0 || idx === 1 || idx === 4) {
+        child.material.color.set(item.color);
+        child.material.map = getProceduralTexture(item.texIndex, item.tileX, item.tileY);
+        child.material.needsUpdate = true;
+      }
+    });
+    return;
+  }
+  const tex = getProceduralTexture(item.texIndex, item.tileX, item.tileY);
+  item.mesh.material.color.set(item.color);
+  item.mesh.material.map = tex;
+  item.mesh.material.needsUpdate = true;
+}
+
+// Selection Box Helper
+const selBox = new THREE.BoxHelper(new THREE.Mesh(), 0x00aaff);
+selBox.visible = false;
+scene.add(selBox);
+
+function selectObject(item) {
+  selectedObj = item;
+  if (item) {
+    selBox.setFromObject(item.mesh);
+    selBox.visible = !isPlaying;
+  } else {
+    selBox.visible = false;
+  }
+  updateHierarchy();
+  renderInspector();
+}
+
+function updateHierarchy() {
+  const list = document.getElementById('hierarchy-list');
+  list.innerHTML = '';
+  sceneObjects.forEach(obj => {
+    const div = document.createElement('div');
+    div.className = 'hier-item' + (selectedObj === obj ? ' selected' : '');
+    const icon = obj.type === 'player_spawn' ? '☀️' : (obj.type === 'dandy_machine' ? '🛢️' : '📦');
+    div.innerHTML = `<span>${icon} ${obj.name}</span>`;
+    div.onclick = () => selectObject(obj);
+    list.appendChild(div);
+  });
+}
+
+function renderInspector() {
+  const body = document.getElementById('inspector-body');
+  if (!selectedObj) {
+    body.innerHTML = '<div style="color:#888; text-align:center; margin-top:20px;">Выберите объект на сцене</div>';
+    return;
+  }
+  const o = selectedObj;
+  const p = o.mesh.position;
+  const r = o.mesh.rotation;
+  const s = o.mesh.scale;
+
+  let texOptions = TEXTURE_NAMES.map((tName, idx) =>
+    `<option value="${idx}" ${o.texIndex === idx ? 'selected' : ''}>${tName}</option>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="prop-group">
+      <div class="prop-label">Название объекта</div>
+      <input type="text" id="inp-name" value="${o.name}">
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Позиция (X, Y, Z)</div>
+      <div class="vec3-row">
+        <div class="vec3-cell"><span style="color:#f85149">X</span><input type="number" step="0.5" id="pos-x" value="${p.x.toFixed(2)}"></div>
+        <div class="vec3-cell"><span style="color:#3fb950">Y</span><input type="number" step="0.5" id="pos-y" value="${p.y.toFixed(2)}"></div>
+        <div class="vec3-cell"><span style="color:#58a6ff">Z</span><input type="number" step="0.5" id="pos-z" value="${p.z.toFixed(2)}"></div>
+      </div>
+      <div class="prop-label">Вращение (Градусы)</div>
+      <div class="vec3-row">
+        <div class="vec3-cell"><span style="color:#f85149">X</span><input type="number" step="15" id="rot-x" value="${Math.round(THREE.MathUtils.radToDeg(r.x))}"></div>
+        <div class="vec3-cell"><span style="color:#3fb950">Y</span><input type="number" step="15" id="rot-y" value="${Math.round(THREE.MathUtils.radToDeg(r.y))}"></div>
+        <div class="vec3-cell"><span style="color:#58a6ff">Z</span><input type="number" step="15" id="rot-z" value="${Math.round(THREE.MathUtils.radToDeg(r.z))}"></div>
+      </div>
+      <div class="prop-label">Масштаб (Размер)</div>
+      <div class="vec3-row">
+        <div class="vec3-cell"><span style="color:#f85149">X</span><input type="number" step="0.5" id="scl-x" value="${s.x.toFixed(2)}"></div>
+        <div class="vec3-cell"><span style="color:#3fb950">Y</span><input type="number" step="0.5" id="scl-y" value="${s.y.toFixed(2)}"></div>
+        <div class="vec3-cell"><span style="color:#58a6ff">Z</span><input type="number" step="0.5" id="scl-z" value="${s.z.toFixed(2)}"></div>
+      </div>
+    </div>
+    <div class="prop-group">
+      <div class="prop-label">Текстура (30 вариантов)</div>
+      <select id="inp-tex">${texOptions}</select>
+      <div class="prop-label">Цвет оттенка</div>
+      <input type="color" id="inp-color" value="${o.color}">
+      <div class="prop-label">Повтор текстуры (Тайлинг X / Y)</div>
+      <div class="vec3-row" style="grid-template-columns: 1fr 1fr;">
+        <div class="vec3-cell"><span>X</span><input type="number" min="1" max="50" id="tile-x" value="${o.tileX}"></div>
+        <div class="vec3-cell"><span>Y</span><input type="number" min="1" max="50" id="tile-y" value="${o.tileY}"></div>
+      </div>
+    </div>
+    <div class="prop-group" style="flex-direction:row; gap:6px;">
+      <button id="dup-obj-btn" style="flex:1; justify-content:center;">📄 Копия</button>
+      <button id="del-obj-btn" style="flex:1; justify-content:center; background:#8e2424;">🗑 Удалить</button>
+    </div>
+  `;
+
+  document.getElementById('inp-name').oninput = (e) => { o.name = e.target.value; updateHierarchy(); };
+
+  ['x', 'y', 'z'].forEach(axis => {
+    document.getElementById(`pos-${axis}`).onchange = (e) => {
+      o.mesh.position[axis] = parseFloat(e.target.value) || 0;
+      selBox.setFromObject(o.mesh);
+    };
+    document.getElementById(`rot-${axis}`).onchange = (e) => {
+      o.mesh.rotation[axis] = THREE.MathUtils.degToRad(parseFloat(e.target.value) || 0);
+      selBox.setFromObject(o.mesh);
+    };
+    document.getElementById(`scl-${axis}`).onchange = (e) => {
+      const val = Math.max(0.1, parseFloat(e.target.value) || 1);
+      o.mesh.scale[axis] = val;
+      selBox.setFromObject(o.mesh);
+    };
+  });
+
+  document.getElementById('inp-tex').onchange = (e) => {
+    o.texIndex = parseInt(e.target.value, 10);
+    applyMaterialUpdate(o);
+  };
+  document.getElementById('inp-color').oninput = (e) => {
+    o.color = e.target.value;
+    applyMaterialUpdate(o);
+  };
+  document.getElementById('tile-x').onchange = (e) => {
+    o.tileX = Math.max(1, parseInt(e.target.value, 10) || 1);
+    applyMaterialUpdate(o);
+  };
+  document.getElementById('tile-y').onchange = (e) => {
+    o.tileY = Math.max(1, parseInt(e.target.value, 10) || 1);
+    applyMaterialUpdate(o);
+  };
+
+  document.getElementById('dup-obj-btn').onclick = () => {
+    addObject({
+      name: o.name + '_копия',
+      type: o.type,
+      position: [o.mesh.position.x + 1, o.mesh.position.y, o.mesh.position.z + 1],
+      rotation: [o.mesh.rotation.x, o.mesh.rotation.y, o.mesh.rotation.z],
+      scale: [o.mesh.scale.x, o.mesh.scale.y, o.mesh.scale.z],
+      color: o.color,
+      texIndex: o.texIndex,
+      tileX: o.tileX,
+      tileY: o.tileY,
+      collider: o.collider
+    });
+  };
+
+  document.getElementById('del-obj-btn').onclick = () => {
+    scene.remove(o.mesh);
+    sceneObjects = sceneObjects.filter(item => item !== o);
+    selectObject(null);
+  };
+}
+
+// --- 4. DEFAULT LEVEL (Matches user's JSON setup!) ---
+function loadDefaultScene() {
+  addObject({ name: "Пол (Baseplate)", type: "platform", position: [0, 0.25, 0], scale: [16, 0.5, 16], color: "#d4d4d4", texIndex: 1, tileX: 8, tileY: 8, collider: true });
+  addObject({ name: "Кирпичная Стена", type: "wall", position: [0, 2.5, -7.75], scale: [16, 4, 0.5], color: "#ffffff", texIndex: 3, tileX: 6, tileY: 2, collider: true });
+  addObject({ name: "Спавн Игрока (Roblox Pad)", type: "player_spawn", position: [-3.5, 0.62, 3.5], scale: [1, 1, 1], color: "#e5e5e5", texIndex: 2, tileX: 1, tileY: 1, collider: false });
+  addObject({ name: "Машина_1", type: "dandy_machine", position: [3.5, 0.5, -2.5], scale: [1, 1, 1], color: "#9ca3af", texIndex: 6, tileX: 1, tileY: 1, collider: true });
+}
+loadDefaultScene();
+
+// --- 5. EDITOR CAMERA ORBIT & OBJECT SELECTION + NUDGE BUTTONS ---
+let camYaw = 0.6, camPitch = 0.55, camDist = 18;
+let camTarget = new THREE.Vector3(0, 1, 0);
+let isDraggingCam = false, lastPointer = { x: 0, y: 0 }, pointerDownPos = { x: 0, y: 0 };
+const raycaster = new THREE.Raycaster();
+const pointerNDC = new THREE.Vector2();
+
+function updateEditorCamera() {
+  if (isPlaying) return;
+  camera.position.x = camTarget.x + camDist * Math.sin(camYaw) * Math.cos(camPitch);
+  camera.position.y = camTarget.y + camDist * Math.sin(camPitch);
+  camera.position.z = camTarget.z + camDist * Math.cos(camYaw) * Math.cos(camPitch);
+  camera.lookAt(camTarget);
+}
+updateEditorCamera();
+
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (isPlaying) return;
+  isDraggingCam = true;
+  lastPointer = { x: e.clientX, y: e.clientY };
+  pointerDownPos = { x: e.clientX, y: e.clientY };
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (isPlaying || !isDraggingCam) return;
+  const dx = e.clientX - lastPointer.x;
+  const dy = e.clientY - lastPointer.y;
+  lastPointer = { x: e.clientX, y: e.clientY };
+  camYaw -= dx * 0.008;
+  camPitch = Math.max(0.08, Math.min(1.48, camPitch + dy * 0.008));
+  updateEditorCamera();
+});
+
+window.addEventListener('pointerup', (e) => {
+  if (isPlaying) return;
+  isDraggingCam = false;
+  const distMoved = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+  if (distMoved < 6) {
+    // Tap to select object
+    pointerNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
+    pointerNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(pointerNDC, camera);
+    const meshes = sceneObjects.map(o => o.mesh);
+    const hits = raycaster.intersectObjects(meshes, true);
+    if (hits.length > 0) {
+      let hitObj = hits[0].object;
+      while (hitObj && !hitObj.userData.objRef) hitObj = hitObj.parent;
+      if (hitObj && hitObj.userData.objRef) selectObject(hitObj.userData.objRef);
+    }
+  }
+});
+
+renderer.domElement.addEventListener('wheel', (e) => {
+  if (isPlaying) return;
+  camDist = Math.max(4, Math.min(55, camDist + e.deltaY * 0.015));
+  updateEditorCamera();
+});
+
+// Nudge / Transform Pad Buttons (Reliable & Bug-Free!)
+function applyPadAction(axis, dir) {
+  if (!selectedObj) return;
+  const step = useSnap ? 0.5 : 0.15;
+  const rotStep = THREE.MathUtils.degToRad(useSnap ? 15 : 5);
+  const m = selectedObj.mesh;
+
+  if (transformMode === 'move') {
+    m.position[axis] += dir * step;
+  } else if (transformMode === 'rotate') {
+    m.rotation[axis] += dir * rotStep;
+  } else if (transformMode === 'scale') {
+    m.scale[axis] = Math.max(0.2, m.scale[axis] + dir * step);
+  }
+  selBox.setFromObject(m);
+  renderInspector();
+}
+
+document.getElementById('pad-x-neg').onclick = () => applyPadAction('x', -1);
+document.getElementById('pad-x-pos').onclick = () => applyPadAction('x', 1);
+document.getElementById('pad-z-neg').onclick = () => applyPadAction('z', -1);
+document.getElementById('pad-z-pos').onclick = () => applyPadAction('z', 1);
+document.getElementById('pad-y-pos').onclick = () => applyPadAction('y', 1);
+document.getElementById('pad-y-neg').onclick = () => applyPadAction('y', -1);
+
+// Mode Buttons
+['move', 'rotate', 'scale'].forEach(mode => {
+  const btn = document.getElementById(`mode-${mode === 'rotate' ? 'rot' : mode}`);
+  btn.onclick = () => {
+    transformMode = mode;
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+});
+
+document.getElementById('snap-btn').onclick = (e) => {
+  useSnap = !useSnap;
+  e.target.classList.toggle('active', useSnap);
+};
+
+// Panel Toggles (Collapse on mobile by default if narrow screen)
+const leftPanel = document.getElementById('left-panel');
+const rightPanel = document.getElementById('right-panel');
+if (window.innerWidth < 768) {
+  leftPanel.classList.add('collapsed');
+  rightPanel.classList.add('collapsed');
+}
+document.getElementById('toggle-left-btn').onclick = () => leftPanel.classList.toggle('collapsed');
+document.getElementById('close-left-btn').onclick = () => leftPanel.classList.add('collapsed');
+document.getElementById('toggle-right-btn').onclick = () => rightPanel.classList.toggle('collapsed');
+document.getElementById('close-right-btn').onclick = () => rightPanel.classList.add('collapsed');
+
+// Object Creation Buttons
+document.getElementById('add-player-spawn').onclick = () => addObject({ name: 'Спавн Игрока', type: 'player_spawn', position: [0, 0.62, 0], texIndex: 2, color: '#e5e5e5', collider: false });
+document.getElementById('add-dandy-machine').onclick = () => addObject({ name: 'Машина_Dandy', type: 'dandy_machine', position: [0, 0.5, 0], texIndex: 6, color: '#9ca3af', collider: true });
+document.getElementById('add-cube').onclick = () => addObject({ name: 'Куб', type: 'cube', position: [0, 1, 0], texIndex: 0, color: '#60a5fa' });
+document.getElementById('add-platform').onclick = () => addObject({ name: 'Платформа', type: 'platform', position: [0, 0.25, 0], scale: [6, 0.5, 6], texIndex: 1, color: '#d4d4d4' });
+document.getElementById('add-wall').onclick = () => addObject({ name: 'Стена', type: 'wall', position: [0, 2, -4], scale: [6, 3, 0.5], texIndex: 3, color: '#ffffff' });
+document.getElementById('add-ramp').onclick = () => addObject({ name: 'Рампа', type: 'ramp', position: [2, 1, 0], scale: [3, 1.5, 2], texIndex: 5, color: '#d97706' });
+document.getElementById('add-cylinder').onclick = () => addObject({ name: 'Цилиндр', type: 'cylinder', position: [-2, 1, 0], scale: [1, 2, 1], texIndex: 6, color: '#9ca3af' });
+document.getElementById('add-sphere').onclick = () => addObject({ name: 'Сфера', type: 'sphere', position: [0, 1.5, 2], scale: [1.5, 1.5, 1.5], texIndex: 10, color: '#ffffff' });
+
+// --- 6. PLAY MODE (ROBLOX CHARACTER + DANDY'S WORLD EXTRACTION) ---
+const playerGroup = new THREE.Group();
+const torso = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.1, 0.45), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
+torso.position.y = 1.15;
+const head = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.65, 0.65), new THREE.MeshStandardMaterial({ color: 0xfacc15 }));
+head.position.y = 2.08;
+const legL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.4), new THREE.MeshStandardMaterial({ color: 0x16a34a }));
+legL.position.set(-0.23, 0.3, 0);
+const legR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.4), new THREE.MeshStandardMaterial({ color: 0x16a34a }));
+legR.position.set(0.23, 0.3, 0);
+playerGroup.add(torso, head, legL, legR);
+playerGroup.visible = false;
+scene.add(playerGroup);
+
+let playerVelY = 0;
+let isGrounded = false;
+let joyInput = { x: 0, y: 0 };
+let keysPressed = {};
+let isExtracting = false;
+let nearestMachine = null;
+
+window.addEventListener('keydown', (e) => { keysPressed[e.code] = true; if (e.code === 'KeyE') isExtracting = true; });
+window.addEventListener('keyup', (e) => { keysPressed[e.code] = false; if (e.code === 'KeyE') isExtracting = false; });
+
+// Virtual Joystick
+const joyZone = document.getElementById('joystick-zone');
+const joyKnob = document.getElementById('joystick-knob');
+let joyTouchId = null;
+
+joyZone.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  joyTouchId = t.identifier;
+  updateJoystick(t);
+});
+joyZone.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  for (let t of e.changedTouches) if (t.identifier === joyTouchId) updateJoystick(t);
+});
+joyZone.addEventListener('touchend', (e) => {
+  for (let t of e.changedTouches) {
+    if (t.identifier === joyTouchId) {
+      joyTouchId = null;
+      joyInput = { x: 0, y: 0 };
+      joyKnob.style.transform = `translate(0px, 0px)`;
+    }
+  }
+});
+
+function updateJoystick(touch) {
+  const rect = joyZone.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  let dx = touch.clientX - cx;
+  let dy = touch.clientY - cy;
+  const maxR = 40;
+  const dist = Math.hypot(dx, dy);
+  if (dist > maxR) { dx = (dx / dist) * maxR; dy = (dy / dist) * maxR; }
+  joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+  joyInput.x = dx / maxR;
+  joyInput.y = dy / maxR;
+}
+
+document.getElementById('jump-btn').addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (isGrounded) { playerVelY = 8.5; isGrounded = false; }
+});
+document.getElementById('jump-btn').onclick = () => {
+  if (isGrounded) { playerVelY = 8.5; isGrounded = false; }
+};
+
+const extractBtn = document.getElementById('extract-btn');
+extractBtn.addEventListener('touchstart', (e) => { e.preventDefault(); isExtracting = true; });
+extractBtn.addEventListener('touchend', () => { isExtracting = false; });
+extractBtn.onmousedown = () => { isExtracting = true; };
+extractBtn.onmouseup = () => { isExtracting = false; };
+
+document.getElementById('play-toggle-btn').onclick = () => {
+  isPlaying = !isPlaying;
+  const btn = document.getElementById('play-toggle-btn');
+  btn.textContent = isPlaying ? '⏹ Стоп' : '▶ Играть';
+  btn.classList.toggle('playing', isPlaying);
+
+  document.getElementById('play-hud').classList.toggle('active', isPlaying);
+  document.getElementById('mobile-editor-pad').style.display = isPlaying ? 'none' : 'flex';
+  leftPanel.classList.add('collapsed');
+  rightPanel.classList.add('collapsed');
+  selBox.visible = !isPlaying && !!selectedObj;
+  playerGroup.visible = isPlaying;
+
+  if (isPlaying) {
+    // Spawn on Roblox SpawnLocation if present
+    const pad = sceneObjects.find(o => o.type === 'player_spawn');
+    if (pad) {
+      playerGroup.position.set(pad.mesh.position.x, pad.mesh.position.y + 0.3, pad.mesh.position.z);
+    } else {
+      playerGroup.position.set(0, 2, 0);
+    }
+    playerVelY = 0;
+  } else {
+    isExtracting = false;
+    document.getElementById('machine-progress-box').style.display = 'none';
+    updateEditorCamera();
+  }
+};
+
+// --- 7. JSON EXPORT / IMPORT FOR CLAUDE ---
+function exportMapJSON() {
+  const data = {
+    format: "UnityMapBuilder_v2",
+    description: "3D-карта уровня с координатами (X, Y, Z), текстурами, площадкой Roblox SpawnLocation и машинами из Dandy's World.",
+    totalObjects: sceneObjects.length,
+    objects: sceneObjects.map(o => ({
+      name: o.name,
+      type: o.type,
+      position: [Number(o.mesh.position.x.toFixed(2)), Number(o.mesh.position.y.toFixed(2)), Number(o.mesh.position.z.toFixed(2))],
+      rotation: [Number(o.mesh.rotation.x.toFixed(2)), Number(o.mesh.rotation.y.toFixed(2)), Number(o.mesh.rotation.z.toFixed(2))],
+      scale: [Number(o.mesh.scale.x.toFixed(2)), Number(o.mesh.scale.y.toFixed(2)), Number(o.mesh.scale.z.toFixed(2))],
+      color: o.color,
+      texIndex: o.texIndex,
+      textureName: TEXTURE_NAMES[o.texIndex],
+      tileX: o.tileX,
+      tileY: o.tileY,
+      collider: o.collider
+    }))
+  };
+  return JSON.stringify(data, null, 2);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+
+document.getElementById('copy-ai-btn').onclick = () => {
+  const text = "Вот моя 3D-карта уровня в формате JSON (из Unity Map Builder):\n\n```json\n" + exportMapJSON() + "\n```";
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast("Карта скопирована для ИИ!"));
+  } else {
+    document.getElementById('json-textarea').value = text;
+    document.getElementById('json-modal').classList.add('open');
+  }
+};
+
+document.getElementById('load-json-btn').onclick = () => {
+  document.getElementById('json-textarea').value = exportMapJSON();
+  document.getElementById('json-modal').classList.add('open');
+};
+document.getElementById('close-modal-btn').onclick = () => document.getElementById('json-modal').classList.remove('open');
+
+document.getElementById('apply-json-btn').onclick = () => {
+  try {
+    let raw = document.getElementById('json-textarea').value;
+    const match = raw.match(/```json([\s\S]*?)```/);
+    if (match) raw = match[1];
+    const parsed = JSON.parse(raw);
+    if (!parsed.objects || !Array.isArray(parsed.objects)) throw new Error("Неверный формат");
+
+    sceneObjects.forEach(o => scene.remove(o.mesh));
+    sceneObjects = [];
+    parsed.objects.forEach(obj => {
+      addObject({
+        name: obj.name,
+        type: obj.type,
+        position: obj.position,
+        rotation: obj.rotation,
+        scale: obj.scale,
+        color: obj.color || '#ffffff',
+        texIndex: obj.texIndex !== undefined ? obj.texIndex : 0,
+        tileX: obj.tileX || 1,
+        tileY: obj.tileY || 1,
+        collider: obj.collider
+      });
+    });
+    document.getElementById('json-modal').classList.remove('open');
+    showToast("Карта успешно загружена!");
+  } catch (err) {
+    alert("Ошибка чтения JSON: " + err.message);
+  }
+};
+
+// --- 8. MAIN GAME LOOP ---
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  if (isPlaying) {
+    // Movement input (Keyboard + Mobile Joystick)
+    let moveX = joyInput.x;
+    let moveZ = joyInput.y;
+    if (keysPressed['KeyW'] || keysPressed['ArrowUp']) moveZ -= 1;
+    if (keysPressed['KeyS'] || keysPressed['ArrowDown']) moveZ += 1;
+    if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) moveX -= 1;
+    if (keysPressed['KeyD'] || keysPressed['ArrowRight']) moveX += 1;
+    if (keysPressed['Space'] && isGrounded) { playerVelY = 8.5; isGrounded = false; }
+
+    const speed = 7.5;
+    if (Math.hypot(moveX, moveZ) > 0.05) {
+      const angle = Math.atan2(moveX, moveZ);
+      playerGroup.rotation.y = angle;
+      playerGroup.position.x += Math.sin(angle) * speed * dt;
+      playerGroup.position.z += Math.cos(angle) * speed * dt;
+      // Walk leg swing
+      const swing = Math.sin(performance.now() * 0.014) * 0.5;
+      legL.rotation.x = swing;
+      legR.rotation.x = -swing;
+    } else {
+      legL.rotation.x = 0;
+      legR.rotation.x = 0;
+    }
+
+    // Gravity & Floor Collision
+    playerVelY -= 22 * dt;
+    playerGroup.position.y += playerVelY * dt;
+
+    isGrounded = false;
+    // Check collision against platforms/cubes
+    sceneObjects.forEach(o => {
+      if (!o.collider || o.type === 'dandy_machine') return;
+      const box = new THREE.Box3().setFromObject(o.mesh);
+      const px = playerGroup.position.x, pz = playerGroup.position.z, py = playerGroup.position.y;
+      if (px >= box.min.x - 0.3 && px <= box.max.x + 0.3 && pz >= box.min.z - 0.3 && pz <= box.max.z + 0.3) {
+        if (py <= box.max.y && py >= box.max.y - 0.8 && playerVelY <= 0) {
+          playerGroup.position.y = box.max.y;
+          playerVelY = 0;
+          isGrounded = true;
+        }
+      }
+    });
+
+    if (playerGroup.position.y < -15) {
+      const pad = sceneObjects.find(o => o.type === 'player_spawn');
+      playerGroup.position.set(pad ? pad.mesh.position.x : 0, 2, pad ? pad.mesh.position.z : 0);
+      playerVelY = 0;
+    }
+
+    // Check Dandy's World Machine Proximity & Extraction
+    nearestMachine = null;
+    let minDist = 3.2;
+    sceneObjects.forEach(o => {
+      if (o.type === 'dandy_machine') {
+        const d = playerGroup.position.distanceTo(o.mesh.position);
+        if (d < minDist) { minDist = d; nearestMachine = o; }
+      }
+    });
+
+    const progBox = document.getElementById('machine-progress-box');
+    if (nearestMachine && !nearestMachine.machineCompleted) {
+      extractBtn.style.display = 'inline-flex';
+      progBox.style.display = 'block';
+      document.getElementById('machine-status-text').textContent = `Машина: ${Math.round(nearestMachine.machineProgress)}% (Зажми Вентиль / E)`;
+      document.getElementById('progress-bar-fill').style.width = `${nearestMachine.machineProgress}%`;
+
+      if (isExtracting) {
+        nearestMachine.machineProgress = Math.min(100, nearestMachine.machineProgress + 28 * dt);
+        const parts = nearestMachine.mesh.userData.dandyParts;
+        parts.valveGroup.rotation.z += 6 * dt;
+        const ratio = Math.max(0.02, nearestMachine.machineProgress / 100);
+        parts.ichor.scale.y = ratio;
+        parts.ichor.position.y = 0.88 + (ratio * 1.45) / 2;
+
+        if (nearestMachine.machineProgress >= 100) {
+          nearestMachine.machineCompleted = true;
+          parts.lightMat.color.setHex(0x22c55e);
+          parts.lightMat.emissive.setHex(0x16a34a);
+          showToast("✅ Машина заполнена ихором!");
+        }
+      }
+    } else {
+      extractBtn.style.display = 'none';
+      progBox.style.display = 'none';
+    }
+
+    // Smooth Follow Camera
+    const desiredCamPos = new THREE.Vector3(
+      playerGroup.position.x,
+      playerGroup.position.y + 6.5,
+      playerGroup.position.z + 9.5
+    );
+    camera.position.lerp(desiredCamPos, 0.12);
+    camera.lookAt(playerGroup.position.x, playerGroup.position.y + 1.2, playerGroup.position.z);
+  }
+
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
