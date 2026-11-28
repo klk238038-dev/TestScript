@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Hub</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#000;color:#eee;font:16px system-ui,sans-serif}
+#app{height:100%;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111}
+header input{flex:1;max-width:420px;margin:0 auto;padding:10px 14px;border-radius:20px;border:0;background:#222;color:#fff}
+header b{flex:1;text-align:center}
+.pr{display:flex;gap:6px;align-items:center;font-size:15px}.pr span,.pr i{cursor:pointer;font-style:normal}.pr i{font-size:26px}
+main{flex:1;overflow-y:auto;scroll-snap-type:y mandatory;background:#000}
+.card{height:100%;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px;cursor:pointer;background:linear-gradient(160deg,#16213e,#0f0f1a)}
+.card:nth-child(even){background:linear-gradient(160deg,#2b1646,#0f0f1a)}
+.card h2{font-size:34px;margin:0 0 10px;word-break:break-word}.card p{opacity:.7}
+footer{padding:10px;background:#111;text-align:center}
+button{background:#2d2d44;color:#fff;border:0;border-radius:10px;padding:11px 16px;font-size:16px;cursor:pointer;margin:4px}
+button.bl{background:#1e88e5}button.big{background:#6c5ce7;width:100%;margin:6px 0}button.g{background:#333}button.on{background:#00b894}
+input,textarea{width:100%;padding:11px;margin:6px 0;border-radius:10px;border:1px solid #444;background:#1c1c28;color:#fff;font:inherit}
+textarea{height:160px;font-family:monospace;font-size:13px}label{display:block;margin:6px 0;font-size:14px;opacity:.9}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:5;padding:12px}
+#c .ov{z-index:9}.bx{background:#1a1a26;border-radius:16px;padding:18px;width:100%;max-width:440px;max-height:92vh;overflow:auto}
+.row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}.row button{flex:1}
+.er{color:#ff7675;min-height:20px;margin:2px 0}.top{text-align:left}
+.pg{padding:20px;max-width:440px;margin:0 auto;width:100%;text-align:center;overflow:auto}.ic{font-size:70px}
+.play{position:fixed;inset:0;background:#000;z-index:8}.play iframe{width:100%;height:100%;border:0}
+.play button{position:absolute;top:8px;left:8px;z-index:2;opacity:.8}
+.it{display:flex;justify-content:space-between;align-items:center;background:#1c1c28;padding:10px 14px;border-radius:12px;margin:8px 0;text-align:left}
+.c{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head><body>
+<div id="app"></div><div id="m"></div><div id="c"></div>
+<script type="module">
+/* ===== ВСТАВЬ СВОИ ДАННЫЕ ИЗ SUPABASE (Project Settings -> API) ===== */
+const SUPABASE_URL="",SUPABASE_KEY="";
+
+const $=s=>document.querySelector(s),e=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ICONS=["😀","😎","🐱","🚀","👾"],ADMIN="klk238038@gmail.com",AS="678849d9725fd80a",AH="cb4e092988312b307ec629515efc43b4d79cfb9c3703ade360848f26a73f0f90",app=$("#app");
+const hash=async(p,s)=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s+p)))].map(x=>x.toString(16).padStart(2,"0")).join("");
+const showErr=m=>{app.innerHTML='<div class="c"><h2>Ошибка</h2><p style="word-break:break-all">'+String(m).replace(/</g,"&lt;")+'</p></div>'};
+addEventListener("error",ev=>alert("Ошибка: "+ev.message));
+addEventListener("unhandledrejection",ev=>alert("Ошибка: "+(ev.reason&&(ev.reason.message||ev.reason.code)||ev.reason)));
+if(!SUPABASE_URL||!SUPABASE_KEY){showErr("Вставь SUPABASE_URL и SUPABASE_KEY в начале файла index.html");throw 0}
+if(!window.supabase){showErr("Не загрузилась библиотека Supabase. Проверь интернет и отключи блокировщик рекламы.");throw 0}
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const db=async p=>{const r=await p;if(r.error){alert("Ошибка: "+r.error.message);throw r.error}return r.data};
+let me,G=[],VT={},BAN,q="",cur,Y;
+const isAdm=()=>me&&me.email.toLowerCase()==ADMIN&&sessionStorage.adm=="1";
+const ov=(id,h)=>{$("#"+id).innerHTML=h?`<div class="ov"><div class="bx">${h}</div></div>`:""};
+const ask=(t,f)=>{Y=f;ov("c",`<p>${t}</p><div class="row"><button data-a="yes">Да</button><button class="g" data-a="no">Нет</button></div>`)};
+const askTime=(t,f)=>{Y=v=>f(+v);ov("c",`<p>${t}</p><select id="tt" style="width:100%;padding:11px;border-radius:10px;background:#1c1c28;color:#fff"><option value="0">Снять</option><option value="3600000">1 час</option><option value="86400000">1 день</option><option value="604800000">7 дней</option><option value="2592000000">30 дней</option><option value="3000000000000">Навсегда</option></select><div class="row"><button data-a="yes">ОК</button><button class="g" data-a="no">Отмена</button></div>`)};
+const lk=id=>Object.values(VT[id]||{}).filter(x=>x==1).length,dk=id=>Object.values(VT[id]||{}).filter(x=>x==-1).length,sc=g=>lk(g.id)-dk(g.id),mv=id=>(VT[id]||{})[me.id]||0;
+
+async function load(){
+ const[g,v,b]=await Promise.all([sb.from("games").select("id,owner,owner_name,title,created,hidden_until"),sb.from("votes").select("game_id,user_id,v"),sb.from("bans").select("until").eq("user_id",me.id).maybeSingle()]);
+ if(g.error)throw g.error;
+ G=g.data.map(x=>({id:x.id,owner:x.owner,ownerName:x.owner_name,title:x.title,created:Date.parse(x.created),hiddenUntil:x.hidden_until?Date.parse(x.hidden_until):0}));
+ VT={};(v.data||[]).forEach(x=>{(VT[x.game_id]=VT[x.game_id]||{})[x.user_id]=x.v});
+ BAN=b.data?{until:Date.parse(b.data.until)}:null;
+}
+function list(){
+ const vis=G.filter(g=>!(g.hiddenUntil>Date.now())||isAdm());
+ if(q)return vis.filter(g=>g.title.toLowerCase().includes(q.toLowerCase())).sort((a,b)=>sc(b)-sc(a));
+ const liked=vis.filter(g=>sc(g)>0).sort((a,b)=>sc(b)-sc(a));
+ if(liked.length){const n=10,pg=Math.ceil(liked.length/n),d=Math.floor(Date.now()/864e5)%pg;return liked.slice(d*n,d*n+n)} // каждые 24ч новая десятка залайканных
+ return vis.sort((a,b)=>b.created-a.created); // нет залайканных - показываем старые
+}
+const feed=()=>list().map(g=>`<section class="card" data-a="open" data-v="${g.id}"><h2>${e(g.title)}</h2><p>👍 ${lk(g.id)} · 👎 ${dk(g.id)} · ${e(g.ownerName)}${g.hiddenUntil>Date.now()?" · 🙈 скрыта":""}</p></section>`).join("");
+
+function login(){cur=login;app.innerHTML=`<div class="c"><h1>🎮 Game Hub</h1><p>Привяжи почту Gmail, чтобы войти</p><button class="big" style="max-width:320px" data-a="login">Войти через Gmail</button><p style="opacity:.4;font-size:12px">версия 9 (Supabase)</p></div>`}
+function nickV(){cur=null;app.innerHTML=`<div class="c"><h2>Придумай ник</h2><input id="nn" maxlength="20" placeholder="Ник" style="max-width:320px"><p class="er" id="er"></p><button class="big" style="max-width:320px" data-a="mknick">Продолжить</button></div>`}
+function passV(){cur=null;app.innerHTML=`<div class="c"><h2>Пароль администратора</h2><input id="pw" type="password" placeholder="Пароль" style="max-width:320px"><p class="er" id="er"></p><button class="big" style="max-width:320px" data-a="chkpass">Войти</button><button class="g" data-a="outnow">Выйти</button></div>`}
+function home(){cur=home;app.innerHTML=`<header><div style="width:90px"></div><input id="q" placeholder="🔍 Поиск игры" value="${e(q)}"><div class="pr"><i data-a="pop">${me.icon}</i><span data-a="prof">${e(me.nick)}</span></div></header><main id="feed">${feed()}</main><footer><button class="big" style="max-width:420px" data-a="up">Загрузить игру</button></footer>`}
+function prof(){cur=prof;app.innerHTML=`<header><button data-a="home">←</button><b>Профиль</b><span style="width:60px"></span></header><div class="pg"><div class="ic">${me.icon}</div><h2>${e(me.nick)}</h2><p>${e(me.email)}</p><button data-a="mail">Сменить почту</button><input id="nn" maxlength="20" value="${e(me.nick)}"><button data-a="nick">Сохранить ник</button><p>Иконка:</p><div class="row">${ICONS.map(i=>`<button data-a="icon" data-v="${i}">${i}</button>`).join("")}</div><button class="g" data-a="fs">⛶ Полный экран</button><button class="big" data-a="mine">Мои игры</button><button class="g" data-a="out">Выйти</button></div>`}
+function mine(){cur=mine;const my=G.filter(g=>g.owner==me.id);app.innerHTML=`<header><button data-a="prof">←</button><b>Мои игры</b><span style="width:60px"></span></header><div class="pg">${my.map(g=>`<div class="it"><span>${e(g.title)}</span><button data-a="edit" data-v="${g.id}">+</button></div>`).join("")||"<p style='opacity:.6'>Ты ещё ничего не загрузил</p>"}</div>`}
+async function form(id){
+ if(BAN&&BAN.until>Date.now()){ov("m",`<p>Ты забанен до ${new Date(BAN.until).toLocaleString("ru")}. Загружать игры нельзя.</p><button class="big" data-a="close">OK</button>`);return}
+ const g=id&&G.find(x=>x.id==id);let code="";
+ if(id)code=(await db(sb.from("games").select("code").eq("id",id).single())).code;
+ ov("m",`<div class="top"><button data-a="${id?"xit":"close"}">✕</button></div><h2>${id?"Обновить игру":"Загрузить игру"}</h2><input id="t" placeholder="Название" value="${e(g?g.title:"")}"><label>Файл (.html)<input type="file" id="f" accept=".html,.htm,text/html"></label><textarea id="c0" placeholder="Или напиши код">${e(code)}</textarea><p class="er" id="er"></p>${id?'<button class="g" data-a="clr">Удалить файл или код</button><button class="big" data-a="upd" data-v="'+id+'">Обновить</button><button class="g" data-a="dgame" data-v="'+id+'">Удалить игру</button>':'<button class="big" data-a="save">Загрузить</button>'}`);
+}
+function check(){
+ const t=$("#t").value.trim(),c=$("#c0").value,er=m=>($("#er").textContent=m,false);
+ if(!t)return er("Введи название");
+ if(!c.trim())return er("Добавь файл или код");
+ if(!/<\s*(!doctype|html|head|body|script|canvas|div)/i.test(c))return er("Нужно в .html");
+ return{t,c};
+}
+async function go(){if(me.email.toLowerCase()==ADMIN&&sessionStorage.adm!="1")return passV();await load();home()}
+const done=async()=>{ov("m","");ov("c","");await load();cur&&cur()};
+const iso=ms=>new Date(Date.now()+ms).toISOString();
+const A={
+ login:()=>sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}}),
+ async mknick(){const n=$("#nn").value.trim();if(n.length<2){$("#er").textContent="Минимум 2 символа";return}
+  const p=await db(sb.from("profiles").insert({id:me.id,nick:n,icon:ICONS[0]}).select().single());Object.assign(me,{nick:p.nick,icon:p.icon,created:Date.parse(p.created)});go()},
+ async chkpass(){if(await hash($("#pw").value,AS)!==AH){$("#er").textContent="Неверный пароль";return}sessionStorage.adm="1";go()},
+ outnow:()=>sb.auth.signOut(),
+ async home(){await load();home()},prof,async mine(){await load();mine()},
+ pop:()=>ov("m",`<p>Аккаунт создан: ${new Date(me.created).toLocaleDateString("ru")}</p><button class="big" data-a="close">OK</button>`),
+ close:()=>{ov("m","");cur&&cur()},
+ async nick(){const n=$("#nn").value.trim();if(n.length<2)return;await db(sb.from("profiles").update({nick:n}).eq("id",me.id));me.nick=n;prof()},
+ async icon(i){await db(sb.from("profiles").update({icon:i}).eq("id",me.id));me.icon=i;prof()},
+ fs:()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.(),
+ mail:()=>ask("Вы уверены что хотите сменить почту?",()=>sb.auth.signOut()),
+ out:()=>ask("Вы уверены что хотите выйти?",()=>sb.auth.signOut()),
+ open(id){const g=G.find(x=>x.id==id),l=mv(id)==1,d=mv(id)==-1;
+  ov("m",`<h2>${e(g.title)}</h2><button class="big" data-a="play" data-v="${id}">▶ Играть</button><div class="row"><button class="${l?"on":""}" data-a="vote" data-v="${id}|1">👍 Лайк ${lk(id)}</button><button class="${d?"on":""}" data-a="vote" data-v="${id}|-1">👎 Дизлайк ${dk(id)}</button></div>${isAdm()?`<div class="row"><button class="g" data-a="adel" data-v="${id}">🗑 Удалить</button><button class="g" data-a="ahide" data-v="${id}">🙈 Скрыть</button><button class="g" data-a="aban" data-v="${id}">⛔ Бан автора</button></div>`:""}<button class="g" style="width:100%" data-a="close">Закрыть</button>`)},
+ async vote(v){const[id,x]=v.split("|"),n=mv(id)==+x?0:+x;
+  if(n==0)await db(sb.from("votes").delete().eq("game_id",id).eq("user_id",me.id));else await db(sb.from("votes").upsert({game_id:id,user_id:me.id,v:n}));
+  await load();A.open(id)},
+ async play(id){const r=await db(sb.from("games").select("code").eq("id",id).single());ov("m","");const f=document.createElement("div");f.className="play";f.innerHTML='<button data-a="stop">✕</button>';
+  const i=document.createElement("iframe");i.sandbox="allow-scripts allow-pointer-lock allow-forms allow-modals";i.allow="fullscreen; autoplay; gamepad";i.allowFullscreen=true;i.srcdoc=r.code;f.append(i);document.body.append(f)},
+ stop:()=>$(".play").remove(),
+ up:()=>form(),edit:id=>form(id),
+ clr:()=>{$("#c0").value="";$("#f").value=""},
+ xit:()=>ask("Вы уверены что хотите выйти? Все изменения не сохраняются",()=>ov("m","")),
+ async save(){const r=check();if(!r)return;await db(sb.from("games").insert({owner:me.id,owner_name:me.nick,title:r.t,code:r.c}));done()},
+ upd(id){const r=check();if(!r)return;ask("Вы уверены что хотите обновить?",async()=>{await db(sb.from("games").update({title:r.t,code:r.c,owner_name:me.nick}).eq("id",id));done()})},
+ dgame:id=>ask("Вы уверены что хотите удалить игру?",async()=>{await db(sb.from("games").delete().eq("id",id));done()}),
+ adel:id=>ask("Удалить игру навсегда?",async()=>{await db(sb.from("games").delete().eq("id",id));done()}),
+ ahide:id=>askTime("На сколько скрыть игру?",async ms=>{await db(sb.from("games").update({hidden_until:ms?iso(ms):null}).eq("id",id));done()}),
+ aban:id=>{const g=G.find(x=>x.id==id);askTime("На сколько забанить "+e(g.ownerName)+"? (нельзя загружать игры)",async ms=>{
+  if(ms)await db(sb.from("bans").upsert({user_id:g.owner,until:iso(ms),name:g.ownerName}));else await db(sb.from("bans").delete().eq("user_id",g.owner));done()})},
+ yes:()=>{const v=$("#tt")?.value;ov("c","");Y&&Y(v)},no:()=>ov("c","")
+};
+document.addEventListener("click",ev=>{const el=ev.target.closest("[data-a]");if(el)A[el.dataset.a]?.(el.dataset.v)});
+document.addEventListener("input",ev=>{if(ev.target.id=="q"){q=ev.target.value;$("#feed").innerHTML=feed()}});
+document.addEventListener("change",ev=>{if(ev.target.id!="f")return;const f=ev.target.files[0];if(!f)return;
+ if(!/\.html?$/i.test(f.name)){$("#er").textContent="Нужно в .html";ev.target.value="";return}
+ $("#er").textContent="";if(!$("#t").value)$("#t").value=f.name.replace(/\.html?$/i,"");f.text().then(t=>$("#c0").value=t)});
+
+async function boot(s){
+ if(!s){me=null;sessionStorage.removeItem("adm");login();return}
+ const u=s.user,{data:p}=await sb.from("profiles").select("*").eq("id",u.id).maybeSingle();
+ me={id:u.id,email:u.email};
+ if(!p){nickV();return}
+ Object.assign(me,{nick:p.nick,icon:p.icon,created:Date.parse(p.created)});go();
+}
+app.innerHTML='<div class="c"><p>Загрузка…</p></div>';
+sb.auth.onAuthStateChange((ev,s)=>{
+ if(ev!="INITIAL_SESSION"&&ev!="SIGNED_IN"&&ev!="SIGNED_OUT")return;
+ if(s&&me&&me.id==s.user.id)return; // повторные события не сбрасывают экран
+ setTimeout(()=>boot(s),0)});
+setInterval(async()=>{if(me&&me.nick&&cur==home&&!$("#m").innerHTML&&!$("#c").innerHTML&&!document.hidden){await load().catch(()=>{});if(cur==home&&$("#feed"))$("#feed").innerHTML=feed()}},20000);
+</script></body></html>
