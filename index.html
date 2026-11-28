@@ -46,7 +46,7 @@ if(FIREBASE_CONFIG.apiKey){
  const[A,AU,S]=await Promise.all([import(V+"firebase-app.js"),import(V+"firebase-auth.js"),import(V+"firebase-firestore.js")]);
  const ap=A.initializeApp(FIREBASE_CONFIG),au=AU.getAuth(ap),fs=S.getFirestore(ap);
  B={onAuth:f=>AU.onAuthStateChanged(au,u=>f(u&&{uid:u.uid,email:u.email})),
-  login:()=>{const p=new AU.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});return AU.signInWithPopup(au,p).catch(()=>AU.signInWithRedirect(au,p))},
+  login: async () => { const p = new AU.GoogleAuthProvider(); p.setCustomParameters({prompt: "select_account"}); try { await AU.signInWithPopup(au, p); } catch (e) { alert("ОШИБКА ВХОДА: " + e.message); console.error(e); } },
   logout:()=>AU.signOut(au),
   getUser:async id=>{const s=await S.getDoc(S.doc(fs,"users",id));return s.exists()?s.data():null},
   getBan:async id=>{const s=await S.getDoc(S.doc(fs,"bans",id));return s.exists()?s.data():null},setBan:(id,d)=>S.setDoc(S.doc(fs,"bans",id),d),delGame:id=>S.deleteDoc(S.doc(fs,"games",id)),
